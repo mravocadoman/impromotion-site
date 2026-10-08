@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@700&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #0b0a1f; }
+  .card {
+    position: relative;
+    width: 1200px; height: 630px;
+    background:
+      linear-gradient(90deg, rgba(11,10,31,.92) 0%, rgba(11,10,31,.6) 42%, rgba(11,10,31,0) 62%),
+      url("bg.png") 62% 58% / 1300px auto no-repeat;
+    font-family: "Bricolage Grotesque", sans-serif;
+    color: #f4efe2;
+  }
+  .logo { position: absolute; left: 64px; top: 46px; height: 74px; }
+  h1 {
+    position: absolute; left: 60px; top: 150px; margin: 0;
+    font-size: 92px; line-height: .86; font-weight: 800;
+    font-variation-settings: "wdth" 76; letter-spacing: -.02em; text-transform: uppercase;
+    text-shadow: 0 6px 30px rgba(0,0,0,.6);
+  }
+  h1 span { display: block; }
+  h1 .hl { color: #fdcb08; }
+  .sub { position: absolute; left: 64px; top: 456px; font-size: 26px; font-weight: 600; color: #e2ddd0; letter-spacing: .01em; }
+  .sub i { font-style: normal; color: #ff4f8b; padding: 0 .35em; }
+  .url {
+    position: absolute; left: 64px; bottom: 50px;
+    padding: 12px 26px; border-radius: 99px; background: #fdcb08; color: #0b0a1f;
+    font-size: 26px; font-weight: 800; letter-spacing: .01em;
+    box-shadow: 6px 6px 0 #ff4f8b;
+  }
+  .sticker {
+    position: absolute; right: 70px; top: 60px; width: 150px; height: 150px; border-radius: 50%;
+    display: grid; place-items: center; text-align: center;
+    background: #ff4f8b; color: #0b0a1f; transform: rotate(10deg);
+    font-weight: 800; font-size: 22px; line-height: 1.02; text-transform: uppercase;
+    box-shadow: 0 12px 30px rgba(0,0,0,.45);
+  }
+  .note { position: absolute; left: 370px; bottom: 58px; font-family: "Caveat", cursive; font-size: 34px; color: #3ee0ff; transform: rotate(-3deg); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="logo" src="../../assets/img/logo-white.webp" alt="">
+    <h1><span>Improvizācija</span><span>un izklaide</span><span class="hl">jūsu pasākumā!</span></h1>
+    <p class="sub">Vadītāji<i>✺</i>Animatori<i>✺</i>Slēptās lomas<i>✺</i>Izrādes</p>
+    <div class="url">impromotion.lv</div>
+    <div class="note">bez scenārija, ar smiekliem →</div>
+    <div class="sticker">10+ gadu<br>pieredze</div>
+  </div>
+</body>
+</html>
