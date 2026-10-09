@@ -1,0 +1,38 @@
+name: Deploy to SiteGround
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Bust browser caches for CSS/JS on every deploy.
+      - name: Stamp asset versions
+        run: sed -i -E "s#(styles\.css|main\.js)(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g" index.html
+
+      - name: Load deploy key
+        env:
+          SG_SSH_KEY: ${{ secrets.SG_SSH_KEY }}
+          SG_HOST: ${{ secrets.SG_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SG_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 18765 "$SG_HOST" >> ~/.ssh/known_hosts
+
+      # Only the site's own files. No --delete: the old WordPress install still lives in public_html.
+      - name: Upload
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+        run: |
+          rsync -rvz --checksum -e "ssh -p 18765 -i ~/.ssh/deploy_key" \
+            index.html styles.css main.js favicon.ico assets \
+            "$SG_USER@$SG_HOST:www/impromotion.lv/public_html/"

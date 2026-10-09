@@ -323,8 +323,10 @@
     });
   }
 
-  /* ---------- Event brief → WhatsApp / e-mail ---------- */
+  /* ---------- Event brief → n8n (saves the lead, e-mails Rihards, pings WhatsApp) ---------- */
+  const LEAD_URL = 'https://marketingaskola.app.n8n.cloud/webhook/impromotion-lead?k=imp-lv-2026';
   const form = document.getElementById('brief');
+  const status = document.getElementById('brief-status');
   const guests = document.getElementById('guests');
   const guestsOut = document.getElementById('guests-out');
   const guestsMood = document.getElementById('guests-mood');
@@ -337,26 +339,50 @@
   guests.addEventListener('input', updateGuests);
   updateGuests();
 
-  form.addEventListener('submit', (e) => {
+  const say = (text, tone) => {
+    status.textContent = text;
+    status.dataset.tone = tone || '';
+  };
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    const wants = data.getAll('want');
-    const lines = [
-      'Sveiki, Impromotion! 👋',
-      '',
-      `Pasākuma veids: ${data.get('type')}`,
-      wants.length ? `Interesē: ${wants.join(', ')}` : null,
-      data.get('date') ? `Datums: ${new Date(data.get('date')).toLocaleDateString('lv-LV')}` : null,
-      `Viesu skaits: ~${guestsOut.textContent}`,
-      data.get('name') ? `Vārds: ${data.get('name')}` : null,
-      data.get('msg') ? `\n${data.get('msg')}` : null,
-    ].filter((l) => l !== null);
-    const text = lines.join('\n');
-    if (e.submitter?.dataset.via === 'mail') {
-      const subject = `Pasākuma pieteikums — ${data.get('type')}`;
-      location.href = `mailto:rihards.zeila@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-    } else {
-      window.open(`https://wa.me/37126673384?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    const phone = String(data.get('phone') || '').trim();
+    const email = String(data.get('email') || '').trim();
+    if (!form.reportValidity()) return;
+    if (!phone && !email) {
+      say('Norādi tālruni vai e-pastu, lai varam ar tevi sazināties.', 'error');
+      form.querySelector('[name="phone"]').focus();
+      return;
+    }
+    const payload = {
+      name: data.get('name'),
+      phone,
+      email,
+      type: data.get('type'),
+      wants: data.getAll('want'),
+      date: data.get('date') ? new Date(data.get('date')).toLocaleDateString('lv-LV') : '',
+      guests: guestsOut.textContent,
+      message: data.get('msg'),
+      page: location.href,
+      website: data.get('website'),
+    };
+    const btn = form.querySelector('[type="submit"]');
+    btn.disabled = true;
+    say('Sūtām…');
+    try {
+      // text/plain keeps this a "simple" request: no CORS preflight.
+      const res = await fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error(res.status);
+      form.reset();
+      updateGuests();
+      say('Paldies! Pieteikums ir saņemts — drīz sazināsimies. 🎉', 'ok');
+      const r = btn.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top);
+    } catch (err) {
+      say('Neizdevās nosūtīt. Lūdzu, raksti mums WhatsApp vai uz rihards.zeila@gmail.com.', 'error');
+    } finally {
+      btn.disabled = false;
     }
   });
 })();

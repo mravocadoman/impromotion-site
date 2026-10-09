@@ -20,14 +20,16 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://impromotion.lv/assets/img/og.jpg">
 
-  <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="icon" href="favicon.ico?v=2" sizes="any">
+  <link rel="icon" href="assets/img/favicon-32.png?v=2" type="image/png" sizes="32x32">
+  <link rel="icon" href="assets/img/icon-192.png?v=2" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png?v=2">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/stage.webp">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261009b">
 
   <script type="application/ld+json">
   {
@@ -56,7 +58,7 @@
     </button>
     <nav class="nav__links" id="nav-links">
       <a href="#pakalpojumi">Pakalpojumi</a>
-      <a href="#masina">Izmēģini</a>
+      <a href="/blogs/">Blogs</a>
       <a href="#lomas">Slēptās lomas</a>
       <a href="#aktieri">Aktieri</a>
       <a href="#atsauksmes">Atsauksmes</a>
@@ -534,13 +536,18 @@
             <label class="field"><span>Datums</span><input type="date" name="date"></label>
             <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">— kārtīga balle</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
           </div>
-          <label class="field"><span>Tavs vārds</span><input type="text" name="name" autocomplete="name" placeholder="Piemēram, Anna"></label>
-          <label class="field"><span>Pastāsti vairāk</span><textarea name="msg" rows="3" placeholder="Vieta, tēma, auditorija, trakākās idejas…"></textarea></label>
-          <div class="brief__actions">
-            <button class="btn btn--yellow btn--lg" type="submit" data-via="wa">Sūtīt WhatsApp <span aria-hidden="true">💬</span></button>
-            <button class="btn btn--ghost btn--lg" type="submit" data-via="mail">Sūtīt e-pastu</button>
+          <label class="field"><span>Tavs vārds</span><input type="text" name="name" autocomplete="name" placeholder="Piemēram, Anna" required maxlength="100"></label>
+          <div class="brief__row brief__row--even">
+            <label class="field"><span>Tālrunis</span><input type="tel" name="phone" autocomplete="tel" placeholder="+371 …" maxlength="40"></label>
+            <label class="field"><span>E-pasts</span><input type="email" name="email" autocomplete="email" placeholder="anna@uznemums.lv" maxlength="254"></label>
           </div>
-          <p class="brief__note">Poga atvērs WhatsApp vai e-pastu ar jau sagatavotu ziņu — tev atliks to tikai nosūtīt.</p>
+          <label class="field"><span>Pastāsti vairāk</span><textarea name="msg" rows="3" placeholder="Vieta, tēma, auditorija, trakākās idejas…" maxlength="3000"></textarea></label>
+          <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          <div class="brief__actions">
+            <button class="btn btn--yellow btn--lg" type="submit">Nosūtīt pieteikumu <span aria-hidden="true">🎭</span></button>
+            <a class="btn btn--ghost btn--lg" href="https://wa.me/37126673384" target="_blank" rel="noopener">Rakstīt WhatsApp <span aria-hidden="true">💬</span></a>
+          </div>
+          <p class="brief__note" id="brief-status" role="status" aria-live="polite">Atbildēsim pēc iespējas ātrāk. Norādi tālruni vai e-pastu — vismaz vienu.</p>
         </form>
       </div>
     </section>
@@ -550,6 +557,7 @@
     <div class="wrap footer__wrap">
       <img src="assets/img/logo-white.webp" alt="Impromotion" width="500" height="250" loading="lazy">
       <p>© <span id="year">2026</span> Impromotion. Visas tiesības improvizētas.</p>
+      <a href="/blogs/" class="footer__top">Blogs</a>
       <a href="#top" class="footer__top">Atpakaļ uz skatuves ↑</a>
     </div>
   </footer>
@@ -567,6 +575,6 @@
   </dialog>
 
   <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
-  <script src="main.js" defer></script>
+  <script src="main.js?v=20261009" defer></script>
 </body>
 </html>
