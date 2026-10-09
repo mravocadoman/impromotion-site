@@ -18,6 +18,20 @@ python3 -m http.server 4173
 
 ## Deploy
 
-Upload `index.html`, `styles.css`, `main.js` and `assets/` to any static host (Cloudflare Pages, Netlify, Vercel, or plain hosting), then point the impromotion.lv DNS at it.
+Push to `main` and GitHub Actions deploys it (`.github/workflows/deploy.yml`):
 
-The contact form has no backend. It opens WhatsApp (+371 26673384) or a mailto to rihards.zeila@gmail.com with the message already written.
+1. It stamps `?v=<commit>` on the CSS/JS links in every HTML page. SiteGround tells browsers to cache those files for a year.
+2. It rsyncs the site's own files over SSH (port 18765) into `www/impromotion.lv/public_html/`. There is no `--delete`, because the old WordPress files still live there.
+3. It flushes SiteGround's dynamic cache with `site-tools-client domain-all update id=1 flush_cache=1`.
+
+The repo secrets are `SG_SSH_KEY`, `SG_HOST` and `SG_USER`. The deploy key lives at `~/.ssh/impromotion_siteground` on Rihards' Mac and is imported as "Github" in Site Tools → Devs → SSH Keys Manager.
+
+New top-level files or folders have to be added to the rsync list in the workflow.
+
+## Lead form
+
+The brief form posts to the n8n workflow "Impromotion — mājaslapas pieteikumi" (`/webhook/impromotion-lead`). That workflow saves the lead to the n8n table "Impromotion pieteikumi", e-mails rihards.zeila@gmail.com and pings WhatsApp through CallMeBot.
+
+## Blog
+
+The posts live in `blogs/<slug>/index.html`, built from `blogs/_template.html` (the template is never deployed). After adding a post, add its card to `blogs/index.html` and its URL to `sitemap.xml`.
