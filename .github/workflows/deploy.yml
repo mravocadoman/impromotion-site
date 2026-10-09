@@ -1,9 +1,8 @@
 name: Deploy to SiteGround
 
-# Manual only until the SiteGround SSH key and secrets exist; then add:
-#   push:
-#     branches: [main]
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency: deploy
@@ -14,9 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Bust browser caches for CSS/JS on every deploy.
+      # SiteGround tells browsers to keep CSS/JS for a year, so every deploy gets a fresh ?v=.
       - name: Stamp asset versions
-        run: sed -i -E "s#(styles\.css|main\.js)(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g" index.html
+        run: |
+          find . -name '*.html' -not -path './_source/*' -print0 | xargs -0 \
+            sed -i -E "s#(styles\.css|main\.js|blog\.js)(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g"
 
       - name: Load deploy key
         env:
@@ -34,6 +35,13 @@ jobs:
           SG_HOST: ${{ secrets.SG_HOST }}
           SG_USER: ${{ secrets.SG_USER }}
         run: |
-          rsync -rvz --checksum -e "ssh -p 18765 -i ~/.ssh/deploy_key" \
-            index.html styles.css main.js favicon.ico assets \
+          rsync -rvz --checksum --exclude '_template.html' -e "ssh -p 18765 -i $HOME/.ssh/deploy_key -o BatchMode=yes" \
+            index.html styles.css main.js favicon.ico robots.txt sitemap.xml assets blogs \
             "$SG_USER@$SG_HOST:www/impromotion.lv/public_html/"
+
+      # The same flush the Site Tools "Flush Cache" button does.
+      - name: Flush SiteGround cache
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+        run: ssh -p 18765 -i "$HOME/.ssh/deploy_key" -o BatchMode=yes "$SG_USER@$SG_HOST" 'site-tools-client domain-all update id=1 flush_cache=1'
