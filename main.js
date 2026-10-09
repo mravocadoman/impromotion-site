@@ -159,7 +159,7 @@
   const reelData = {
     who: ['Nervozs viesmīlis', 'Gaišreģis ar sliktām ziņām', 'Jūsu finanšu direktors', 'Apmaldījies tūrists', 'Pārāk entuziastisks treneris', 'Aizdomīgs garderobists', 'Kāzu fotogrāfs bez kameras', 'Vecmāmiņa no Latgales', 'Robots-praktikants', 'Runājošs kaķis', 'Jaunais HR vadītājs', 'Pensionēts pirāts'],
     where: ['liftā starp 3. un 4. stāvu', 'IKEA labirintā', 'Jūrmalas pludmalē', 'kosmosa kuģī', 'pirtī', 'rīta sapulcē Zoom', 'veikala rindā', 'pie Jāņu ugunskura', 'uz kāzu deju grīdas', 'uz Vecrīgas bruģa', 'lidostā pēc atcelta reisa', 'biroja virtuvē'],
-    what: ['mēģina pārdot ledusskapi pingvīnam', 'atklāj, ka visi ir radinieki', 'pirmo reizi dzird par Excel', 'plāno slepenu dzimšanas dienu', 'pārvērš ceturkšņa atskaiti operā', 'pareģo pasaules galu — rīt 9:00', 'mācās dejot tango', 'meklē pazudušu zeķi', 'pieprasa algu kartupeļos', 'nejauši vada svešas kāzas', 'trenē viesus olimpiskajām spēlēm', 'atzīstas mīlestībā kafijas automātam'],
+    what: ['mēģina pārdot ledusskapi pingvīnam', 'atklāj, ka visi ir radinieki', 'pirmo reizi dzird par Excel', 'plāno slepenu dzimšanas dienu', 'pārvērš ceturkšņa atskaiti operā', 'pareģo pasaules galu rīt 9:00', 'mācās dejot tango', 'meklē pazudušu zeķi', 'pieprasa algu kartupeļos', 'nejauši vada svešas kāzas', 'trenē viesus olimpiskajām spēlēm', 'atzīstas mīlestībā kafijas automātam'],
   };
   const strips = [...document.querySelectorAll('[data-reel]')];
   const current = {};
@@ -233,7 +233,7 @@
       counter.classList.add('bump');
       if (unmasked.size === flips.length && !celebrated) {
         celebrated = true;
-        counter.parentElement.innerHTML = '<strong>4</strong>/4 — tu esi dzimis detektīvs! 🕵️';
+        counter.parentElement.innerHTML = '<strong>4</strong>/4. Jūs esat dzimis detektīvs! 🕵️';
         const r = card.getBoundingClientRect();
         confetti(r.left + r.width / 2, r.top + r.height / 2);
       }
@@ -334,7 +334,7 @@
   const updateGuests = () => {
     const n = Number(guests.value);
     guestsOut.textContent = n >= 400 ? '400+' : n;
-    guestsMood.textContent = `— ${moods.find(([max]) => n <= max)[1]}`;
+    guestsMood.textContent = `(${moods.find(([max]) => n <= max)[1]})`;
   };
   guests.addEventListener('input', updateGuests);
   updateGuests();
@@ -351,7 +351,7 @@
     const email = String(data.get('email') || '').trim();
     if (!form.reportValidity()) return;
     if (!phone && !email) {
-      say('Norādi tālruni vai e-pastu, lai varam ar tevi sazināties.', 'error');
+      say('Norādiet tālruni vai e-pastu, lai varam ar jums sazināties.', 'error');
       form.querySelector('[name="phone"]').focus();
       return;
     }
@@ -376,11 +376,11 @@
       if (!res.ok) throw new Error(res.status);
       form.reset();
       updateGuests();
-      say('Paldies! Pieteikums ir saņemts — drīz sazināsimies. 🎉', 'ok');
+      say('Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉', 'ok');
       const r = btn.getBoundingClientRect();
       confetti(r.left + r.width / 2, r.top);
     } catch (err) {
-      say('Neizdevās nosūtīt. Lūdzu, raksti mums WhatsApp vai uz rihards.zeila@gmail.com.', 'error');
+      say('Neizdevās nosūtīt. Lūdzu, rakstiet mums WhatsApp vai uz rihards.zeila@gmail.com.', 'error');
     } finally {
       btn.disabled = false;
     }
