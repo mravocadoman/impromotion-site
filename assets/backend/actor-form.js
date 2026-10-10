@@ -44,6 +44,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
         <div class="grid2">
           <label class="field"><span>Tālrunis</span><input type="tel" name="phone" value="${esc(a.phone)}" maxlength="40"></label>
           <label class="field"><span>Minimālais honorārs (EUR par pasākumu)</span><input type="number" name="min_fee_eur" value="${esc(a.min_fee_eur)}" min="0" step="10" placeholder="Piemēram, 100"></label>
+          <label class="field"><span>Cik gadus improvizējat?</span><input type="number" name="experience_years" value="${esc(a.experience_years)}" min="0" max="60"></label>
         </div>
       </fieldset>
 
@@ -58,6 +59,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
           <label class="field"><span>Statuss</span><select name="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${a.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
           <label class="field"><span>Kolektīvs</span><select name="troupe_id"><option value="">—</option>${troupes.map((t) => `<option value="${t.id}" ${a.troupe_id === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
           <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(a.slug)}" pattern="[a-z0-9\-]+" maxlength="60"></label>
+          <label class="field"><span>Līmenis (klientu filtram)</span><select name="level">${[['', '—'], ['jauns', 'Jauns talants'], ['pieredzējis', 'Pieredzējis'], ['top', 'Top profesionālis']].map(([k, v]) => `<option value="${k}" ${(a.level || '') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
           <label class="field"><span>Secība (mazāks = augstāk)</span><input type="number" name="sort_order" value="${esc(a.sort_order ?? 100)}"></label>
         </div>
         <label class="field"><span>Piezīmes (aktieris neredz)</span><textarea name="admin_notes" rows="3">${esc(adminNotes)}</textarea></label>
@@ -118,6 +120,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       socials: Object.fromEntries(SOCIALS.map((s) => [s, fd.get(`social_${s}`).trim()]).filter(([, v]) => v)),
       phone: fd.get('phone').trim() || null,
       min_fee_eur: fd.get('min_fee_eur') ? Number(fd.get('min_fee_eur')) : null,
+      experience_years: fd.get('experience_years') ? Number(fd.get('experience_years')) : null,
       show_on_site: fd.has('show_on_site'),
       allow_ads: fd.has('allow_ads'),
     };
@@ -127,6 +130,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       row.troupe_id = fd.get('troupe_id') || null;
       row.slug = fd.get('slug').trim() || null;
       row.sort_order = Number(fd.get('sort_order') || 100);
+      row.level = fd.get('level') || null;
     }
     return row;
   };

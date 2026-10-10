@@ -356,6 +356,7 @@
   let availSeq = 0;
   const refreshAvailability = async () => {
     const seq = ++availSeq;
+    refreshSuggest(); // defined below; only ever called after setup
     avail = {};
     renderPicks();
     const day = dateInput.value;
@@ -394,6 +395,70 @@
   // No need for the bar while the form itself is on screen.
   new IntersectionObserver(([entry]) => { barSuppressed = entry.isIntersecting; renderPicks(); }, { threshold: 0.15 })
     .observe(document.getElementById('kontakti'));
+
+  // "Jums varētu derēt": suggestions that follow the form (type, wants, date, people, budget, level).
+  // public_match only says yes/no about budget and availability, never an actor's price.
+  const TYPE_FORMAT = { 'Korporatīvais pasākums': 'Korporatīvie pasākumi', 'Kāzas': 'Kāzas', 'Dzimšanas diena': 'Dzimšanas dienas', 'Improvizācijas izrāde': 'Izrādes', 'Apmācības': 'Apmācības' };
+  const WANT_SKILLS = {
+    'pasākuma vadītājs': ['Pasākumu vadīšana'], 'animatori': ['Animatora darbs'], 'slēptās lomas': ['Slēptās lomas'],
+    'improvizācijas izrāde': ['Improvizācijas izrādes'], 'komandas treniņš': ['Komandas treniņi', 'Apmācības'], 'spēles un viktorīnas': ['Viktorīnas', 'Sporta spēles'],
+  };
+  const LEVELS = { jauns: 'Jauns talants', 'pieredzējis': 'Pieredzējis', top: 'Top profesionālis' };
+  const briefForm = document.getElementById('brief');
+  const suggestBox = document.getElementById('suggest');
+  const peopleNum = () => ({ '': Math.max(picks.filter((p) => p.kind === 'actor').length, 1), '4–6': 5, '7+': 7 })[peopleInput.value] ?? Number(peopleInput.value);
+  let suggestSeq = 0;
+  let suggestTimer;
+  const runSuggest = async () => {
+    const seq = ++suggestSeq;
+    const fd = new FormData(briefForm);
+    const skills = [...new Set(fd.getAll('want').flatMap((w) => WANT_SKILLS[w] || []))];
+    const fmt = TYPE_FORMAT[fd.get('type')];
+    const level = fd.get('level') || '';
+    const budget = fd.get('budget') && fd.get('budget') !== '2001' ? Number(fd.get('budget')) : null;
+    try {
+      const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('/assets/backend/config.js');
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_match`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_day: dateInput.value || null, p_budget: budget, p_people: peopleNum(), p_level: level || null, p_skills: skills, p_formats: fmt ? [fmt] : [] }),
+      });
+      const rows = res.ok ? await res.json() : [];
+      if (seq !== suggestSeq || !Array.isArray(rows)) return;
+      const wantShow = skills.includes('Improvizācijas izrādes') || fmt === 'Izrādes';
+      let busy = 0;
+      let over = 0;
+      const top = rows.filter((r) => {
+        if ((r.kind === 'actor' && r.available === false) || (r.kind === 'troupe' && r.free_members === 0)) { busy += 1; return false; }
+        if (r.fits_budget === false) { over += 1; return false; }
+        return true;
+      }).map((r) => ({
+        ...r,
+        score: r.skills_hit * 3 + r.formats_hit * 2 + (level && r.level === level ? 3 : level && r.level ? -2 : 0) + (r.kind === 'troupe' ? (wantShow ? 3 : -1) : 0),
+      })).sort((x, y) => y.score - x.score || x.name.localeCompare(y.name, 'lv')).slice(0, 6);
+      const img = (p) => (p && p.startsWith('/assets/') ? p
+        : p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}` : '/assets/img/apple-touch-icon.png');
+      suggestBox.querySelector('.suggest__list').innerHTML = top.map((r) => {
+        const on = picked(r.name);
+        const tags = [
+          r.kind === 'troupe' ? 'kolektīvs' : '', LEVELS[r.level] || '',
+          r.kind === 'actor' && r.available ? (fem(r.name) ? 'brīva' : 'brīvs') : '',
+          r.kind === 'troupe' && r.free_members ? `brīvi ${r.free_members} no ${r.members}` : '',
+        ].filter(Boolean);
+        return `<li><img src="${escHtml(img(r.photo_path))}" alt="" width="44" height="44" loading="lazy"><span class="suggest__name">${escHtml(r.name)}${tags.length ? `<small>${escHtml(tags.join(' · '))}</small>` : ''}</span><button type="button" class="btn btn--sm ${on ? 'btn--ghost' : 'btn--yellow'}" data-suggest-kind="${escHtml(r.kind)}" data-suggest-slug="${escHtml(r.slug)}" data-suggest-name="${escHtml(r.name)}">${on ? 'Izvēlēts ✓' : '+ Pievienot'}</button></li>`;
+      }).join('');
+      const notes = [busy && `aizņemti šajā datumā: ${busy}`, over && `pāri budžetam: ${over}`].filter(Boolean);
+      suggestBox.querySelector('.suggest__note').textContent = notes.length ? `Neparādām (${notes.join(', ')}).` : '';
+      suggestBox.hidden = !top.length;
+    } catch (err) { suggestBox.hidden = true; }
+  };
+  const refreshSuggest = () => { clearTimeout(suggestTimer); suggestTimer = setTimeout(runSuggest, 250); };
+  briefForm.addEventListener('change', refreshSuggest);
+  suggestBox.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-suggest-name]');
+    if (b) togglePick({ kind: b.dataset.suggestKind, slug: b.dataset.suggestSlug, name: b.dataset.suggestName });
+  });
+  refreshSuggest();
 
   // Live profiles from the actor backend. The static cards in index.html stay as the fallback.
   const SOCIAL_LABELS = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 'X' };
@@ -550,6 +615,8 @@
       message: data.get('msg'),
       actor: data.get('actor'),
       people: data.get('people'),
+      budget: data.get('budget') ? form.querySelector('[name="budget"]').selectedOptions[0].textContent : '',
+      level: data.get('level') ? form.querySelector('[name="level"]').selectedOptions[0].textContent : '',
       page: location.href,
       website: data.get('website'),
     };

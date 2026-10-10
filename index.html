@@ -432,21 +432,6 @@
       </div>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section class="section quotes" id="atsauksmes">
-      <div class="wrap">
-        <div class="quotes__head reveal">
-          <h2 class="h2">Ko saka klienti</h2>
-        </div>
-        <div class="quotes__grid quotes__grid--single">
-          <figure class="quote reveal" style="--r:-1deg">
-            <blockquote>Komanda ir ļoti profesionāla un elastīga, viņi ir gatavi pielāgoties jebkurai idejai un to ar prieku realizēt! Viņi ne tikai uzklausa klientu vēlmes, bet arī nāk klajā ar savām radošajām idejām.</blockquote>
-            <figcaption><strong>Liene</strong> Magebit</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
     <!-- WHY -->
     <section class="section why">
       <div class="wrap">
@@ -513,12 +498,37 @@
             <label class="field"><span>Datums</span><input type="date" name="date"></label>
             <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">(kārtīga balle)</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
           </div>
-          <label class="field"><span>Cik izpildītāju vajag?</span>
-            <select name="people">
-              <option value="">Iesakiet jūs</option>
-              <option>1</option><option>2</option><option>3</option><option>4–6</option><option>7+</option>
-            </select>
-          </label>
+          <div class="brief__row brief__row--three">
+            <label class="field"><span>Cik izpildītāju vajag?</span>
+              <select name="people">
+                <option value="">Iesakiet jūs</option>
+                <option>1</option><option>2</option><option>3</option><option>4–6</option><option>7+</option>
+              </select>
+            </label>
+            <label class="field"><span>Budžets izpildītājiem</span>
+              <select name="budget">
+                <option value="">Vēl nezinu</option>
+                <option value="300">līdz 300 €</option>
+                <option value="600">300–600 €</option>
+                <option value="1000">600–1000 €</option>
+                <option value="2000">1000–2000 €</option>
+                <option value="2001">vairāk par 2000 €</option>
+              </select>
+            </label>
+            <label class="field"><span>Kāds līmenis vajadzīgs?</span>
+              <select name="level">
+                <option value="">Nav svarīgi</option>
+                <option value="jauns">Jauns talants (izdevīgāk)</option>
+                <option value="pieredzējis">Pieredzējis</option>
+                <option value="top">Top profesionālis</option>
+              </select>
+            </label>
+          </div>
+          <div class="suggest" id="suggest" hidden>
+            <p class="picks__label">Jums varētu derēt</p>
+            <ul class="suggest__list"></ul>
+            <p class="suggest__note small"></p>
+          </div>
           <div class="picks" id="picks" hidden>
             <p class="picks__label">Jūsu izvēle</p>
             <ul class="picks__list"></ul>

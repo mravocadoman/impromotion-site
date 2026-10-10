@@ -1,7 +1,8 @@
 // The troupe profile form, shared by the actor portal (troupe admin edits own troupe) and the admin page.
 import { sb, SOCIALS, photoUrl, isHttps, esc, toast, shrinkImage } from './sb.js';
 
-export function renderTroupeForm(root, troupe, { admin = false, members = [], onSaved } = {}) {
+export function renderTroupeForm(root, troupe, { admin = false, members = [], notes = null, onSaved } = {}) {
+  const n = { sources: [], ...notes };
   const t = { socials: {}, ...troupe };
   root.innerHTML = `
     <form class="actor-form" novalidate>
@@ -40,9 +41,19 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
       <fieldset class="admin-only"><legend>Admins</legend>
         <div class="grid2">
           <label class="field"><span>Kolektīva admins</span><select name="admin_actor_id"><option value="">Nav</option>${members.map((m) => `<option value="${m.id}" ${t.admin_actor_id === m.id ? 'selected' : ''}>${esc(m.full_name)}</option>`).join('')}</select></label>
+          <label class="field"><span>Līmenis (klientu filtram)</span><select name="level">${[['', '—'], ['jauns', 'Jauns talants'], ['pieredzējis', 'Pieredzējis'], ['top', 'Top profesionālis']].map(([k, v]) => `<option value="${k}" ${(t.level || '') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
           <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(t.slug)}" pattern="[a-z0-9\-]+" maxlength="60"></label>
         </div>
         <label class="check"><input type="checkbox" name="show_on_site" ${t.show_on_site ? 'checked' : ''}> Rādīt kolektīvu mājaslapā</label>
+      </fieldset>
+      <fieldset class="admin-only"><legend>Sadarbība (redz tikai admins)</legend>
+        <div class="grid2">
+          <label class="field"><span>Statuss</span><select name="outreach_status">${['nav sazināts', 'uzrakstīts', 'atbildēja', 'sadarbojas', 'atteica'].map((v) => `<option ${(n.outreach_status || 'nav sazināts') === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+          <label class="field"><span>Kontakta e-pasts</span><input type="email" name="contact_email" value="${esc(n.contact_email)}" maxlength="254"></label>
+          <label class="field"><span>Kontakta tālrunis</span><input type="tel" name="contact_phone" value="${esc(n.contact_phone)}" maxlength="40"></label>
+        </div>
+        <label class="field"><span>Piezīmes</span><textarea name="crm_notes" rows="4" maxlength="4000">${esc(n.notes)}</textarea></label>
+        ${n.sources.length ? `<p class="small">Avoti: ${n.sources.filter(isHttps).map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${i + 1}</a>`).join(' · ')}</p>` : ''}
       </fieldset>` : t.approved ? `
       <fieldset><legend>Redzamība</legend>
         <label class="check"><input type="checkbox" name="show_on_site" ${t.show_on_site ? 'checked' : ''}> Rādīt kolektīvu impromotion.lv mājaslapā</label>
@@ -93,6 +104,7 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
       row.slug = fd.get('slug').trim() || t.slug;
       row.show_on_site = fd.has('show_on_site');
       row.needs_review = false;
+      row.level = fd.get('level') || null;
     }
     if (!row.name) return toast('Ierakstiet kolektīva nosaukumu.', 'error');
     const badLink = [row.website, ...Object.values(row.socials)].find((u) => u && !isHttps(u));
@@ -101,6 +113,13 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
     const { error } = await sb.from('troupes').update(row).eq('id', t.id);
     saving = false;
     if (error) return toast(`Neizdevās saglabāt: ${error.message}`, 'error');
+    if (admin) {
+      const { error: nErr } = await sb.from('troupe_admin_notes').upsert({
+        troupe_id: t.id, outreach_status: fd.get('outreach_status'), contact_email: fd.get('contact_email').trim() || null,
+        contact_phone: fd.get('contact_phone').trim() || null, notes: fd.get('crm_notes').trim() || null, updated_at: new Date().toISOString(),
+      });
+      if (nErr) return toast(`Piezīmes nesaglabājās: ${nErr.message}`, 'error');
+    }
     toast('Kolektīva profils saglabāts.');
     onSaved?.();
   });

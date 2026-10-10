@@ -9,13 +9,13 @@ const modal = $('#edit-modal');
 modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], emails: {}, busyOn: new Set(),
-  filters: { status: '', skill: '', format: '', troupe: '', date: '', language: '', region: '', maxFee: '', sort: 'order', group: false },
+let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
+  filters: { status: '', skill: '', format: '', troupe: '', date: '', language: '', region: '', maxFee: '', level: '', sort: 'order', group: false },
   appFilters: { status: 'new', skill: '', maxFee: '' } };
 
 async function loadAll() {
   const today = new Date().toISOString().slice(0, 10);
-  const [actors, troupes, invites, profiles, bookings, links, applications] = await Promise.all([
+  const [actors, troupes, invites, profiles, bookings, links, applications, troupeNotes, settings] = await Promise.all([
     sb.from('actors').select('*').order('sort_order').order('full_name'),
     sb.from('troupes').select('*').order('name'),
     sb.from('invites').select('*').order('invited_at', { ascending: false }),
@@ -23,8 +23,10 @@ async function loadAll() {
     sb.from('bookings').select('*').gte('day', today).neq('status', 'cancelled').order('day'),
     sb.from('invite_links').select('*').order('created_at'),
     sb.from('applications').select('*').order('created_at', { ascending: false }),
+    sb.from('troupe_admin_notes').select('*'),
+    sb.from('app_settings').select('*').maybeSingle(),
   ]);
-  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error || links.error || applications.error;
+  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error || links.error || applications.error || troupeNotes.error || settings.error;
   if (err) { toast(`Neizdevās ielādēt: ${err.message}`, 'error'); return false; }
   state.actors = actors.data;
   state.troupes = troupes.data;
@@ -32,6 +34,8 @@ async function loadAll() {
   state.bookings = bookings.data;
   state.links = links.data;
   state.applications = applications.data;
+  state.troupeNotes = Object.fromEntries(troupeNotes.data.map((n) => [n.troupe_id, n]));
+  if (settings.data) state.settings = settings.data;
   state.emails = Object.fromEntries(profiles.data.map((p) => [p.id, p.email]));
   return true;
 }
@@ -58,6 +62,7 @@ function filtered() {
     (!f.language || a.languages.includes(f.language)) &&
     (!f.region || a.regions.includes(f.region) || a.regions.includes('Visa Latvija')) &&
     (!f.maxFee || (a.min_fee_eur != null && a.min_fee_eur <= Number(f.maxFee))) &&
+    (!f.level || (a.level || 'none') === f.level) &&
     (!f.date || !state.busyOn.has(a.id)));
   const fee = (a) => (a.min_fee_eur == null ? Infinity : a.min_fee_eur);
   const sorters = {
@@ -147,6 +152,7 @@ function draw() {
         <label class="field"><span>Valoda</span><select data-f="language"><option value="">Visas</option>${options(LANGUAGES, state.filters.language)}</select></label>
         <label class="field"><span>Reģions</span><select data-f="region"><option value="">Visi</option>${options(REGIONS.filter((r) => r !== 'Visa Latvija'), state.filters.region)}</select></label>
         <label class="field"><span>Honorārs līdz €</span><input type="number" min="0" step="50" data-f="maxFee" value="${esc(state.filters.maxFee)}" placeholder="jebkurš"></label>
+        <label class="field"><span>Līmenis</span><select data-f="level">${[['', 'Visi'], ['jauns', 'Jauns talants'], ['pieredzējis', 'Pieredzējis'], ['top', 'Top'], ['none', 'Nav norādīts']].map(([k, v]) => `<option value="${k}" ${state.filters.level === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
         <label class="field"><span>Kārtot</span><select data-f="sort">${[['order', 'Secība'], ['feeAsc', 'Honorārs ↑'], ['feeDesc', 'Honorārs ↓'], ['name', 'Vārds']].map(([k, v]) => `<option value="${k}" ${state.filters.sort === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
         <label class="check" style="align-self:end"><input type="checkbox" data-f="group" ${state.filters.group ? 'checked' : ''}> Grupēt pa kolektīviem</label>
       </div>
@@ -204,12 +210,17 @@ function draw() {
         <h2 class="panel__title">Kolektīvi</h2>
         <ul class="plain-list">${state.troupes.map((t) => {
           const admin = state.actors.find((a) => a.id === t.admin_actor_id);
-          return `<li><span><strong>${esc(t.name)}</strong>${t.needs_review ? ' <span class="notice">izmaiņas</span>' : ''}<br><span class="muted small">${((n) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'aktieris' : 'aktieri'}`)(state.actors.filter((a) => a.troupe_id === t.id).length)} · ${admin ? `admins: ${esc(admin.full_name)}` : 'nav admina'} · ${t.show_on_site ? 'mājaslapā' : 'nav mājaslapā'}</span></span><button class="btn btn--ghost btn--sm" data-edit-troupe="${t.id}">Rediģēt</button></li>`;
+          return `<li><span><strong>${esc(t.name)}</strong>${t.needs_review ? ' <span class="notice">izmaiņas</span>' : ''}<br><span class="muted small">${((n) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'aktieris' : 'aktieri'}`)(state.actors.filter((a) => a.troupe_id === t.id).length)} · ${admin ? `admins: ${esc(admin.full_name)}` : 'nav admina'} · ${t.show_on_site ? 'mājaslapā' : 'nav mājaslapā'} · ${esc(state.troupeNotes[t.id]?.outreach_status || 'nav sazināts')}</span></span><button class="btn btn--ghost btn--sm" data-edit-troupe="${t.id}">Rediģēt</button></li>`;
         }).join('')}</ul>
         <form id="troupe-form" class="invite-form">
           <label class="field"><span>Nosaukums</span><input name="name" required maxlength="80"></label>
           <label class="field"><span>Mājaslapa</span><input type="url" name="website" placeholder="https://"></label>
           <button class="btn btn--ghost" type="submit">+ Pievienot kolektīvu</button>
+        </form>
+        <form id="settings-form" class="invite-form">
+          <label class="field"><span>Uzcenojums klienta cenai, % (aktiera minimums + šis)</span><input type="number" name="client_markup_pct" min="0" max="300" value="${esc(state.settings.client_markup_pct)}"></label>
+          <button class="btn btn--ghost" type="submit">Saglabāt</button>
+          <p class="muted small">Ar to pieteikuma formā aprēķinām, vai aktieris iekļaujas klienta budžetā. Klients cenu neredz, tikai ieteikumus.</p>
         </form>
       </section>
     </div>`;
@@ -235,7 +246,7 @@ function openTroupeEditor(id) {
   const members = state.actors.filter((a) => a.troupe_id === id)
     .map((a) => ({ id: a.id, full_name: a.full_name, stage_name: a.stage_name, status: a.status, show_on_site: a.show_on_site, claimed: !!a.user_id }));
   $('#edit-body').innerHTML = '<div id="edit-form"></div>';
-  renderTroupeForm($('#edit-form'), t, { admin: true, members, onSaved: async () => { modal.close(); await loadAll(); draw(); } });
+  renderTroupeForm($('#edit-form'), t, { admin: true, members, notes: state.troupeNotes[id] || null, onSaved: async () => { modal.close(); await loadAll(); draw(); } });
   modal.showModal();
 }
 
@@ -274,7 +285,7 @@ view.addEventListener('click', async (e) => {
       troupeId = t.id;
     }
     const { data: actor, error: aErr } = await sb.from('actors').insert({
-      full_name: p.full_name, stage_name: p.stage_name, phone: p.phone, min_fee_eur: p.min_fee_eur, troupe_id: troupeId,
+      full_name: p.full_name, stage_name: p.stage_name, phone: p.phone, min_fee_eur: p.min_fee_eur, experience_years: p.experience_years, troupe_id: troupeId,
       skills: p.skills, formats: p.formats, languages: p.languages, regions: p.regions, bio: p.about, status: 'draft',
     }).select().single();
     if (aErr) return fail(aErr.message === 'banned' ? 'Šo cilvēku nevar pievienot.' : aErr.message);
@@ -348,7 +359,7 @@ view.addEventListener('click', async (e) => {
 
 view.addEventListener('submit', async (e) => {
   // The login form lives in #view too; leave it to mountLogin.
-  if (!['invite-form', 'troupe-form', 'booking-form'].includes(e.target.id)) return;
+  if (!['invite-form', 'troupe-form', 'booking-form', 'settings-form'].includes(e.target.id)) return;
   e.preventDefault();
   const fd = new FormData(e.target);
   if (e.target.id === 'booking-form') {
@@ -367,6 +378,11 @@ view.addEventListener('submit', async (e) => {
     const { error } = await sb.from('invites').upsert(row);
     if (error) return toast(error.message, 'error');
     toast('Ielūgums saglabāts. Aktieris var ienākt impromotion.lv/aktieriem/.');
+  }
+  if (e.target.id === 'settings-form') {
+    const { error } = await sb.from('app_settings').update({ client_markup_pct: Number(fd.get('client_markup_pct') || 0) }).eq('id', true);
+    if (error) return toast(error.message, 'error');
+    toast('Uzcenojums saglabāts.');
   }
   if (e.target.id === 'troupe-form') {
     const name = fd.get('name').trim();
