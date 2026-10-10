@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aktieriem | Impromotion</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0a1f">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=20261010">
+</head>
+<body class="app-page">
+  <header class="nav nav--solid">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu"><img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250"></a>
+    <nav class="app-nav" id="app-nav" hidden>
+      <a href="/admin/" id="admin-link" hidden>Admins</a>
+      <button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button>
+    </nav>
+  </header>
+
+  <main class="app">
+    <div id="view" class="app__wrap"><p class="muted">Ielādē…</p></div>
+  </main>
+
+  <script type="module">
+    import { sb, $, esc, mountLogin, currentProfile } from '/assets/backend/sb.js?v=20261010';
+    import { renderActorForm } from '/assets/backend/actor-form.js?v=20261010';
+    import { mountCalendar } from '/assets/backend/calendar.js?v=20261010';
+
+    const view = $('#view');
+
+    async function show() {
+      const profile = await currentProfile();
+      if (!profile) { $('#app-nav').hidden = true; mountLogin(view, { redirectPath: '/aktieriem/' }); return; }
+      $('#app-nav').hidden = false;
+      $('#admin-link').hidden = profile.role !== 'admin';
+
+      const { data: actor } = await sb.from('actors').select('*').eq('user_id', profile.id).maybeSingle();
+      if (!actor) {
+        view.innerHTML = profile.role === 'admin'
+          ? `<div class="panel"><h1 class="h2">Sveiks, admin!</h1><p>Aktieru profili, ielūgumi un pieejamība ir <a href="/admin/">admina lapā</a>.</p></div>`
+          : `<div class="panel"><h1 class="h2">Profils vēl nav piesaistīts</h1><p>Jūsu e-pasts (${esc(profile.email)}) nav saistīts ar aktiera profilu. Rakstiet uz rihards.zeila@gmail.com.</p></div>`;
+        return;
+      }
+
+      view.innerHTML = `
+        <div class="app__intro">
+          <p class="eyebrow eyebrow--yellow">Aktiera profils</p>
+          <h1 class="h2">Sveiki, ${esc(actor.stage_name || actor.full_name.split(' ')[0] || 'aktier')}!</h1>
+          <p class="muted">Šeit aizpildiet, ko protat un kad esat aizņemts. Mājaslapā rādām tikai to, kam piekrītat. Tālrunis un honorārs paliek redzami tikai Impromotion.</p>
+        </div>
+        <div class="app__cols">
+          <section class="panel" id="profile"></section>
+          <aside class="panel"><h2 class="panel__title">Aizņemtās dienas</h2><div id="calendar"></div></aside>
+        </div>`;
+      renderActorForm($('#profile'), actor, { onSaved: show });
+      mountCalendar($('#calendar'), actor.id);
+    }
+
+    let booted = false;
+    $('#logout').addEventListener('click', async () => { await sb.auth.signOut(); show(); });
+    // The magic link lands here signed in; avoid rendering twice on the initial SIGNED_IN event.
+    sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && booted && view.querySelector('.login')) show(); });
+    show().then(() => { booted = true; });
+  </script>
+</body>
+</html>

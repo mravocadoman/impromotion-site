@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admins | Impromotion</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0a1f">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=20261010">
+</head>
+<body class="app-page">
+  <header class="nav nav--solid">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu"><img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250"></a>
+    <nav class="app-nav" id="app-nav" hidden>
+      <a href="/aktieriem/">Mans profils</a>
+      <button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button>
+    </nav>
+  </header>
+
+  <main class="app">
+    <div id="view" class="app__wrap app__wrap--wide"><p class="muted">Ielādē…</p></div>
+  </main>
+
+  <dialog class="modal modal--wide" id="edit-modal">
+    <button class="modal__close" type="button" aria-label="Aizvērt">✕</button>
+    <div id="edit-body"></div>
+  </dialog>
+
+  <script type="module" src="/assets/backend/admin.js?v=20261010"></script>
+</body>
+</html>

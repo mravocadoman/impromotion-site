@@ -283,7 +283,7 @@
 
   /* ---------- Actors: tilt + bio modal ---------- */
   const modal = document.getElementById('actor-modal');
-  document.querySelectorAll('.actor').forEach((actor) => {
+  const bindActor = (actor) => {
     const btn = actor.querySelector('.actor__open');
     if (finePointer && !reduceMotion) {
       btn.addEventListener('pointermove', (e) => {
@@ -306,11 +306,83 @@
       modal.querySelector('.modal__nick').textContent = actor.querySelector('.actor__nick').textContent;
       modal.querySelector('.modal__name').textContent = actor.querySelector('.actor__name').textContent;
       modal.querySelector('.modal__body').innerHTML = actor.querySelector('.actor__bio').innerHTML;
+      modal.dataset.actor = actor.querySelector('.actor__name').textContent;
       modal.showModal();
     });
-  });
+  };
+  document.querySelectorAll('.actor').forEach(bindActor);
   modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+
+  // "Pieteikt šo aktieri": carry the chosen actor into the brief form.
+  const chosen = document.getElementById('chosen-actor');
+  const setChosen = (name) => {
+    document.querySelector('#brief [name="actor"]').value = name || '';
+    chosen.hidden = !name;
+    chosen.querySelector('strong').textContent = name || '';
+  };
+  modal.querySelector('[data-book-actor]').addEventListener('click', () => {
+    setChosen(modal.dataset.actor);
+    modal.close();
+    document.getElementById('kontakti').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+  chosen.querySelector('button').addEventListener('click', () => setChosen(''));
+
+  // Live profiles from the actor backend. The static cards in index.html stay as the fallback.
+  const escHtml = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SOCIAL_LABELS = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 'X' };
+  const actorCard = (a, photo) => {
+    const leads = [...a.skills, ...a.formats].filter((v, i, arr) => arr.indexOf(v) === i);
+    const socials = Object.entries(a.socials || {}).map(([k, url]) => `<a href="${escHtml(url)}" target="_blank" rel="noopener">${SOCIAL_LABELS[k] || escHtml(k)}</a>`).join('');
+    const bio = String(a.bio || '').split(/\n\s*\n/).map((p) => `<p>${escHtml(p)}</p>`).join('');
+    const troupe = a.troupe_slug && a.troupe_slug !== 'impromotion' ? `<span class="actor__troupe">${escHtml(a.troupe_name)}</span>` : '';
+    return `<article class="actor" data-quip="${escHtml(a.quip || '')}" data-skills="${escHtml(a.skills.join('|'))}">
+      <button class="actor__open" type="button" aria-haspopup="dialog">
+        <span class="actor__photo"><img src="${escHtml(photo)}" alt="${escHtml(a.full_name)}" width="600" height="600" loading="lazy"></span>
+        ${a.stage_name ? `<span class="actor__nick">“${escHtml(a.stage_name)}”</span>` : ''}
+        <span class="actor__name">${escHtml(a.full_name)}</span>${troupe}
+        <span class="actor__short">${escHtml(a.short_bio || '')}</span>
+        <span class="actor__more">Iepazīties →</span>
+      </button>
+      <div class="actor__bio" hidden>${bio}${leads.length ? `<p class="leads"><strong>Vada:</strong> ${escHtml(leads.join(', ').toLowerCase())}</p>` : ''}${a.languages?.length ? `<p class="small"><strong>Valodas:</strong> ${escHtml(a.languages.join(', '))}</p>` : ''}${socials ? `<p class="socials">${socials}</p>` : ''}</div>
+    </article>`;
+  };
+
+  (async () => {
+    try {
+      const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('/assets/backend/config.js');
+      if (!SUPABASE_URL.startsWith('https://')) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_actors`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!res.ok) return;
+      const actors = await res.json();
+      if (!Array.isArray(actors) || !actors.length) return;
+      const photo = (p) => (!p ? '/assets/img/apple-touch-icon.png' : /^(https?:)?\//.test(p) ? p : `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}`);
+      const grid = document.querySelector('.actors__grid');
+      grid.innerHTML = actors.map((a) => actorCard(a, photo(a.photo_path))).join('');
+      grid.querySelectorAll('.actor').forEach(bindActor);
+
+      // Skill filter, only worth it once the team is bigger than one screen.
+      const skills = [...new Set(actors.flatMap((a) => a.skills))].sort((x, y) => x.localeCompare(y, 'lv'));
+      if (actors.length > 6 && skills.length > 1) {
+        const bar = document.createElement('div');
+        bar.className = 'actor-filter';
+        bar.innerHTML = `<button type="button" class="is-on" data-skill="">Visi</button>${skills.map((s) => `<button type="button" data-skill="${escHtml(s)}">${escHtml(s)}</button>`).join('')}`;
+        grid.before(bar);
+        bar.addEventListener('click', (e) => {
+          const b = e.target.closest('button');
+          if (!b) return;
+          bar.querySelectorAll('button').forEach((x) => x.classList.toggle('is-on', x === b));
+          grid.querySelectorAll('.actor').forEach((card) => {
+            card.hidden = !!b.dataset.skill && !card.dataset.skills.split('|').includes(b.dataset.skill);
+          });
+        });
+      }
+    } catch (err) { /* keep the static cards */ }
+  })();
 
   /* ---------- Magnetic CTA ---------- */
   if (finePointer && !reduceMotion) {
@@ -364,6 +436,7 @@
       date: data.get('date') ? new Date(data.get('date')).toLocaleDateString('lv-LV') : '',
       guests: guestsOut.textContent,
       message: data.get('msg'),
+      actor: data.get('actor'),
       page: location.href,
       website: data.get('website'),
     };
@@ -375,6 +448,7 @@
       const res = await fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(res.status);
       form.reset();
+      setChosen('');
       updateGuests();
       say('Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉', 'ok');
       const r = btn.getBoundingClientRect();

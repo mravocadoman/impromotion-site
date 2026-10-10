@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /aktieriem/
 
 Sitemap: https://impromotion.lv/sitemap.xml
