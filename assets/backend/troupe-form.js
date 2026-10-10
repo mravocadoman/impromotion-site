@@ -43,6 +43,10 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
           <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(t.slug)}" pattern="[a-z0-9-]+" maxlength="60"></label>
         </div>
         <label class="check"><input type="checkbox" name="show_on_site" ${t.show_on_site ? 'checked' : ''}> Rādīt kolektīvu mājaslapā</label>
+      </fieldset>` : t.approved ? `
+      <fieldset><legend>Redzamība</legend>
+        <label class="check"><input type="checkbox" name="show_on_site" ${t.show_on_site ? 'checked' : ''}> Rādīt kolektīvu impromotion.lv mājaslapā</label>
+        <p class="muted small">Izmaiņas aprakstā Impromotion apskatīs pēc saglabāšanas.</p>
       </fieldset>` : '<p class="muted small">Pēc saglabāšanas Impromotion izmaiņas apskatīs un ieliks kolektīvu mājaslapā.</p>'}
 
       <div class="actor-form__actions"><button class="btn btn--yellow btn--lg" type="submit">Saglabāt</button></div>
@@ -83,6 +87,7 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
       socials: Object.fromEntries(SOCIALS.map((s) => [s, fd.get(`social_${s}`).trim()]).filter(([, v]) => v)),
     };
     if (newLogoPath) row.logo_path = newLogoPath;
+    if (!admin && t.approved) row.show_on_site = fd.has('show_on_site');
     if (admin) {
       row.admin_actor_id = fd.get('admin_actor_id') || null;
       row.slug = fd.get('slug').trim() || t.slug;
