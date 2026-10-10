@@ -898,3 +898,4 @@ section[id] { scroll-margin-top: 70px; }
 .booking-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; margin-bottom: 18px; }
 .booking-form__wide { grid-column: 1 / -1; }
 @media (max-width: 900px) { .booking-form { grid-template-columns: 1fr; } }
+.admin-table td:nth-child(2) { white-space: nowrap; }
