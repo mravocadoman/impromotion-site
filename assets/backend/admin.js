@@ -8,23 +8,25 @@ const modal = $('#edit-modal');
 modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-let state = { actors: [], troupes: [], invites: [], bookings: [], emails: {}, busyOn: new Set(), filters: { status: '', skill: '', format: '', troupe: '', date: '' } };
+let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], emails: {}, busyOn: new Set(), filters: { status: '', skill: '', format: '', troupe: '', date: '' } };
 
 async function loadAll() {
   const today = new Date().toISOString().slice(0, 10);
-  const [actors, troupes, invites, profiles, bookings] = await Promise.all([
+  const [actors, troupes, invites, profiles, bookings, links] = await Promise.all([
     sb.from('actors').select('*').order('sort_order').order('full_name'),
     sb.from('troupes').select('*').order('name'),
     sb.from('invites').select('*').order('invited_at', { ascending: false }),
     sb.from('profiles').select('id, email'),
     sb.from('bookings').select('*').gte('day', today).neq('status', 'cancelled').order('day'),
+    sb.from('invite_links').select('*').order('created_at'),
   ]);
-  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error;
+  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error || links.error;
   if (err) { toast(`Neizdevās ielādēt: ${err.message}`, 'error'); return false; }
   state.actors = actors.data;
   state.troupes = troupes.data;
   state.invites = invites.data;
   state.bookings = bookings.data;
+  state.links = links.data;
   state.emails = Object.fromEntries(profiles.data.map((p) => [p.id, p.email]));
   return true;
 }
@@ -66,7 +68,7 @@ function draw() {
       <td class="small">${a.skills.map(esc).join(', ')}</td>
       <td class="small">${a.user_id ? esc(state.emails[a.user_id] || '') : '<span class="muted">nav konta</span>'}${a.phone ? `<br>${esc(a.phone)}` : ''}</td>
       <td>${a.min_fee_eur != null ? `${a.min_fee_eur} €` : '<span class="muted">—</span>'}</td>
-      <td class="actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-actor="${a.id}">Uzaicināt</button>`}</td>
+      <td class="actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}</td>
     </tr>`).join('');
 
   view.innerHTML = `
@@ -162,15 +164,21 @@ view.addEventListener('click', async (e) => {
   const edit = e.target.closest('[data-edit]');
   if (edit) return openEditor(edit.dataset.edit);
 
-  const inviteActor = e.target.closest('[data-invite-actor]');
-  if (inviteActor) {
-    const email = prompt('Aktiera e-pasts:');
-    if (!email) return;
-    const a = state.actors.find((x) => x.id === inviteActor.dataset.inviteActor);
-    const { error } = await sb.from('invites').upsert({ email: email.trim().toLowerCase(), role: 'actor', actor_id: a.id, troupe_id: a.troupe_id });
-    if (error) return toast(error.message, 'error');
-    toast(`Ielūgums gatavs. Pasakiet ${a.full_name}, lai ienāk impromotion.lv/aktieriem/ ar ${email}.`);
-    await loadAll(); draw();
+  const linkBtn = e.target.closest('[data-invite-link]');
+  if (linkBtn) {
+    const a = state.actors.find((x) => x.id === linkBtn.dataset.inviteLink);
+    let link = state.links.find((l) => l.actor_id === a.id && !l.claimed_email);
+    if (!link) {
+      const { data, error } = await sb.from('invite_links').insert({ actor_id: a.id, troupe_id: a.troupe_id }).select().single();
+      if (error) return toast(error.message, 'error');
+      link = data;
+      state.links.push(link);
+    }
+    const url = `${location.origin}/aktieriem/?invite=${link.token}`;
+    const first = a.full_name.split(' ')[0];
+    const text = `Čau, ${first}! Impromotion lapā tev ir savs aktiera profils. Ar šo personīgo saiti vari to pārņemt: ${url}\n\nIeraksti savu e-pastu, atnāks saite ienākšanai (bez paroles). Profilā vari papildināt aprakstu un foto, atzīmēt, ko vadi un kurās dienās esi aizņemts, un ierakstīt savu minimālo honorāru. To redzu tikai es, klienti ne.`;
+    try { await navigator.clipboard.writeText(text); toast('Ielūguma teksts ar saiti nokopēts. Iemetiet to WhatsApp.'); }
+    catch { prompt('Nokopējiet ielūguma tekstu:', text); }
     return;
   }
 
@@ -232,7 +240,7 @@ view.addEventListener('submit', async (e) => {
 let shown = false;
 async function show() {
   const profile = await currentProfile();
-  if (!profile) { $('#app-nav').hidden = true; mountLogin(view, { redirectPath: '/admin/' }); return; }
+  if (!profile) { $('#app-nav').hidden = true; await mountLogin(view, { redirectPath: '/admin/' }); return; }
   $('#app-nav').hidden = false;
   if (profile.role !== 'admin') { view.innerHTML = '<div class="panel"><h1 class="h2">Nav piekļuves</h1><p>Šī lapa ir tikai adminam. <a href="/aktieriem/">Uz savu profilu</a></p></div>'; return; }
   shown = true;

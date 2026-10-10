@@ -34,7 +34,7 @@
 
     async function show() {
       const profile = await currentProfile();
-      if (!profile) { $('#app-nav').hidden = true; mountLogin(view, { redirectPath: '/aktieriem/' }); return; }
+      if (!profile) { $('#app-nav').hidden = true; await mountLogin(view, { redirectPath: '/aktieriem/' }); return; }
       $('#app-nav').hidden = false;
       $('#admin-link').hidden = profile.role !== 'admin';
 

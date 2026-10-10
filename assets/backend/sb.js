@@ -34,11 +34,22 @@ export function toast(text, tone = 'ok') {
 }
 
 // Magic-link login. The database refuses to create accounts for addresses that weren't invited.
-export function mountLogin(root, { redirectPath }) {
+export async function mountLogin(root, { redirectPath }) {
+  // A personal invite link (?invite=...) lets the actor claim their profile with any email they choose.
+  const token = new URLSearchParams(location.search).get('invite');
+  let invite = null;
+  if (token) {
+    const { data } = await sb.rpc('invite_info', { p_token: token });
+    invite = data?.[0] || null;
+  }
+  const who = invite ? esc(invite.stage_name ? `${invite.full_name} („${invite.stage_name}”)` : invite.full_name) : '';
   root.innerHTML = `
     <form class="panel login" novalidate>
-      <h1 class="h2">Ienākt</h1>
-      <p class="muted">Ierakstiet e-pastu, uz kuru saņēmāt ielūgumu. Atsūtīsim saiti, ar kuru ienākt bez paroles.</p>
+      <h1 class="h2">${invite ? `Sveiki, ${esc(invite.full_name.split(' ')[0])}!` : 'Ienākt'}</h1>
+      <p class="muted">${invite
+        ? `Šī ir jūsu personīgā saite, lai pārņemtu profilu <strong>${who}</strong> impromotion.lv lapā. Ierakstiet savu e-pastu. Atsūtīsim saiti, ar kuru ienākt bez paroles, un ar šo e-pastu ienāksiet arī turpmāk.`
+        : 'Ierakstiet e-pastu, ar kuru esat uzaicināts. Atsūtīsim saiti, ar kuru ienākt bez paroles.'}</p>
+      ${token && !invite ? '<p class="notice">Šī ielūguma saite nav derīga. Palūdziet Rihardam jaunu.</p>' : ''}
       <label class="field"><span>E-pasts</span><input type="email" name="email" autocomplete="email" required></label>
       <button class="btn btn--yellow btn--lg" type="submit">Sūtīt ienākšanas saiti</button>
       <p class="login__status muted" role="status"></p>
@@ -50,6 +61,10 @@ export function mountLogin(root, { redirectPath }) {
     const email = form.email.value.trim().toLowerCase();
     if (!email) return;
     status.textContent = 'Sūtām…';
+    if (invite) {
+      const { data: claimed, error: claimErr } = await sb.rpc('claim_invite', { p_token: token, p_email: email });
+      if (claimErr || !claimed) { status.textContent = 'Šo ielūgumu jau izmantoja cits e-pasts. Ierakstiet to pašu e-pastu vai palūdziet Rihardam jaunu saiti.'; return; }
+    }
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + redirectPath } });
     if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudiet e-pastu (arī mēstules).'; return; }
     status.textContent = /database error|not invited|signups/i.test(error.message)
