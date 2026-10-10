@@ -2,6 +2,7 @@
 import { sb, $, esc, greet, toast, mountLogin, currentProfile, photoUrl, SKILLS, FORMATS, LANGUAGES, REGIONS, STATUS } from './sb.js';
 import { renderActorForm } from './actor-form.js';
 import { mountCalendar } from './calendar.js';
+import { renderTroupeForm } from './troupe-form.js';
 
 const view = $('#view');
 const modal = $('#edit-modal');
@@ -70,7 +71,7 @@ function filtered() {
 
 function filteredApplications() {
   const f = state.appFilters;
-  return state.applications.filter((p) =>
+  return state.applications.toSorted((x, y) => (y.score ?? -1) - (x.score ?? -1)).filter((p) =>
     (!f.status || p.status === f.status) &&
     (!f.skill || p.skills.includes(f.skill)) &&
     (!f.maxFee || (p.min_fee_eur != null && p.min_fee_eur <= Number(f.maxFee))));
@@ -97,20 +98,21 @@ function draw() {
   let rows;
   if (state.filters.group) {
     const groups = new Map();
-    list.forEach((a) => { const k = troupeName(a.troupe_id) || 'Bez trupas'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(a); });
+    list.forEach((a) => { const k = troupeName(a.troupe_id) || 'Bez kolektīva'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(a); });
     rows = [...groups.entries()].sort(([x], [y]) => x.localeCompare(y, 'lv'))
       .map(([name, members]) => `<tr><td colspan="8" class="troupe-group"><strong>${esc(name)}</strong> <span class="muted small">${members.length}</span></td></tr>${members.map(rowHtml).join('')}`).join('');
   } else rows = list.map(rowHtml).join('');
 
   const apps = filteredApplications();
   const newApps = state.applications.filter((p) => p.status === 'new').length;
-  const troupeOptions = (p) => `<option value="">Bez trupas</option>${state.troupes.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}${p.troupes && !state.troupes.some((t) => t.slug === slugify(p.troupes)) ? `<option value="new:${esc(p.troupes)}">+ Jauna trupa: ${esc(p.troupes)}</option>` : ''}`;
+  const troupeOptions = (p) => `<option value="">Bez kolektīva</option>${state.troupes.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}${p.troupes && !state.troupes.some((t) => t.slug === slugify(p.troupes)) ? `<option value="new:${esc(p.troupes)}">+ Jauns kolektīvs: ${esc(p.troupes)}</option>` : ''}`;
   const appCards = apps.map((p) => `
     <article class="app-card">
       <div class="app-card__head">
         <strong>${esc(p.full_name)}${p.stage_name ? ` <span class="muted">“${esc(p.stage_name)}”</span>` : ''}</strong>
         <span class="muted small">${esc(new Date(p.created_at).toLocaleDateString('lv-LV'))} · ${esc(p.email)}${p.phone ? ` · ${esc(p.phone)}` : ''}</span>
       </div>
+      ${p.score != null ? `<p class="small"><span class="status-badge status-badge--${{ good: 'approved', maybe: 'pending', weak: 'hidden' }[p.verdict] || 'draft'}">${{ good: 'Labs kandidāts', maybe: 'Varbūt', weak: 'Vājš' }[p.verdict] || ''} · ${p.score}/100</span>${p.auto_rejected ? ' <span class="muted">noraidīts automātiski</span>' : ''}<br><span class="muted">${esc(p.score_notes.join('; '))}</span></p>` : ''}
       <div class="app-card__meta">
         ${p.troupes ? `<span>🎭 ${esc(p.troupes)}</span>` : ''}
         ${p.experience_years != null ? `<span>${p.experience_years} g. pieredze</span>` : ''}
@@ -125,13 +127,13 @@ function draw() {
         <select data-app-troupe="${p.id}" class="field">${troupeOptions(p)}</select>
         <button class="btn btn--yellow btn--sm" data-app-accept="${p.id}">Pievienot un uzaicināt</button>
         <button class="btn btn--ghost btn--sm" data-app-reject="${p.id}">Noraidīt</button>
-      </div>` : `<span class="status-badge status-badge--${p.status === 'invited' ? 'approved' : 'hidden'}">${p.status === 'invited' ? 'Uzaicināts' : 'Noraidīts'}</span>`}
+      </div>` : `<div class="row-actions" style="justify-content:flex-start"><span class="status-badge status-badge--${p.status === 'invited' ? 'approved' : 'hidden'}">${p.status === 'invited' ? 'Uzaicināts' : 'Noraidīts'}</span>${p.status === 'rejected' ? `<button class="btn btn--ghost btn--sm" data-app-restore="${p.id}">Atjaunot</button>` : ''}</div>`}
     </article>`).join('');
 
   view.innerHTML = `
     <div class="app__intro">
       <p class="eyebrow eyebrow--yellow">Admins</p>
-      <h1 class="h2">Aktieri un trupas</h1>
+      <h1 class="h2">Aktieri un kolektīvi</h1>
       ${pending ? `<p class="notice">${pending} ${pending === 1 ? 'profils gaida' : 'profili gaida'} jūsu apskati.</p>` : ''}
     </div>
 
@@ -140,17 +142,17 @@ function draw() {
         <label class="field"><span>Statuss</span><select data-f="status"><option value="">Visi</option>${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${state.filters.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
         <label class="field"><span>Prasme</span><select data-f="skill"><option value="">Visas</option>${options(SKILLS, state.filters.skill)}</select></label>
         <label class="field"><span>Pasākums</span><select data-f="format"><option value="">Visi</option>${options(FORMATS, state.filters.format)}</select></label>
-        <label class="field"><span>Trupa</span><select data-f="troupe"><option value="">Visas</option>${state.troupes.map((t) => `<option value="${t.id}" ${state.filters.troupe === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
+        <label class="field"><span>Kolektīvs</span><select data-f="troupe"><option value="">Visas</option>${state.troupes.map((t) => `<option value="${t.id}" ${state.filters.troupe === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
         <label class="field"><span>Brīvs datumā</span><input type="date" data-f="date" value="${state.filters.date}"></label>
         <label class="field"><span>Valoda</span><select data-f="language"><option value="">Visas</option>${options(LANGUAGES, state.filters.language)}</select></label>
         <label class="field"><span>Reģions</span><select data-f="region"><option value="">Visi</option>${options(REGIONS.filter((r) => r !== 'Visa Latvija'), state.filters.region)}</select></label>
         <label class="field"><span>Honorārs līdz €</span><input type="number" min="0" step="50" data-f="maxFee" value="${esc(state.filters.maxFee)}" placeholder="jebkurš"></label>
         <label class="field"><span>Kārtot</span><select data-f="sort">${[['order', 'Secība'], ['feeAsc', 'Honorārs ↑'], ['feeDesc', 'Honorārs ↓'], ['name', 'Vārds']].map(([k, v]) => `<option value="${k}" ${state.filters.sort === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-        <label class="check" style="align-self:end"><input type="checkbox" data-f="group" ${state.filters.group ? 'checked' : ''}> Grupēt pa trupām</label>
+        <label class="check" style="align-self:end"><input type="checkbox" data-f="group" ${state.filters.group ? 'checked' : ''}> Grupēt pa kolektīviem</label>
       </div>
       <div class="table-wrap">
         <table class="admin-table">
-          <thead><tr><th></th><th>Aktieris</th><th>Trupa</th><th>Statuss</th><th>Prasmes</th><th>Kontakti</th><th>Min. honorārs</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Aktieris</th><th>Kolektīvs</th><th>Statuss</th><th>Prasmes</th><th>Kontakti</th><th>Min. honorārs</th><th></th></tr></thead>
           <tbody>${rows || '<tr><td colspan="8" class="muted">Neviens neatbilst filtram.</td></tr>'}</tbody>
         </table>
       </div>
@@ -191,7 +193,7 @@ function draw() {
         <p class="muted small">Pēc ielūguma aktieris ienāk <strong>impromotion.lv/aktieriem/</strong> ar savu e-pastu un pats aizpilda profilu.</p>
         <form id="invite-form" class="invite-form">
           <label class="field"><span>E-pasts</span><input type="email" name="email" required></label>
-          <label class="field"><span>Trupa</span><select name="troupe_id"><option value="">—</option>${state.troupes.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></label>
+          <label class="field"><span>Kolektīvs</span><select name="troupe_id"><option value="">—</option>${state.troupes.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></label>
           <label class="field"><span>Loma</span><select name="role"><option value="actor">Aktieris</option><option value="admin">Admins</option></select></label>
           <button class="btn btn--yellow" type="submit">Uzaicināt</button>
         </form>
@@ -199,12 +201,15 @@ function draw() {
       </section>
 
       <section class="panel">
-        <h2 class="panel__title">Trupas</h2>
-        <ul class="plain-list">${state.troupes.map((t) => `<li><strong>${esc(t.name)}</strong><span class="muted small">${state.actors.filter((a) => a.troupe_id === t.id).length} aktieri</span></li>`).join('')}</ul>
+        <h2 class="panel__title">Kolektīvi</h2>
+        <ul class="plain-list">${state.troupes.map((t) => {
+          const admin = state.actors.find((a) => a.id === t.admin_actor_id);
+          return `<li><span><strong>${esc(t.name)}</strong>${t.needs_review ? ' <span class="notice">izmaiņas</span>' : ''}<br><span class="muted small">${((n) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'aktieris' : 'aktieri'}`)(state.actors.filter((a) => a.troupe_id === t.id).length)} · ${admin ? `admins: ${esc(admin.full_name)}` : 'nav admina'} · ${t.show_on_site ? 'mājaslapā' : 'nav mājaslapā'}</span></span><button class="btn btn--ghost btn--sm" data-edit-troupe="${t.id}">Rediģēt</button></li>`;
+        }).join('')}</ul>
         <form id="troupe-form" class="invite-form">
           <label class="field"><span>Nosaukums</span><input name="name" required maxlength="80"></label>
           <label class="field"><span>Mājaslapa</span><input type="url" name="website" placeholder="https://"></label>
-          <button class="btn btn--ghost" type="submit">+ Pievienot trupu</button>
+          <button class="btn btn--ghost" type="submit">+ Pievienot kolektīvu</button>
         </form>
       </section>
     </div>`;
@@ -225,6 +230,15 @@ async function openEditor(id) {
   modal.showModal();
 }
 
+function openTroupeEditor(id) {
+  const t = state.troupes.find((x) => x.id === id);
+  const members = state.actors.filter((a) => a.troupe_id === id)
+    .map((a) => ({ id: a.id, full_name: a.full_name, stage_name: a.stage_name, status: a.status, show_on_site: a.show_on_site, claimed: !!a.user_id }));
+  $('#edit-body').innerHTML = '<div id="edit-form"></div>';
+  renderTroupeForm($('#edit-form'), t, { admin: true, members, onSaved: async () => { modal.close(); await loadAll(); draw(); } });
+  modal.showModal();
+}
+
 view.addEventListener('change', async (e) => {
   const af = e.target.closest('[data-af]');
   if (af) { state.appFilters[af.dataset.af] = af.value; draw(); return; }
@@ -238,6 +252,8 @@ view.addEventListener('change', async (e) => {
 view.addEventListener('click', async (e) => {
   const edit = e.target.closest('[data-edit]');
   if (edit) return openEditor(edit.dataset.edit);
+  const editTroupe = e.target.closest('[data-edit-troupe]');
+  if (editTroupe) return openTroupeEditor(editTroupe.dataset.editTroupe);
 
   const accept = e.target.closest('[data-app-accept]');
   if (accept) {
@@ -253,7 +269,7 @@ view.addEventListener('click', async (e) => {
     }
     if (troupeId && troupeId.startsWith('new:')) {
       const name = troupeId.slice(4).trim();
-      const { data: t, error: tErr } = await sb.from('troupes').insert({ name, slug: slugify(name) || `trupa-${Date.now()}` }).select().single();
+      const { data: t, error: tErr } = await sb.from('troupes').insert({ name, slug: slugify(name) || `kolektivs-${Date.now()}` }).select().single();
       if (tErr) return fail(tErr.message);
       troupeId = t.id;
     }
@@ -270,6 +286,13 @@ view.addEventListener('click', async (e) => {
     const text = `${greet(p.full_name)} Paldies par pieteikumu Impromotion! 🎭 Esam izveidojuši tev aktiera profilu. Ar šo personīgo saiti vari to pārņemt un aizpildīt (nesūti tālāk): ${url}\n\nAtver saiti, ieraksti savu e-pastu (${p.email}) un atnāks saite ienākšanai, paroli nevajag. Profilā papildini aprakstu, pievieno foto, atzīmē aizņemtās dienas un pārbaudi honorāru. Kad profils gatavs, nospied "Iesniegt apstiprināšanai".`;
     try { await navigator.clipboard.writeText(text); toast(`Profils izveidots. Ielūguma teksts nokopēts: sūtiet to uz ${p.email} vai WhatsApp.`); }
     catch { prompt('Nokopējiet ielūguma tekstu:', text); }
+    await loadAll(); draw();
+    return;
+  }
+  const restore = e.target.closest('[data-app-restore]');
+  if (restore) {
+    const { error: sErr } = await sb.from('applications').update({ status: 'new', auto_rejected: false }).eq('id', restore.dataset.appRestore);
+    if (sErr) return toast(sErr.code === '23505' ? 'Šim e-pastam jau ir atvērts pieteikums.' : sErr.message, 'error');
     await loadAll(); draw();
     return;
   }
@@ -349,7 +372,7 @@ view.addEventListener('submit', async (e) => {
     const name = fd.get('name').trim();
     const { error } = await sb.from('troupes').insert({ name, slug: slugify(name), website: fd.get('website') || null });
     if (error) return toast(error.message, 'error');
-    toast('Trupa pievienota.');
+    toast('Kolektīvs pievienots.');
   }
   await loadAll(); draw();
 });

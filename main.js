@@ -312,8 +312,9 @@
 
   // "Pieteikt šo aktieri": carry the chosen actor into the brief form.
   const chosen = document.getElementById('chosen-actor');
-  const setChosen = (name) => {
+  const setChosen = (name, kind = 'aktieris') => {
     document.querySelector('#brief [name="actor"]').value = name || '';
+    chosen.querySelector('[data-kind]').textContent = kind;
     chosen.hidden = !name;
     chosen.querySelector('strong').textContent = name || '';
   };
@@ -382,6 +383,49 @@
         });
       }
     } catch (err) { /* keep the static cards */ }
+  })();
+
+  // Public collective profiles (improv theatres and groups we work with). Hidden until there is at least one.
+  (async () => {
+    try {
+      const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('/assets/backend/config.js');
+      if (!SUPABASE_URL.startsWith('https://')) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_troupes`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!res.ok) return;
+      const troupes = await res.json();
+      if (!Array.isArray(troupes) || !troupes.length) return;
+      const safe = (u) => /^https:\/\/[^\s<>"]+$/i.test(u || '');
+      const logo = (p) => (p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}` : '/assets/img/apple-touch-icon.png');
+      const box = document.getElementById('kolektivi');
+      box.querySelector('.troupes__grid').innerHTML = troupes.map((t) => {
+        const links = [['Mājaslapa', t.website], ...Object.entries(t.socials || {}).map(([k, u]) => [SOCIAL_LABELS[k] || k, u])]
+          .filter(([, u]) => safe(u)).map(([l, u]) => `<a href="${escHtml(u)}" target="_blank" rel="noopener">${escHtml(l)}</a>`).join('');
+        const meta = [t.city, t.founded_year && `kopš ${t.founded_year}`].filter(Boolean).join(' · ');
+        return `<article class="troupe-card">
+          <img class="troupe-card__logo" src="${escHtml(logo(t.logo_path))}" alt="" width="96" height="96" loading="lazy">
+          <div>
+            <h4 class="troupe-card__name">${escHtml(t.name)}</h4>
+            ${t.tagline ? `<p class="troupe-card__tag">${escHtml(t.tagline)}</p>` : ''}
+            ${meta ? `<p class="small muted">${escHtml(meta)}</p>` : ''}
+            ${t.description ? `<p class="troupe-card__desc">${escHtml(t.description)}</p>` : ''}
+            ${t.members?.length ? `<p class="small"><strong>Aktieri:</strong> ${escHtml(t.members.join(', '))}</p>` : ''}
+            ${links ? `<p class="socials">${links}</p>` : ''}
+            <button class="btn btn--sm btn--yellow" type="button" data-book-troupe="${escHtml(t.name)}">Pieteikt šo kolektīvu</button>
+          </div>
+        </article>`;
+      }).join('');
+      box.hidden = false;
+      box.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-book-troupe]');
+        if (!b) return;
+        setChosen(b.dataset.bookTroupe, 'kolektīvs');
+        document.getElementById('kontakti').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+    } catch (err) { /* no collectives section */ }
   })();
 
   /* ---------- Magnetic CTA ---------- */

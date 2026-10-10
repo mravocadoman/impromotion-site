@@ -13,11 +13,22 @@
   <link rel="stylesheet" href="/styles.css?v=20261010">
 </head>
 <body class="app-page">
-  <header class="nav nav--solid">
-    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu"><img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250"></a>
-    <nav class="app-nav" id="app-nav" hidden>
-      <a href="/admin/" id="admin-link" hidden>Admins</a>
-      <button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button>
+  <header class="nav nav--solid" id="nav">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu">
+      <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
+    </a>
+    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne">
+      <span></span><span></span>
+    </button>
+    <nav class="nav__links" id="nav-links">
+      <a href="/#pakalpojumi">Pakalpojumi</a>
+      <a href="/#lomas">Slēptās lomas</a>
+      <a href="/#aktieri">Aktieri</a>
+      <a href="/blogs/">Blogs</a>
+      <a href="/pievienojies/">Pievienojies</a>
+      <a class="nav__login" href="/aktieriem/" aria-current="page">Aktieru ieeja</a>
+      <span class="app-nav" id="app-nav" hidden><a href="/admin/" id="admin-link" hidden>Admins</a><button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button></span>
+      <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>
   </header>
 
@@ -29,6 +40,7 @@
     import { sb, $, esc, greet, mountLogin, currentProfile } from '/assets/backend/sb.js';
     import { renderActorForm } from '/assets/backend/actor-form.js';
     import { mountCalendar } from '/assets/backend/calendar.js';
+    import { renderTroupeForm } from '/assets/backend/troupe-form.js';
 
     const view = $('#view');
 
@@ -66,6 +78,24 @@
         ? gigs.map((g) => `<li><div><strong>${esc(g.day.split('-').reverse().join('.'))} · ${esc(g.title)}</strong><span class="muted small"> ${STATUS_B[g.status] || ''}${g.actor_fee_eur != null ? ` · honorārs ${g.actor_fee_eur} €` : ''}</span>${g.location ? `<br><span class="small">${esc(g.location)}</span>` : ''}${g.details ? `<p class="small gig__details">${esc(g.details)}</p>` : ''}</div></li>`).join('')
         : '<li class="muted">Pagaidām nav. Kad Impromotion jums ierezervēs pasākumu, tas parādīsies šeit.</li>';
       mountCalendar($('#calendar'), actor.id, { booked: (gigs || []).map((g) => g.day) });
+
+      // Collective admins also edit their collective's profile here.
+      const { data: troupeId } = await sb.rpc('my_troupe_id');
+      if (troupeId) {
+        const [{ data: troupe }, { data: members }] = await Promise.all([
+          sb.from('troupes').select('*').eq('id', troupeId).single(),
+          sb.rpc('my_troupe_members'),
+        ]);
+        if (troupe) {
+          const panel = document.createElement('section');
+          panel.className = 'panel';
+          panel.id = 'kolektivs';
+          panel.innerHTML = `<p class="eyebrow eyebrow--yellow">Mans kolektīvs</p><h2 class="h2">${esc(troupe.name)}</h2><p class="muted">Jūs esat šī kolektīva admins. Šeit aizpildiet kolektīva profilu, ko rādīsim impromotion.lv.</p><div id="troupe-form"></div>`;
+          view.querySelector('.app__intro').after(panel);
+          renderTroupeForm($('#troupe-form'), troupe, { members: members || [], onSaved: show });
+          if (location.hash === '#kolektivs') panel.scrollIntoView();
+        }
+      }
     }
 
     let booted = false;
@@ -74,5 +104,6 @@
     sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && booted && view.querySelector('.login')) show(); });
     show().then(() => { booted = true; });
   </script>
+  <script src="/assets/blog.js" defer></script>
 </body>
 </html>

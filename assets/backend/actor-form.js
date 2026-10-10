@@ -43,7 +43,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       <fieldset class="private"><legend>Redz tikai Impromotion</legend>
         <div class="grid2">
           <label class="field"><span>Tālrunis</span><input type="tel" name="phone" value="${esc(a.phone)}" maxlength="40"></label>
-          <label class="field"><span>Minimālais honorārs (EUR par pasākumu)</span><input type="number" name="min_fee_eur" value="${esc(a.min_fee_eur)}" min="0" step="10"></label>
+          <label class="field"><span>Minimālais honorārs (EUR par pasākumu)</span><input type="number" name="min_fee_eur" value="${esc(a.min_fee_eur)}" min="0" step="10" placeholder="Piemēram, 100"></label>
         </div>
       </fieldset>
 
@@ -56,7 +56,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       <fieldset class="admin-only"><legend>Admins</legend>
         <div class="grid2">
           <label class="field"><span>Statuss</span><select name="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${a.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-          <label class="field"><span>Trupa</span><select name="troupe_id"><option value="">—</option>${troupes.map((t) => `<option value="${t.id}" ${a.troupe_id === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
+          <label class="field"><span>Kolektīvs</span><select name="troupe_id"><option value="">—</option>${troupes.map((t) => `<option value="${t.id}" ${a.troupe_id === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
           <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(a.slug)}" pattern="[a-z0-9-]+" maxlength="60"></label>
           <label class="field"><span>Secība (mazāks = augstāk)</span><input type="number" name="sort_order" value="${esc(a.sort_order ?? 100)}"></label>
         </div>

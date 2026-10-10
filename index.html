@@ -50,19 +50,20 @@
   <a class="skip" href="#saturs">Pāriet uz saturu</a>
 
   <header class="nav" id="nav">
-    <a class="nav__logo" href="#top" aria-label="Impromotion, uz sākumu">
-      <img src="assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu">
+      <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
     </a>
     <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne">
       <span></span><span></span>
     </button>
     <nav class="nav__links" id="nav-links">
-      <a href="#pakalpojumi">Pakalpojumi</a>
+      <a href="/#pakalpojumi">Pakalpojumi</a>
+      <a href="/#lomas">Slēptās lomas</a>
+      <a href="/#aktieri">Aktieri</a>
       <a href="/blogs/">Blogs</a>
-      <a href="#lomas">Slēptās lomas</a>
-      <a href="#aktieri">Aktieri</a>
-      <a href="#atsauksmes">Atsauksmes</a>
-      <a class="btn btn--sm btn--yellow" href="#kontakti">Sazināties</a>
+      <a href="/pievienojies/">Pievienojies</a>
+      <a class="nav__login" href="/aktieriem/">Aktieru ieeja</a>
+      <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>
   </header>
 
@@ -340,7 +341,7 @@
           <p class="eyebrow eyebrow--yellow">Komanda</p>
           <h2 class="h2">Impromotion aktieri</h2>
           <p>Pieci improvizatori, piecas skatuves personības. Pavirziet kursoru pār kartīti vai klikšķiniet, lai iepazītos tuvāk.</p>
-          <p class="small">Esi improvizators vai vadītājs? <a href="/pievienojies/">Pievienojies Impromotion →</a></p>
+          <p class="small">Esi improvizators vai vadītājs? <a href="/pievienojies/">Pievienojies Impromotion →</a> Jau esi komandā? <a href="/aktieriem/">Ienāc savā profilā</a></p>
         </div>
         <div class="actors__grid">
 
@@ -423,6 +424,10 @@
             </div>
           </article>
 
+        </div>
+        <div class="troupes" id="kolektivi" hidden>
+          <h3 class="troupes__title">Kolektīvi, ar kuriem strādājam</h3>
+          <div class="troupes__grid"></div>
         </div>
       </div>
     </section>
@@ -508,7 +513,7 @@
             <label class="field"><span>Datums</span><input type="date" name="date"></label>
             <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">(kārtīga balle)</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
           </div>
-          <p class="chosen-actor" id="chosen-actor" hidden>Vēlamais aktieris: <strong></strong> <button type="button" aria-label="Noņemt aktieri">✕</button></p>
+          <p class="chosen-actor" id="chosen-actor" hidden>Vēlamais <span data-kind>aktieris</span>: <strong></strong> <button type="button" aria-label="Noņemt izvēli">✕</button></p>
           <input type="hidden" name="actor" value="">
           <label class="field"><span>Jūsu vārds</span><input type="text" name="name" autocomplete="name" placeholder="Piemēram, Anna" required maxlength="100"></label>
           <div class="brief__row brief__row--even">

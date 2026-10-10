@@ -13,11 +13,22 @@
   <link rel="stylesheet" href="/styles.css?v=20261010">
 </head>
 <body class="app-page">
-  <header class="nav nav--solid">
-    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu"><img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250"></a>
-    <nav class="app-nav" id="app-nav" hidden>
-      <a href="/aktieriem/">Mans profils</a>
-      <button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button>
+  <header class="nav nav--solid" id="nav">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu">
+      <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
+    </a>
+    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne">
+      <span></span><span></span>
+    </button>
+    <nav class="nav__links" id="nav-links">
+      <a href="/#pakalpojumi">Pakalpojumi</a>
+      <a href="/#lomas">Slēptās lomas</a>
+      <a href="/#aktieri">Aktieri</a>
+      <a href="/blogs/">Blogs</a>
+      <a href="/pievienojies/">Pievienojies</a>
+      <a class="nav__login" href="/aktieriem/">Aktieru ieeja</a>
+      <span class="app-nav" id="app-nav" hidden><a href="/aktieriem/">Mans profils</a><button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button></span>
+      <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>
   </header>
 
@@ -31,5 +42,6 @@
   </dialog>
 
   <script type="module" src="/assets/backend/admin.js?v=20261010"></script>
+  <script src="/assets/blog.js" defer></script>
 </body>
 </html>

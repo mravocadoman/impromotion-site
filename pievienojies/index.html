@@ -27,12 +27,16 @@
     <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu">
       <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
     </a>
-    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne"><span></span><span></span></button>
+    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne">
+      <span></span><span></span>
+    </button>
     <nav class="nav__links" id="nav-links">
       <a href="/#pakalpojumi">Pakalpojumi</a>
+      <a href="/#lomas">Slēptās lomas</a>
       <a href="/#aktieri">Aktieri</a>
       <a href="/blogs/">Blogs</a>
-      <a href="/aktieriem/">Aktieru profils</a>
+      <a href="/pievienojies/" aria-current="page">Pievienojies</a>
+      <a class="nav__login" href="/aktieriem/">Aktieru ieeja</a>
       <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>
   </header>
@@ -54,7 +58,7 @@
         <li><span class="tip-grid__icon">💶</span><span class="tip-grid__title">Honorāru nosaki tu</span><span class="tip-grid__text">Tava minimālā likme paliek starp mums, un lētāk mēs tevi nepārdodam.</span></li>
         <li><span class="tip-grid__icon">📅</span><span class="tip-grid__title">Brīvs grafiks</span><span class="tip-grid__text">Kalendārā atzīmē aizņemtās dienas. Jebkuru piedāvājumu vari atteikt.</span></li>
         <li><span class="tip-grid__icon">🎭</span><span class="tip-grid__title">Dažādi formāti</span><span class="tip-grid__text">Vadīšana, slēptās lomas, bērnu ballītes, izrādes, komandas treniņi.</span></li>
-        <li><span class="tip-grid__icon">🤝</span><span class="tip-grid__title">Trupas arī</span><span class="tip-grid__text">Spēlē trupā? Piesakieties visi kopā, rādīsim arī jūsu trupu.</span></li>
+        <li><span class="tip-grid__icon">🤝</span><span class="tip-grid__title">Kolektīvi arī</span><span class="tip-grid__text">Spēlē improvizācijas teātrī vai kolektīvā? Piesakieties visi kopā, rādīsim arī jūsu kolektīvu.</span></li>
       </ul>
 
       <form class="brief join-form" id="join" novalidate>
@@ -68,7 +72,7 @@
           <label class="field"><span>Tālrunis</span><input type="tel" name="phone" maxlength="40" autocomplete="tel"></label>
         </div>
         <div class="brief__row brief__row--even">
-          <label class="field"><span>Trupa vai kolektīvs</span><input name="troupes" maxlength="200" placeholder="Piemēram, Spiediens, Plit"></label>
+          <label class="field"><span>Improvizācijas teātris vai kolektīvs</span><input name="troupes" maxlength="200" placeholder="Piemēram, Pietura"></label>
           <label class="field"><span>Cik gadus improvizē?</span><input type="number" name="experience_years" min="0" max="60" step="1"></label>
         </div>
         <fieldset><legend>Ko tu dari?</legend><div class="chips" data-chips="skills"></div></fieldset>
@@ -77,7 +81,7 @@
           <fieldset><legend>Valodas</legend><div class="chips" data-chips="languages"></div></fieldset>
           <fieldset><legend>Kur vari strādāt?</legend><div class="chips" data-chips="regions"></div></fieldset>
         </div>
-        <label class="field"><span>Minimālais honorārs par pasākumu, EUR (redz tikai Impromotion)</span><input type="number" name="min_fee_eur" min="0" step="10" placeholder="Piemēram, 250"></label>
+        <label class="field"><span>Minimālais honorārs par pasākumu, EUR (redz tikai Impromotion)</span><input type="number" name="min_fee_eur" min="0" step="10" placeholder="Piemēram, 100"></label>
         <label class="field"><span>Saites: video, Instagram, Facebook, izrādes</span><textarea name="links" rows="2" maxlength="600" placeholder="Viena saite rindā"></textarea></label>
         <label class="field"><span>Pastāsti par sevi</span><textarea name="about" rows="4" maxlength="1500" placeholder="Kur spēlē, ko esi vadījis, kas tev padodas vislabāk"></textarea></label>
         <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
