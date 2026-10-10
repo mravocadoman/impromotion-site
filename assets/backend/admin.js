@@ -68,7 +68,7 @@ function draw() {
       <td class="small">${a.skills.map(esc).join(', ')}</td>
       <td class="small">${a.user_id ? esc(state.emails[a.user_id] || '') : '<span class="muted">nav konta</span>'}${a.phone ? `<br>${esc(a.phone)}` : ''}</td>
       <td>${a.min_fee_eur != null ? `${a.min_fee_eur} €` : '<span class="muted">—</span>'}</td>
-      <td class="actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}</td>
+      <td class="actions"><div class="row-actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}</div></td>
     </tr>`).join('');
 
   view.innerHTML = `

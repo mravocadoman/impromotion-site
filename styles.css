@@ -870,8 +870,10 @@ section[id] { scroll-margin-top: 70px; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .admin-table th, .admin-table td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .admin-table th { color: var(--yellow); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
-.admin-table .thumb { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-.admin-table .actions { white-space: nowrap; display: flex; gap: 6px; }
+.admin-table td:first-child { width: 60px; }
+.admin-table .thumb { width: 48px; height: 48px; min-width: 48px; max-width: none; object-fit: cover; border-radius: 50%; clip-path: circle(48.5%); display: block; }
+.admin-table .actions { white-space: nowrap; text-align: right; width: 1%; }
+.row-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .invite-form { display: grid; gap: 12px; margin-bottom: 16px; }
 .plain-list { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
 .plain-list li { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .04); }
