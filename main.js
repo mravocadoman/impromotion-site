@@ -211,10 +211,6 @@
     wantScene.hidden = false;
   });
 
-  wantScene.addEventListener('click', () => {
-    const msg = document.querySelector('#brief [name="msg"]');
-    msg.value = `Ieteikumu mašīnas aina: ${lastScene}${msg.value ? `\n\n${msg.value}` : ''}`;
-  });
 
   /* ---------- Hidden roles: flip cards + unmask counter ---------- */
   const flips = document.querySelectorAll('.flip');
