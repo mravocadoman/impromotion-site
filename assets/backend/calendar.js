@@ -5,7 +5,8 @@ const MONTHS = ['Janvāris', 'Februāris', 'Marts', 'Aprīlis', 'Maijs', 'Jūnij
 const DAYS = ['P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'];
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-export function mountCalendar(root, actorId, { readOnly = false } = {}) {
+export function mountCalendar(root, actorId, { readOnly = false, booked = [] } = {}) {
+  const bookedDays = new Set(booked);
   let cursor = new Date();
   cursor.setDate(1);
   const busy = new Set();
@@ -31,7 +32,8 @@ export function mountCalendar(root, actorId, { readOnly = false } = {}) {
     for (let d = 1; d <= days; d++) {
       const key = iso(new Date(y, m, d));
       const past = key < today;
-      cells += `<button type="button" class="cal__day ${busy.has(key) ? 'is-busy' : ''} ${past ? 'is-past' : ''}" data-day="${key}" ${past || readOnly ? 'disabled' : ''}>${d}</button>`;
+      const isBooked = bookedDays.has(key);
+      cells += `<button type="button" class="cal__day ${busy.has(key) ? 'is-busy' : ''} ${isBooked ? 'is-booked' : ''} ${past ? 'is-past' : ''}" data-day="${key}" ${past || readOnly || isBooked ? 'disabled' : ''} ${isBooked ? 'title="Haltūra"' : ''}>${d}</button>`;
     }
     root.innerHTML = `
       <div class="cal">
@@ -41,7 +43,7 @@ export function mountCalendar(root, actorId, { readOnly = false } = {}) {
           <button type="button" class="btn btn--ghost btn--sm" data-nav="1" aria-label="Nākamais mēnesis">→</button>
         </div>
         <div class="cal__grid">${DAYS.map((d) => `<span class="cal__dow">${d}</span>`).join('')}${cells}</div>
-        <p class="muted small">${readOnly ? 'Rozā dienās aktieris ir aizņemts.' : 'Atzīmējiet dienas, kad esat aizņemts. Rozā = aizņemts.'}</p>
+        <p class="muted small">${readOnly ? 'Rozā dienās aktieris ir aizņemts.' : 'Atzīmējiet dienas, kad esat aizņemts. Rozā = aizņemts, dzeltens = Impromotion haltūra.'}</p>
       </div>`;
   };
 
@@ -49,12 +51,14 @@ export function mountCalendar(root, actorId, { readOnly = false } = {}) {
     const nav = e.target.closest('[data-nav]');
     if (nav) { cursor.setMonth(cursor.getMonth() + Number(nav.dataset.nav)); load(); return; }
     const btn = e.target.closest('[data-day]');
-    if (!btn || btn.disabled) return;
+    if (!btn || btn.disabled || btn.dataset.busy) return;
+    btn.dataset.busy = '1';
     const day = btn.dataset.day;
     const wasBusy = busy.has(day);
     const { error } = wasBusy
       ? await sb.from('busy_dates').delete().eq('actor_id', actorId).eq('day', day)
       : await sb.from('busy_dates').insert({ actor_id: actorId, day });
+    delete btn.dataset.busy;
     if (error) { toast(`Neizdevās saglabāt: ${error.message}`, 'error'); return; }
     wasBusy ? busy.delete(day) : busy.add(day);
     btn.classList.toggle('is-busy', !wasBusy);

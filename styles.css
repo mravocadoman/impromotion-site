@@ -889,3 +889,10 @@ section[id] { scroll-margin-top: 70px; }
 .actor-filter button { font: inherit; font-weight: 600; font-size: .92rem; padding: .45em 1em; border-radius: 99px; border: 1.5px solid rgba(255, 255, 255, .25); background: transparent; color: var(--text); cursor: pointer; transition: background-color .2s, color .2s; }
 .actor-filter button.is-on { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
 .actor[hidden] { display: none; }
+.cal__day.is-booked { background: var(--yellow); color: var(--ink); border-color: var(--yellow); font-weight: 800; opacity: 1; }
+.app__side { display: grid; gap: 24px; }
+.gigs li { align-items: flex-start; }
+.gig__details { margin: 6px 0 0; white-space: pre-line; color: var(--muted); }
+.booking-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; margin-bottom: 18px; }
+.booking-form__wide { grid-column: 1 / -1; }
+@media (max-width: 900px) { .booking-form { grid-template-columns: 1fr; } }

@@ -8,20 +8,23 @@ const modal = $('#edit-modal');
 modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-let state = { actors: [], troupes: [], invites: [], emails: {}, busyOn: new Set(), filters: { status: '', skill: '', format: '', troupe: '', date: '' } };
+let state = { actors: [], troupes: [], invites: [], bookings: [], emails: {}, busyOn: new Set(), filters: { status: '', skill: '', format: '', troupe: '', date: '' } };
 
 async function loadAll() {
-  const [actors, troupes, invites, profiles] = await Promise.all([
+  const today = new Date().toISOString().slice(0, 10);
+  const [actors, troupes, invites, profiles, bookings] = await Promise.all([
     sb.from('actors').select('*').order('sort_order').order('full_name'),
     sb.from('troupes').select('*').order('name'),
     sb.from('invites').select('*').order('invited_at', { ascending: false }),
     sb.from('profiles').select('id, email'),
+    sb.from('bookings').select('*').gte('day', today).neq('status', 'cancelled').order('day'),
   ]);
-  const err = actors.error || troupes.error || invites.error || profiles.error;
+  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error;
   if (err) { toast(`Neizdevās ielādēt: ${err.message}`, 'error'); return false; }
   state.actors = actors.data;
   state.troupes = troupes.data;
   state.invites = invites.data;
+  state.bookings = bookings.data;
   state.emails = Object.fromEntries(profiles.data.map((p) => [p.id, p.email]));
   return true;
 }
@@ -29,8 +32,11 @@ async function loadAll() {
 async function loadBusy(date) {
   state.busyOn = new Set();
   if (!date) return;
-  const { data } = await sb.from('busy_dates').select('actor_id').eq('day', date);
-  (data || []).forEach((r) => state.busyOn.add(r.actor_id));
+  const [busy, booked] = await Promise.all([
+    sb.from('busy_dates').select('actor_id').eq('day', date),
+    sb.from('bookings').select('actor_id').eq('day', date).neq('status', 'cancelled'),
+  ]);
+  [...(busy.data || []), ...(booked.data || [])].forEach((r) => state.busyOn.add(r.actor_id));
 }
 
 const troupeName = (id) => state.troupes.find((t) => t.id === id)?.name || '';
@@ -46,14 +52,17 @@ function filtered() {
 }
 
 function draw() {
-  const pending = state.actors.filter((a) => a.status === 'pending').length;
+  const pending = state.actors.filter((a) => a.status === 'pending' || a.needs_review).length;
+  const actorName = (id) => { const a = state.actors.find((x) => x.id === id); return a ? (a.stage_name ? `${a.full_name} (${a.stage_name})` : a.full_name) : '?'; };
+  const STATUS_B = { tentative: 'Provizoriski', confirmed: 'Apstiprināta', done: 'Notikusi', cancelled: 'Atcelta' };
+  const bookingRows = state.bookings.map((b) => `<li><span><strong>${esc(b.day.split('-').reverse().join('.'))}</strong> ${esc(b.title)} · ${esc(actorName(b.actor_id))}${b.location ? ` · <span class="muted">${esc(b.location)}</span>` : ''}</span><span class="muted small">${STATUS_B[b.status]}${b.client_price_eur != null ? ` · ${b.client_price_eur} € / aktierim ${b.actor_fee_eur ?? '?'} €` : ''}</span><button class="link-btn" data-cancel-booking="${b.id}">atcelt</button></li>`).join('');
   const options = (list, sel) => list.map((v) => `<option ${sel === v ? 'selected' : ''}>${esc(v)}</option>`).join('');
   const rows = filtered().map((a) => `
     <tr>
       <td><img class="thumb" src="${esc(photoUrl(a.photo_path)) || '/assets/img/apple-touch-icon.png'}" alt=""></td>
       <td><strong>${esc(a.full_name || '(bez vārda)')}</strong>${a.stage_name ? `<br><span class="muted small">“${esc(a.stage_name)}”</span>` : ''}</td>
       <td>${esc(troupeName(a.troupe_id))}</td>
-      <td><span class="status-badge status-badge--${a.status}">${STATUS[a.status]}</span>${a.show_on_site ? '' : '<br><span class="muted small">nerāda lapā</span>'}</td>
+      <td><span class="status-badge status-badge--${a.status}">${STATUS[a.status]}</span>${a.needs_review ? '<br><span class="status-badge status-badge--pending">izmainīts, pārskatiet</span>' : ''}${a.show_on_site ? '' : '<br><span class="muted small">nerāda lapā</span>'}</td>
       <td class="small">${a.skills.map(esc).join(', ')}</td>
       <td class="small">${a.user_id ? esc(state.emails[a.user_id] || '') : '<span class="muted">nav konta</span>'}${a.phone ? `<br>${esc(a.phone)}` : ''}</td>
       <td>${a.min_fee_eur != null ? `${a.min_fee_eur} €` : '<span class="muted">—</span>'}</td>
@@ -64,7 +73,7 @@ function draw() {
     <div class="app__intro">
       <p class="eyebrow eyebrow--yellow">Admins</p>
       <h1 class="h2">Aktieri un trupas</h1>
-      ${pending ? `<p class="notice">${pending} ${pending === 1 ? 'profils gaida' : 'profili gaida'} apstiprinājumu.</p>` : ''}
+      ${pending ? `<p class="notice">${pending} ${pending === 1 ? 'profils gaida' : 'profili gaida'} jūsu apskati.</p>` : ''}
     </div>
 
     <section class="panel">
@@ -82,6 +91,23 @@ function draw() {
         </table>
       </div>
       <button class="btn btn--ghost" type="button" id="new-actor">+ Jauns aktiera profils</button>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__title">Haltūras</h2>
+      <form id="booking-form" class="booking-form">
+        <label class="field"><span>Datums</span><input type="date" name="day" required></label>
+        <label class="field"><span>Aktieris</span><select name="actor_id" required>${state.actors.map((a) => `<option value="${a.id}">${esc(actorName(a.id))}</option>`).join('')}</select></label>
+        <label class="field"><span>Nosaukums</span><input name="title" required maxlength="120" placeholder="DEPO Ziemassvētku balle"></label>
+        <label class="field"><span>Vieta</span><input name="location" maxlength="200"></label>
+        <label class="field"><span>Klients (aktieris neredz)</span><input name="client" maxlength="200"></label>
+        <label class="field"><span>Cena klientam € (aktieris neredz)</span><input type="number" name="client_price_eur" min="0" step="10"></label>
+        <label class="field"><span>Honorārs aktierim €</span><input type="number" name="actor_fee_eur" min="0" step="10"></label>
+        <label class="field"><span>Statuss</span><select name="status"><option value="tentative">Provizoriski</option><option value="confirmed">Apstiprināta</option></select></label>
+        <label class="field booking-form__wide"><span>Informācija aktierim (laiks, kontaktpersona, programma, tabu tēmas)</span><textarea name="details" rows="3" maxlength="2000"></textarea></label>
+        <button class="btn btn--yellow" type="submit">+ Pievienot haltūru</button>
+      </form>
+      <ul class="plain-list">${bookingRows || '<li class="muted">Nākamo haltūru nav.</li>'}</ul>
     </section>
 
     <div class="app__cols">
@@ -120,7 +146,7 @@ async function openEditor(id) {
     admin: true, troupes: state.troupes, adminNotes: note?.notes || '',
     onSaved: async () => { await loadAll(); draw(); },
   });
-  mountCalendar($('#edit-cal'), a.id);
+  mountCalendar($('#edit-cal'), a.id, { booked: state.bookings.filter((b) => b.actor_id === a.id).map((b) => b.day) });
   modal.showModal();
 }
 
@@ -148,6 +174,15 @@ view.addEventListener('click', async (e) => {
     return;
   }
 
+  const cancel = e.target.closest('[data-cancel-booking]');
+  if (cancel) {
+    if (!confirm('Atcelt šo haltūru?')) return;
+    const { error } = await sb.from('bookings').update({ status: 'cancelled' }).eq('id', cancel.dataset.cancelBooking);
+    if (error) return toast(error.message, 'error');
+    await loadAll(); draw();
+    return;
+  }
+
   const del = e.target.closest('[data-del-invite]');
   if (del) {
     await sb.from('invites').delete().eq('email', del.dataset.delInvite);
@@ -164,8 +199,21 @@ view.addEventListener('click', async (e) => {
 });
 
 view.addEventListener('submit', async (e) => {
+  // The login form lives in #view too; leave it to mountLogin.
+  if (!['invite-form', 'troupe-form', 'booking-form'].includes(e.target.id)) return;
   e.preventDefault();
   const fd = new FormData(e.target);
+  if (e.target.id === 'booking-form') {
+    const num = (k) => (fd.get(k) ? Number(fd.get(k)) : null);
+    const row = { day: fd.get('day'), actor_id: fd.get('actor_id'), title: fd.get('title').trim(), location: fd.get('location').trim() || null,
+      client: fd.get('client').trim() || null, client_price_eur: num('client_price_eur'), actor_fee_eur: num('actor_fee_eur'),
+      status: fd.get('status'), details: fd.get('details').trim() || null };
+    const clash = await sb.from('busy_dates').select('day').eq('actor_id', row.actor_id).eq('day', row.day);
+    if (clash.data?.length && !confirm('Aktieris šajā dienā atzīmējis, ka ir aizņemts. Pievienot tik un tā?')) return;
+    const { error } = await sb.from('bookings').insert(row);
+    if (error) return toast(error.message, 'error');
+    toast('Haltūra pievienota. Aktieris to redzēs savā profilā.');
+  }
   if (e.target.id === 'invite-form') {
     const row = { email: fd.get('email').trim().toLowerCase(), role: fd.get('role'), troupe_id: fd.get('troupe_id') || null };
     const { error } = await sb.from('invites').upsert(row);

@@ -19,6 +19,9 @@ jobs:
         run: |
           find . -name '*.html' -not -path './_source/*' -print0 | xargs -0 \
             sed -i -E "s#((https://impromotion\.lv)?/?(assets/[^\"?]+|styles\.css|main\.js|favicon\.ico))(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g"
+          # ES module imports between our own scripts, so a changed module never comes from a stale cache
+          # (and every page shares one instance of each module).
+          sed -i -E "s#(['\"])(\./[a-z-]+\.js|/assets/backend/[a-z-]+\.js)(\?v=[^'\"]*)?(['\"])#\1\2?v=${GITHUB_SHA::7}\4#g" assets/backend/*.js main.js
 
       - name: Load deploy key
         env:
@@ -37,7 +40,7 @@ jobs:
           SG_USER: ${{ secrets.SG_USER }}
         run: |
           rsync -rvz --checksum --exclude '_template.html' -e "ssh -p 18765 -i $HOME/.ssh/deploy_key -o BatchMode=yes" \
-            index.html styles.css main.js favicon.ico robots.txt sitemap.xml googlec3673720e3b0e240.html assets blogs \
+            index.html styles.css main.js favicon.ico robots.txt sitemap.xml googlec3673720e3b0e240.html assets blogs aktieriem admin \
             "$SG_USER@$SG_HOST:www/impromotion.lv/public_html/"
 
       # The same flush the Site Tools "Flush Cache" button does.

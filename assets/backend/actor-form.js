@@ -1,5 +1,5 @@
 // The actor profile form, shared by the actor portal (own profile) and the admin page (any profile).
-import { sb, SKILLS, FORMATS, LANGUAGES, REGIONS, SOCIALS, STATUS, photoUrl, esc, toast, shrinkImage } from './sb.js';
+import { sb, SKILLS, FORMATS, LANGUAGES, REGIONS, SOCIALS, STATUS, photoUrl, isHttps, esc, toast, shrinkImage } from './sb.js';
 
 const chipGroup = (name, options, selected, allowCustom) => {
   const all = [...new Set([...options, ...selected])];
@@ -93,9 +93,10 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
     if (!file) return;
     const blob = await shrinkImage(file);
     const { data: { user } } = await sb.auth.getUser();
-    const folder = admin ? (a.user_id || 'admin') : user.id;
-    const path = `${folder}/${a.id}-${Date.now()}.webp`;
-    const { error } = await sb.storage.from('actor-photos').upload(path, blob, { contentType: 'image/webp', upsert: true });
+    // Actors may only write into their own folder; the admin files unclaimed profiles under their id.
+    const folder = admin ? (a.user_id || a.id) : user.id;
+    const path = `${folder}/${Date.now()}.webp`;
+    const { error } = await sb.storage.from('actor-photos').upload(path, blob, { contentType: 'image/webp', upsert: false });
     if (error) { toast(`Foto neaugšupielādējās: ${error.message}`, 'error'); return; }
     newPhotoPath = path;
     form.querySelector('.photo-pick__img').src = photoUrl(path);
@@ -133,11 +134,15 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
   const save = async (extra = {}) => {
     const row = { ...collect(), ...extra };
     if (!row.full_name) { toast('Ierakstiet vārdu un uzvārdu.', 'error'); return; }
+    const badLink = Object.values(row.socials).find((u) => !isHttps(u));
+    if (badLink) { toast('Sociālo tīklu saitēm jāsākas ar https://', 'error'); return; }
+    if (admin) row.needs_review = false;
     const { error } = await sb.from('actors').update(row).eq('id', a.id);
     if (error) { toast(`Neizdevās saglabāt: ${error.message}`, 'error'); return; }
     if (admin) {
       const notes = new FormData(form).get('admin_notes') || '';
-      await sb.from('actor_admin_notes').upsert({ actor_id: a.id, notes, updated_at: new Date().toISOString() });
+      const { error: noteErr } = await sb.from('actor_admin_notes').upsert({ actor_id: a.id, notes, updated_at: new Date().toISOString() });
+      if (noteErr) { toast(`Piezīmes nesaglabājās: ${noteErr.message}`, 'error'); return; }
     }
     toast('Saglabāts.');
     onSaved?.();

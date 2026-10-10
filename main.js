@@ -333,7 +333,7 @@
   const SOCIAL_LABELS = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 'X' };
   const actorCard = (a, photo) => {
     const leads = [...a.skills, ...a.formats].filter((v, i, arr) => arr.indexOf(v) === i);
-    const socials = Object.entries(a.socials || {}).map(([k, url]) => `<a href="${escHtml(url)}" target="_blank" rel="noopener">${SOCIAL_LABELS[k] || escHtml(k)}</a>`).join('');
+    const socials = Object.entries(a.socials || {}).filter(([, url]) => /^https:\/\/[^\s<>"]+$/i.test(url)).map(([k, url]) => `<a href="${escHtml(url)}" target="_blank" rel="noopener">${SOCIAL_LABELS[k] || escHtml(k)}</a>`).join('');
     const bio = String(a.bio || '').split(/\n\s*\n/).map((p) => `<p>${escHtml(p)}</p>`).join('');
     const troupe = a.troupe_slug && a.troupe_slug !== 'impromotion' ? `<span class="actor__troupe">${escHtml(a.troupe_name)}</span>` : '';
     return `<article class="actor" data-quip="${escHtml(a.quip || '')}" data-skills="${escHtml(a.skills.join('|'))}">
@@ -359,9 +359,13 @@
       });
       if (!res.ok) return;
       const actors = await res.json();
-      if (!Array.isArray(actors) || !actors.length) return;
-      const photo = (p) => (!p ? '/assets/img/apple-touch-icon.png' : /^(https?:)?\//.test(p) ? p : `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}`);
+      if (!Array.isArray(actors)) return;
       const grid = document.querySelector('.actors__grid');
+      // An empty list is a real answer (everyone hid their profile), not a reason to show the static cards.
+      if (!actors.length) { grid.innerHTML = '<p class="muted">Aktieru saraksts drīz būs atpakaļ.</p>'; return; }
+      const photo = (p) => (p && p.startsWith('/assets/') ? p
+        : p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}`
+        : '/assets/img/apple-touch-icon.png');
       grid.innerHTML = actors.map((a) => actorCard(a, photo(a.photo_path))).join('');
       grid.querySelectorAll('.actor').forEach(bindActor);
 
@@ -433,7 +437,7 @@
       email,
       type: data.get('type'),
       wants: data.getAll('want'),
-      date: data.get('date') ? new Date(data.get('date')).toLocaleDateString('lv-LV') : '',
+      date: data.get('date') ? String(data.get('date')).split('-').reverse().join('.') : '',
       guests: guestsOut.textContent,
       message: data.get('msg'),
       actor: data.get('actor'),

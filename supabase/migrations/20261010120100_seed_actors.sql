@@ -29,3 +29,7 @@ update public.actors set quip = 'Domāja, ka tas ir teātra pulciņš.' where sl
 update public.actors set quip = 'Nosvērts. Mierīgs. Dažreiz nemierīgs.' where slug = 'robins-reins';
 update public.actors set quip = 'Improvizāciju mācījies pat Taizemē.' where slug = 'rihards-zeila';
 update public.actors set quip = 'Prieks vairo prieku!' where slug = 'iluta-reinberga';
+
+-- Rihards is the admin and also an actor; his invite links him to his seeded profile.
+insert into public.invites (email, role, actor_id)
+select 'rihards.zeila@gmail.com', 'admin', id from public.actors where slug = 'rihards-zeila';

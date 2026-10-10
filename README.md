@@ -35,3 +35,13 @@ The brief form posts to the n8n workflow "Impromotion — mājaslapas pieteikumi
 ## Blog
 
 The posts live in `blogs/<slug>/index.html`, built from `blogs/_template.html` (the template is never deployed). After adding a post, add its card to `blogs/index.html` and its URL to `sitemap.xml`.
+
+## Actor backend
+
+Supabase project `impromotion` (ref `cflnjdiwipwkcnepunpd`, eu-north-1). The schema, access rules and seed are in `supabase/migrations/`. Apply new migrations with `supabase db push`; the DB password is in `~/.config/impromotion/supabase-db-password` on Rihards' Mac.
+
+- `/aktieriem/`: actor portal. Magic-link login; only invited emails can create an account.
+- `/admin/`: admin. Actors, invites, troupes, bookings ("haltūras"), and a "free on date" filter.
+- The homepage reads approved profiles through the `public_actors()` RPC. The static cards in `index.html` are only a fallback for when the API is unreachable.
+- When a profile is submitted or a live one changes, the database calls the n8n workflow "Impromotion — aktieru profilu paziņojumi" through pg_net, and that workflow sends a Telegram message.
+- Auth email: Supabase's built-in SMTP only reaches project team members. Real actors need the custom SMTP in Supabase → Authentication → Emails.

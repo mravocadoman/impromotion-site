@@ -1,6 +1,7 @@
 // Shared Supabase client and option lists for the actor portal and the admin page.
 // The anon key is public by design; row level security in supabase/migrations decides what it may read.
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// Pinned: this module runs with the admin's session, so it must not change under us.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
 export const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -12,11 +13,14 @@ export const REGIONS = ['Rīga', 'Pierīga', 'Kurzeme', 'Zemgale', 'Vidzeme', 'L
 export const SOCIALS = ['facebook', 'instagram', 'tiktok', 'youtube', 'x'];
 export const STATUS = { draft: 'Melnraksts', pending: 'Gaida apstiprinājumu', approved: 'Apstiprināts', hidden: 'Paslēpts' };
 
+// Site assets ('/assets/...') or files in our own bucket; nothing from other hosts.
 export const photoUrl = (path) => {
   if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('/')) return path;
-  return `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${path}`;
+  if (path.startsWith('/assets/')) return path;
+  if (/^[0-9a-z-]+\/[\w.-]+$/i.test(path)) return `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${path}`;
+  return '';
 };
+export const isHttps = (u) => /^https:\/\/[^\s<>"]+$/i.test(u);
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -29,7 +33,7 @@ export function toast(text, tone = 'ok') {
   setTimeout(() => el.remove(), 3500);
 }
 
-// Magic-link login. Only invited addresses (or existing members) get a link.
+// Magic-link login. The database refuses to create accounts for addresses that weren't invited.
 export function mountLogin(root, { redirectPath }) {
   root.innerHTML = `
     <form class="panel login" novalidate>
@@ -45,12 +49,12 @@ export function mountLogin(root, { redirectPath }) {
     e.preventDefault();
     const email = form.email.value.trim().toLowerCase();
     if (!email) return;
-    status.textContent = 'Pārbaudām…';
-    const { data: invited, error: invErr } = await sb.rpc('is_invited', { p_email: email });
-    if (invErr) { status.textContent = 'Neizdevās pārbaudīt e-pastu. Mēģiniet vēlreiz.'; return; }
-    if (!invited) { status.textContent = 'Šis e-pasts nav uzaicināts. Rakstiet uz rihards.zeila@gmail.com.'; return; }
+    status.textContent = 'Sūtām…';
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + redirectPath } });
-    status.textContent = error ? `Neizdevās nosūtīt saiti: ${error.message}` : 'Saite nosūtīta. Pārbaudiet e-pastu (arī mēstules).';
+    if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudiet e-pastu (arī mēstules).'; return; }
+    status.textContent = /database error|not invited|signups/i.test(error.message)
+      ? 'Šis e-pasts nav uzaicināts. Rakstiet uz rihards.zeila@gmail.com.'
+      : /rate|seconds/i.test(error.message) ? 'Pārāk daudz mēģinājumu. Pagaidiet minūti un mēģiniet vēlreiz.' : `Neizdevās nosūtīt saiti: ${error.message}`;
   });
 }
 

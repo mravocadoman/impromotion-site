@@ -26,9 +26,9 @@
   </main>
 
   <script type="module">
-    import { sb, $, esc, mountLogin, currentProfile } from '/assets/backend/sb.js?v=20261010';
-    import { renderActorForm } from '/assets/backend/actor-form.js?v=20261010';
-    import { mountCalendar } from '/assets/backend/calendar.js?v=20261010';
+    import { sb, $, esc, mountLogin, currentProfile } from '/assets/backend/sb.js';
+    import { renderActorForm } from '/assets/backend/actor-form.js';
+    import { mountCalendar } from '/assets/backend/calendar.js';
 
     const view = $('#view');
 
@@ -54,10 +54,18 @@
         </div>
         <div class="app__cols">
           <section class="panel" id="profile"></section>
-          <aside class="panel"><h2 class="panel__title">Aizņemtās dienas</h2><div id="calendar"></div></aside>
+          <aside class="app__side">
+            <section class="panel"><h2 class="panel__title">Manas haltūras</h2><ul class="plain-list gigs" id="gigs"><li class="muted">Ielādē…</li></ul></section>
+            <section class="panel"><h2 class="panel__title">Aizņemtās dienas</h2><div id="calendar"></div></section>
+          </aside>
         </div>`;
       renderActorForm($('#profile'), actor, { onSaved: show });
-      mountCalendar($('#calendar'), actor.id);
+      const { data: gigs } = await sb.rpc('my_bookings');
+      const STATUS_B = { tentative: 'provizoriski', confirmed: 'apstiprināta', done: 'notikusi' };
+      $('#gigs').innerHTML = (gigs || []).length
+        ? gigs.map((g) => `<li><div><strong>${esc(g.day.split('-').reverse().join('.'))} · ${esc(g.title)}</strong><span class="muted small"> ${STATUS_B[g.status] || ''}${g.actor_fee_eur != null ? ` · honorārs ${g.actor_fee_eur} €` : ''}</span>${g.location ? `<br><span class="small">${esc(g.location)}</span>` : ''}${g.details ? `<p class="small gig__details">${esc(g.details)}</p>` : ''}</div></li>`).join('')
+        : '<li class="muted">Pagaidām nav. Kad Impromotion jums ierezervēs pasākumu, tas parādīsies šeit.</li>';
+      mountCalendar($('#calendar'), actor.id, { booked: (gigs || []).map((g) => g.day) });
     }
 
     let booted = false;
