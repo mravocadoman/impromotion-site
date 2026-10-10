@@ -100,7 +100,7 @@ function draw() {
       <form id="booking-form" class="booking-form">
         <label class="field"><span>Datums</span><input type="date" name="day" required></label>
         <label class="field"><span>Aktieris</span><select name="actor_id" required>${state.actors.map((a) => `<option value="${a.id}">${esc(actorName(a.id))}</option>`).join('')}</select></label>
-        <label class="field"><span>Nosaukums</span><input name="title" required maxlength="120" placeholder="DEPO Ziemassvētku balle"></label>
+        <label class="field"><span>Nosaukums</span><input name="title" required maxlength="120" placeholder="Uzņēmuma Ziemassvētku balle"></label>
         <label class="field"><span>Vieta</span><input name="location" maxlength="200"></label>
         <label class="field"><span>Klients (aktieris neredz)</span><input name="client" maxlength="200"></label>
         <label class="field"><span>Cena klientam € (aktieris neredz)</span><input type="number" name="client_price_eur" min="0" step="10"></label>

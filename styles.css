@@ -899,3 +899,5 @@ section[id] { scroll-margin-top: 70px; }
 .booking-form__wide { grid-column: 1 / -1; }
 @media (max-width: 900px) { .booking-form { grid-template-columns: 1fr; } }
 .admin-table td:nth-child(2) { white-space: nowrap; }
+.quotes__grid--single { grid-template-columns: minmax(0, 720px); justify-content: center; }
+.quotes__grid--single .quote blockquote { font-size: 1.3rem; }
