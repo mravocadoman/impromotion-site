@@ -1,5 +1,5 @@
 // Admin page: all actors with private fields, invites, troupes and a "who is free on" date filter.
-import { sb, $, esc, toast, mountLogin, currentProfile, photoUrl, SKILLS, FORMATS, STATUS } from './sb.js';
+import { sb, $, esc, greet, toast, mountLogin, currentProfile, photoUrl, SKILLS, FORMATS, STATUS } from './sb.js';
 import { renderActorForm } from './actor-form.js';
 import { mountCalendar } from './calendar.js';
 
@@ -175,8 +175,7 @@ view.addEventListener('click', async (e) => {
       state.links.push(link);
     }
     const url = `${location.origin}/aktieriem/?invite=${link.token}`;
-    const first = a.full_name.split(' ')[0];
-    const text = `Čau, ${first}! Impromotion lapā tev ir savs aktiera profils. Ar šo personīgo saiti vari to pārņemt: ${url}\n\nIeraksti savu e-pastu, atnāks saite ienākšanai (bez paroles). Profilā vari papildināt aprakstu un foto, atzīmēt, ko vadi un kurās dienās esi aizņemts, un ierakstīt savu minimālo honorāru. To redzu tikai es, klienti ne.`;
+    const text = `${greet(a.full_name)} Impromotion lapā tev ir savs aktiera profils. Ar šo personīgo saiti vari to pārņemt: ${url}\n\nIeraksti savu e-pastu, atnāks saite ienākšanai (bez paroles). Profilā vari papildināt aprakstu un foto, atzīmēt, ko vadi un kurās dienās esi aizņemts, un ierakstīt savu minimālo honorāru. To redzu tikai es, klienti ne.`;
     try { await navigator.clipboard.writeText(text); toast('Ielūguma teksts ar saiti nokopēts. Iemetiet to WhatsApp.'); }
     catch { prompt('Nokopējiet ielūguma tekstu:', text); }
     return;

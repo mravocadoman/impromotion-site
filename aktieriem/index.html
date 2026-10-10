@@ -26,7 +26,7 @@
   </main>
 
   <script type="module">
-    import { sb, $, esc, mountLogin, currentProfile } from '/assets/backend/sb.js';
+    import { sb, $, esc, greet, mountLogin, currentProfile } from '/assets/backend/sb.js';
     import { renderActorForm } from '/assets/backend/actor-form.js';
     import { mountCalendar } from '/assets/backend/calendar.js';
 
@@ -49,7 +49,7 @@
       view.innerHTML = `
         <div class="app__intro">
           <p class="eyebrow eyebrow--yellow">Aktiera profils</p>
-          <h1 class="h2">Sveiki, ${esc(actor.stage_name || actor.full_name.split(' ')[0] || 'aktier')}!</h1>
+          <h1 class="h2">${esc(greet(actor.full_name))}</h1>
           <p class="muted">Šeit aizpildiet, ko protat un kad esat aizņemts. Mājaslapā rādām tikai to, kam piekrītat. Tālrunis un honorārs paliek redzami tikai Impromotion.</p>
         </div>
         <div class="app__cols">

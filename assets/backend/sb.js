@@ -22,6 +22,18 @@ export const photoUrl = (path) => {
 };
 export const isHttps = (u) => /^https:\/\/[^\s<>"]+$/i.test(u);
 
+// Latvian greeting in the vocative: Kristers -> "Sveiks, Krister!", Sandis -> "Sveiks, Sandi!", Leina -> "Sveika, Leina!".
+export function greet(fullName) {
+  const first = String(fullName || '').trim().split(/\s+/)[0] || '';
+  if (!first) return 'Sveiki!';
+  if (/[ae]$/i.test(first)) return `Sveika, ${first}!`;
+  const voc = /is$/i.test(first) ? first.slice(0, -1)        // Sandis -> Sandi
+    : /us$/i.test(first) ? first.slice(0, -1)                  // Mikus -> Miku
+    : /[sš]$/i.test(first) ? first.slice(0, -1)                // Kristers -> Krister, Andrejs -> Andrej
+    : first;
+  return `Sveiks, ${voc}!`;
+}
+
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -45,7 +57,7 @@ export async function mountLogin(root, { redirectPath }) {
   const who = invite ? esc(invite.stage_name ? `${invite.full_name} („${invite.stage_name}”)` : invite.full_name) : '';
   root.innerHTML = `
     <form class="panel login" novalidate>
-      <h1 class="h2">${invite ? `Sveiki, ${esc(invite.full_name.split(' ')[0])}!` : 'Ienākt'}</h1>
+      <h1 class="h2">${invite ? esc(greet(invite.full_name)) : 'Ienākt'}</h1>
       <p class="muted">${invite
         ? `Šī ir jūsu personīgā saite, lai pārņemtu profilu <strong>${who}</strong> impromotion.lv lapā. Ierakstiet savu e-pastu. Atsūtīsim saiti, ar kuru ienākt bez paroles, un ar šo e-pastu ienāksiet arī turpmāk.`
         : 'Ierakstiet e-pastu, ar kuru esat uzaicināts. Atsūtīsim saiti, ar kuru ienākt bez paroles.'}</p>
