@@ -57,7 +57,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
         <div class="grid2">
           <label class="field"><span>Statuss</span><select name="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${a.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
           <label class="field"><span>Kolektīvs</span><select name="troupe_id"><option value="">—</option>${troupes.map((t) => `<option value="${t.id}" ${a.troupe_id === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
-          <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(a.slug)}" pattern="[a-z0-9-]+" maxlength="60"></label>
+          <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(a.slug)}" pattern="[a-z0-9\-]+" maxlength="60"></label>
           <label class="field"><span>Secība (mazāks = augstāk)</span><input type="number" name="sort_order" value="${esc(a.sort_order ?? 100)}"></label>
         </div>
         <label class="field"><span>Piezīmes (aktieris neredz)</span><textarea name="admin_notes" rows="3">${esc(adminNotes)}</textarea></label>

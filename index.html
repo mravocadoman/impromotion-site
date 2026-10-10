@@ -513,7 +513,17 @@
             <label class="field"><span>Datums</span><input type="date" name="date"></label>
             <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">(kārtīga balle)</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
           </div>
-          <p class="chosen-actor" id="chosen-actor" hidden>Vēlamais <span data-kind>aktieris</span>: <strong></strong> <button type="button" aria-label="Noņemt izvēli">✕</button></p>
+          <label class="field"><span>Cik izpildītāju vajag?</span>
+            <select name="people">
+              <option value="">Iesakiet jūs</option>
+              <option>1</option><option>2</option><option>3</option><option>4–6</option><option>7+</option>
+            </select>
+          </label>
+          <div class="picks" id="picks" hidden>
+            <p class="picks__label">Jūsu izvēle</p>
+            <ul class="picks__list"></ul>
+            <p class="picks__hint small"></p>
+          </div>
           <input type="hidden" name="actor" value="">
           <label class="field"><span>Jūsu vārds</span><input type="text" name="name" autocomplete="name" placeholder="Piemēram, Anna" required maxlength="100"></label>
           <div class="brief__row brief__row--even">
@@ -531,6 +541,8 @@
       </div>
     </section>
   </main>
+
+  <button class="picks-bar" id="picks-bar" type="button" hidden>🎭 <span></span> <strong>Turpināt pieteikumu →</strong></button>
 
   <footer class="footer">
     <div class="wrap footer__wrap">
@@ -552,7 +564,7 @@
       </div>
     </div>
     <div class="modal__body"></div>
-    <button class="btn btn--yellow modal__book" type="button" data-book-actor>Pieteikt šo aktieri →</button>
+    <button class="btn btn--yellow modal__book" type="button" data-book-actor>Pievienot pieteikumam +</button>
   </dialog>
 
   <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>

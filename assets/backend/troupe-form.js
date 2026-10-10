@@ -40,7 +40,7 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], on
       <fieldset class="admin-only"><legend>Admins</legend>
         <div class="grid2">
           <label class="field"><span>Kolektīva admins</span><select name="admin_actor_id"><option value="">Nav</option>${members.map((m) => `<option value="${m.id}" ${t.admin_actor_id === m.id ? 'selected' : ''}>${esc(m.full_name)}</option>`).join('')}</select></label>
-          <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(t.slug)}" pattern="[a-z0-9-]+" maxlength="60"></label>
+          <label class="field"><span>Adrese (slug)</span><input name="slug" value="${esc(t.slug)}" pattern="[a-z0-9\-]+" maxlength="60"></label>
         </div>
         <label class="check"><input type="checkbox" name="show_on_site" ${t.show_on_site ? 'checked' : ''}> Rādīt kolektīvu mājaslapā</label>
       </fieldset>` : t.approved ? `
