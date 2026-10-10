@@ -901,3 +901,16 @@ section[id] { scroll-margin-top: 70px; }
 .admin-table td:nth-child(2) { white-space: nowrap; }
 .quotes__grid--single { grid-template-columns: minmax(0, 720px); justify-content: center; }
 .quotes__grid--single .quote blockquote { font-size: 1.3rem; }
+.join-form { margin-top: 2em; }
+.join-form fieldset legend { color: var(--cream); }
+.app-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.app-tabs button { font: inherit; font-weight: 700; padding: .55em 1.1em; border-radius: 99px; border: 1.5px solid var(--line); background: transparent; color: var(--text); cursor: pointer; }
+.app-tabs button.is-on { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+.app-tabs .count { display: inline-grid; place-items: center; min-width: 1.6em; height: 1.6em; margin-left: .35em; border-radius: 99px; background: var(--pink); color: var(--ink); font-size: .78rem; }
+.troupe-group { margin: 22px 0 6px; font-size: 1.1rem; color: var(--yellow); }
+.app-card { padding: 16px 18px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1.5px solid var(--line); display: grid; gap: 8px; }
+.app-card__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; justify-content: space-between; }
+.app-card__meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.app-card__meta span { font-size: .82rem; padding: .2em .65em; border-radius: 99px; background: rgba(255, 255, 255, .08); }
+.app-card p { margin: 0; white-space: pre-line; }
+.app-list { display: grid; gap: 12px; }
