@@ -20,7 +20,7 @@ python3 -m http.server 4173
 
 Push to `main` and GitHub Actions deploys it (`.github/workflows/deploy.yml`):
 
-1. It stamps `?v=<commit>` on the CSS/JS links in every HTML page. SiteGround tells browsers to cache those files for a year.
+1. It stamps `?v=<commit>` on every link to our own CSS, JS and images in every HTML page. SiteGround tells browsers to cache those files for a year, so without this a replaced image keeps its old cached copy.
 2. It rsyncs the site's own files over SSH (port 18765) into `www/impromotion.lv/public_html/`. There is no `--delete`, because the old WordPress files still live there.
 3. It flushes SiteGround's dynamic cache with `site-tools-client domain-all update id=1 flush_cache=1`.
 

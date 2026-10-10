@@ -13,11 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # SiteGround tells browsers to keep CSS/JS for a year, so every deploy gets a fresh ?v=.
+      # SiteGround tells browsers to keep CSS, JS and images for a year, so every deploy
+      # gives our own assets a fresh ?v= and changed files reach returning visitors.
       - name: Stamp asset versions
         run: |
           find . -name '*.html' -not -path './_source/*' -print0 | xargs -0 \
-            sed -i -E "s#(styles\.css|main\.js|blog\.js)(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g"
+            sed -i -E "s#((https://impromotion\.lv)?/?(assets/[^\"?]+|styles\.css|main\.js|favicon\.ico))(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g"
 
       - name: Load deploy key
         env:
