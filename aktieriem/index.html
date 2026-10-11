@@ -101,7 +101,8 @@
     let booted = false;
     $('#logout').addEventListener('click', async () => { await sb.auth.signOut(); show(); });
     // The magic link lands here signed in; avoid rendering twice on the initial SIGNED_IN event.
-    sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && booted && view.querySelector('.login')) show(); });
+    // setTimeout: supabase-js deadlocks if the callback itself calls back into sb.auth.
+    sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && booted && view.querySelector('.login')) setTimeout(show); });
     show().then(() => { booted = true; });
   </script>
   <script src="/assets/blog.js" defer></script>
