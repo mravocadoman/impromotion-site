@@ -445,7 +445,7 @@
           r.kind === 'actor' && r.available ? (fem(r.name) ? 'brīva' : 'brīvs') : '',
           r.kind === 'troupe' && r.free_members ? `brīvi ${r.free_members} no ${r.members}` : '',
         ].filter(Boolean);
-        return `<li><img src="${escHtml(img(r.photo_path))}" alt="" width="44" height="44" loading="lazy"><span class="suggest__name">${escHtml(r.name)}${tags.length ? `<small>${escHtml(tags.join(' · '))}</small>` : ''}</span><button type="button" class="btn btn--sm ${on ? 'btn--ghost' : 'btn--yellow'}" data-suggest-kind="${escHtml(r.kind)}" data-suggest-slug="${escHtml(r.slug)}" data-suggest-name="${escHtml(r.name)}">${on ? 'Izvēlēts ✓' : '+ Pievienot'}</button></li>`;
+        return `<li><img${r.kind === 'troupe' ? ' class="is-logo"' : ''} src="${escHtml(img(r.photo_path))}" alt="" width="44" height="44" loading="lazy"><span class="suggest__name">${escHtml(r.name)}${tags.length ? `<small>${escHtml(tags.join(' · '))}</small>` : ''}</span><button type="button" class="btn btn--sm ${on ? 'btn--ghost' : 'btn--yellow'}" data-suggest-kind="${escHtml(r.kind)}" data-suggest-slug="${escHtml(r.slug)}" data-suggest-name="${escHtml(r.name)}">${on ? 'Izvēlēts ✓' : '+ Pievienot'}</button></li>`;
       }).join('');
       const notes = [busy && `aizņemti šajā datumā: ${busy}`, over && `pāri budžetam: ${over}`].filter(Boolean);
       suggestBox.querySelector('.suggest__note').textContent = notes.length ? `Neparādām (${notes.join(', ')}).` : '';

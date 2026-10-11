@@ -938,7 +938,7 @@ section[id] { scroll-margin-top: 70px; }
 .troupes__title { font-size: clamp(1.4rem, 2.6vw, 2rem); margin: 0 0 20px; }
 .troupes__grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
 .troupe-card { display: grid; grid-template-columns: 96px 1fr; gap: 18px; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255, 246, 220, .04); }
-.troupe-card__logo { width: 96px; height: 96px; border-radius: 18px; object-fit: cover; background: var(--cream); }
+.troupe-card__logo { width: 96px; height: 96px; border-radius: 18px; object-fit: contain; padding: 6px; background: #fff; }
 .troupe-card__name { margin: 0 0 4px; font-size: 1.3rem; }
 .troupe-card__tag { margin: 0 0 6px; color: var(--yellow); font-weight: 600; }
 .troupe-card__desc { white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
@@ -953,6 +953,7 @@ section[id] { scroll-margin-top: 70px; }
 .suggest__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5em; }
 .suggest__list li { display: flex; align-items: center; gap: .7em; }
 .suggest__list img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--cream); flex: none; }
+.suggest__list img.is-logo { border-radius: 10px; object-fit: contain; padding: 3px; background: #fff; }
 .suggest__name { display: grid; line-height: 1.2; }
 .suggest__name small { color: var(--muted); font-size: .8em; }
 .suggest__list .btn { margin-left: auto; white-space: nowrap; }
