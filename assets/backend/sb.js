@@ -125,7 +125,8 @@ export async function currentProfile() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
   const { data } = await sb.from('profiles').select('id, email, role').eq('id', session.user.id).maybeSingle();
-  return data;
+  // Signed in but no profile row: say so instead of showing the login form again, which loops forever.
+  return data || { id: session.user.id, email: session.user.email, role: null };
 }
 
 // Resize to max 900px and re-encode as webp before upload, so phones don't push 8 MB photos.

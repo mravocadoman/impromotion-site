@@ -404,5 +404,5 @@ async function show() {
 }
 
 $('#logout').addEventListener('click', async () => { await sb.auth.signOut(); shown = false; show(); });
-sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && !shown) show(); });
+sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN' && !shown) setTimeout(show); });
 show();
