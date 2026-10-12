@@ -1,0 +1,27 @@
+# SGS XMLRPC Disable Service
+<Files xmlrpc.php>
+	order deny,allow
+	deny from all
+</Files>
+# SGS XMLRPC Disable Service END
+
+
+# SGO Unset Vary
+  Header unset Vary
+# SGO Unset Vary END
+
+# BEGIN Really Simple Security Disable directory indexing
+# Disable directory indexing to prevent listing of directory contents
+Options -Indexes
+# END Really Simple Security Disable directory indexing
+
+# Impromotion: the old WordPress site is gone for good. Answer 410 Gone (not 404 or 403) for its
+# paths and feeds, so Google drops them from Search Console instead of retrying.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^(wp-admin|wp-content|wp-includes|wp-json)(/|$) - [G,L]
+RewriteRule ^(wp-login|wp-cron|wp-signup|wp-trackback|xmlrpc)\.php$ - [G,L]
+RewriteRule ^(.+/)?feed/?$ - [G,L]
+RewriteCond %{QUERY_STRING} (^|&)(p|page_id|cat|feed)= [NC]
+RewriteRule ^$ - [G,L]
+</IfModule>
