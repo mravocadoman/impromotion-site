@@ -9,13 +9,13 @@ const modal = $('#edit-modal');
 modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
+let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, joinLinks: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
   filters: { status: '', skill: '', format: '', troupe: '', date: '', language: '', region: '', maxFee: '', level: '', sort: 'order', group: false },
   appFilters: { status: 'new', skill: '', maxFee: '' } };
 
 async function loadAll() {
   const today = new Date().toISOString().slice(0, 10);
-  const [actors, troupes, invites, profiles, bookings, links, applications, troupeNotes, settings] = await Promise.all([
+  const [actors, troupes, invites, profiles, bookings, links, applications, troupeNotes, settings, joinLinks] = await Promise.all([
     sb.from('actors').select('*').order('sort_order').order('full_name'),
     sb.from('troupes').select('*').order('name'),
     sb.from('invites').select('*').order('invited_at', { ascending: false }),
@@ -25,8 +25,9 @@ async function loadAll() {
     sb.from('applications').select('*').order('created_at', { ascending: false }),
     sb.from('troupe_admin_notes').select('*'),
     sb.from('app_settings').select('*').maybeSingle(),
+    sb.from('troupe_join_links').select('*'),
   ]);
-  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error || links.error || applications.error || troupeNotes.error || settings.error;
+  const err = actors.error || troupes.error || invites.error || profiles.error || bookings.error || links.error || applications.error || troupeNotes.error || settings.error || joinLinks.error;
   if (err) { toast(`Neizdevās ielādēt: ${err.message}`, 'error'); return false; }
   state.actors = actors.data;
   state.troupes = troupes.data;
@@ -36,6 +37,7 @@ async function loadAll() {
   state.applications = applications.data;
   state.troupeNotes = Object.fromEntries(troupeNotes.data.map((n) => [n.troupe_id, n]));
   if (settings.data) state.settings = settings.data;
+  state.joinLinks = Object.fromEntries(joinLinks.data.map((l) => [l.troupe_id, l.token]));
   state.emails = Object.fromEntries(profiles.data.map((p) => [p.id, p.email]));
   return true;
 }
@@ -213,7 +215,7 @@ function draw() {
         <h2 class="panel__title">Kolektīvi</h2>
         <ul class="plain-list">${state.troupes.map((t) => {
           const admin = state.actors.find((a) => a.id === t.admin_actor_id);
-          return `<li><span><strong>${esc(t.name)}</strong>${t.needs_review ? ' <span class="notice">izmaiņas</span>' : ''}<br><span class="muted small">${((n) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'aktieris' : 'aktieri'}`)(state.actors.filter((a) => a.troupe_id === t.id).length)} · ${admin ? `admins: ${esc(admin.full_name)}` : 'nav admina'} · ${t.show_on_site ? 'mājaslapā' : 'nav mājaslapā'} · ${esc(state.troupeNotes[t.id]?.outreach_status || 'nav sazināts')}</span></span><button class="btn btn--ghost btn--sm" data-edit-troupe="${t.id}">Rediģēt</button></li>`;
+          return `<li><span><strong>${esc(t.name)}</strong>${t.needs_review ? ' <span class="notice">izmaiņas</span>' : ''}<br><span class="muted small">${((n) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'aktieris' : 'aktieri'}`)(state.actors.filter((a) => a.troupe_id === t.id).length)} · ${admin ? `admins: ${esc(admin.full_name)}` : 'nav admina'} · ${t.show_on_site ? 'mājaslapā' : 'nav mājaslapā'} · ${esc(state.troupeNotes[t.id]?.outreach_status || 'nav sazināts')}</span></span><span class="row-actions">${state.joinLinks[t.id] ? `<button class="btn btn--ghost btn--sm" data-join-link="${t.id}">Kolektīva saite</button>` : ''}<button class="btn btn--ghost btn--sm" data-edit-troupe="${t.id}">Rediģēt</button></span></li>`;
         }).join('')}</ul>
         <form id="troupe-form" class="invite-form">
           <label class="field"><span>Nosaukums</span><input name="name" required maxlength="80"></label>
@@ -266,6 +268,13 @@ view.addEventListener('change', async (e) => {
 view.addEventListener('click', async (e) => {
   const edit = e.target.closest('[data-edit]');
   if (edit) return openEditor(edit.dataset.edit);
+  const joinBtn = e.target.closest('[data-join-link]');
+  if (joinBtn) {
+    const url = `${location.origin}/pievienojies/?k=${state.joinLinks[joinBtn.dataset.joinLink]}`;
+    try { await navigator.clipboard.writeText(url); toast('Kolektīva saite nokopēta. To var ielikt kolektīva čatā, katrs aktieris pieteiksies pats.'); }
+    catch { prompt('Nokopējiet kolektīva saiti:', url); }
+    return;
+  }
   const editTroupe = e.target.closest('[data-edit-troupe]');
   if (editTroupe) return openTroupeEditor(editTroupe.dataset.editTroupe);
 

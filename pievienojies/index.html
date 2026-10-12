@@ -62,6 +62,10 @@
       </ul>
 
       <form class="brief join-form" id="join" novalidate>
+        <div class="join-troupe" id="join-troupe" hidden>
+          <img src="" alt="" width="64" height="64">
+          <p><strong></strong><span>Aizpildi formu, un tavs profils uzreiz būs šajā kolektīvā.</span></p>
+        </div>
         <h2 class="panel__title">Pieteikums</h2>
         <div class="brief__row brief__row--even">
           <label class="field"><span>Vārds, uzvārds *</span><input name="full_name" required maxlength="80" autocomplete="name"></label>
@@ -121,6 +125,24 @@
       document.querySelector(`[data-chips="${name}"]`).innerHTML = opts.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join('');
     }
     const form = document.getElementById('join');
+    // A collective's join link: /pievienojies/?k=<token>. Shows the collective and puts the actor straight into it.
+    const joinToken = new URLSearchParams(location.search).get('k');
+    if (joinToken) {
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/troupe_join_info`, {
+        method: 'POST', headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_token: joinToken }),
+      }).then((r) => r.json()).then((rows) => {
+        const t = Array.isArray(rows) && rows[0];
+        if (!t) { say('Šī kolektīva saite vairs nav derīga. Vari pieteikties arī bez tās.', 'error'); return; }
+        const box = document.getElementById('join-troupe');
+        box.querySelector('strong').textContent = `Pievienojies kolektīvam ${t.name}`;
+        const img = box.querySelector('img');
+        if (t.logo_path && /^[0-9a-z-]+\/[\w.-]+$/i.test(t.logo_path)) img.src = `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${t.logo_path}`; else img.remove();
+        box.hidden = false;
+        const troupeField = form.querySelector('[name="troupes"]');
+        troupeField.value = t.name; troupeField.readOnly = true;
+      }).catch(() => {});
+    }
     const status = document.getElementById('join-status');
     const say = (t, tone) => { status.textContent = t; status.dataset.tone = tone || ''; };
     form.addEventListener('submit', async (e) => {
@@ -134,7 +156,7 @@
         p_full_name: fd.get('full_name'), p_stage_name: fd.get('stage_name'), p_email: fd.get('email'), p_phone: fd.get('phone'),
         p_troupes: fd.get('troupes'), p_experience_years: num('experience_years'),
         p_skills: fd.getAll('skills'), p_formats: fd.getAll('formats'), p_languages: fd.getAll('languages'), p_regions: fd.getAll('regions'),
-        p_min_fee_eur: num('min_fee_eur'), p_fee_unit: fd.get('fee_unit'), p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
+        p_min_fee_eur: num('min_fee_eur'), p_fee_unit: fd.get('fee_unit'), p_join_token: joinToken || null, p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
       };
       const btn = form.querySelector('[type=submit]');
       btn.disabled = true; say('Sūtām…');
@@ -145,11 +167,14 @@
         });
         const result = await res.json();
         const msg = { ok: ['Paldies! Pieteikums saņemts. Sazināsimies drīzumā. 🎉', 'ok'],
+          joined: ['Gatavs! Tavs profils ir izveidots. Ienāc impromotion.lv/aktieriem/ ar šo pašu e-pastu, pievieno foto un atzīmē aizņemtās dienas. 🎉', 'ok'],
+          badlink: ['Šī kolektīva saite vairs nav derīga. Pajautā kolektīvam jaunu vai piesakies bez tās.', 'error'],
           duplicate: ['Tavs pieteikums jau ir pie mums. Sazināsimies drīzumā.', 'ok'],
           invalid: ['Pārbaudi e-pastu un laukus. Kaut kas neizskatās pareizi.', 'error'],
           busy: ['Šobrīd ir daudz pieteikumu. Pamēģini vēlreiz pēc stundas.', 'error'],
           consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz rihards.zeila@gmail.com.', 'error'];
         say(...msg);
+        if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ienākt profilā →</a>');
         if (msg[1] === 'ok') form.reset();
       } catch { say('Neizdevās nosūtīt. Raksti uz rihards.zeila@gmail.com.', 'error'); }
       finally { btn.disabled = false; }
