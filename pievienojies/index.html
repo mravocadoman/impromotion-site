@@ -81,7 +81,15 @@
           <fieldset><legend>Valodas</legend><div class="chips" data-chips="languages"></div></fieldset>
           <fieldset><legend>Kur vari strādāt?</legend><div class="chips" data-chips="regions"></div></fieldset>
         </div>
-        <label class="field"><span>Minimālais honorārs par pasākumu, EUR (redz tikai Impromotion)</span><input type="number" name="min_fee_eur" min="0" step="10" placeholder="Piemēram, 100"></label>
+        <div class="field"><span>Minimālais honorārs, EUR (redz tikai Impromotion)</span>
+          <div class="fee-row">
+            <input type="number" name="min_fee_eur" min="0" step="5" placeholder="Piemēram, 50" aria-label="Minimālais honorārs, EUR">
+            <select name="fee_unit" aria-label="Par ko">
+              <option value="event">par pasākumu</option>
+              <option value="hour">par stundu</option>
+            </select>
+          </div>
+        </div>
         <label class="field"><span>Saites: video, Instagram, Facebook, izrādes</span><textarea name="links" rows="2" maxlength="600" placeholder="Viena saite rindā"></textarea></label>
         <label class="field"><span>Pastāsti par sevi</span><textarea name="about" rows="4" maxlength="1500" placeholder="Kur spēlē, ko esi vadījis, kas tev padodas vislabāk"></textarea></label>
         <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
@@ -126,7 +134,7 @@
         p_full_name: fd.get('full_name'), p_stage_name: fd.get('stage_name'), p_email: fd.get('email'), p_phone: fd.get('phone'),
         p_troupes: fd.get('troupes'), p_experience_years: num('experience_years'),
         p_skills: fd.getAll('skills'), p_formats: fd.getAll('formats'), p_languages: fd.getAll('languages'), p_regions: fd.getAll('regions'),
-        p_min_fee_eur: num('min_fee_eur'), p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
+        p_min_fee_eur: num('min_fee_eur'), p_fee_unit: fd.get('fee_unit'), p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
       };
       const btn = form.querySelector('[type=submit]');
       btn.disabled = true; say('Sūtām…');

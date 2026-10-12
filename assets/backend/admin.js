@@ -50,6 +50,9 @@ async function loadBusy(date) {
   [...(busy.data || []), ...(booked.data || [])].forEach((r) => state.busyOn.add(r.actor_id));
 }
 
+// Fees can be per hour; compare as a two-hour gig, like the database does.
+const eventFee = (x) => (x.min_fee_eur == null ? null : x.min_fee_eur * (x.fee_unit === 'hour' ? 2 : 1));
+const feeText = (x) => `${x.min_fee_eur} €${x.fee_unit === 'hour' ? '/h' : ''}`;
 const troupeName = (id) => state.troupes.find((t) => t.id === id)?.name || '';
 
 function filtered() {
@@ -61,14 +64,14 @@ function filtered() {
     (!f.troupe || a.troupe_id === f.troupe) &&
     (!f.language || a.languages.includes(f.language)) &&
     (!f.region || a.regions.includes(f.region) || a.regions.includes('Visa Latvija')) &&
-    (!f.maxFee || (a.min_fee_eur != null && a.min_fee_eur <= Number(f.maxFee))) &&
+    (!f.maxFee || (eventFee(a) != null && eventFee(a) <= Number(f.maxFee))) &&
     (!f.level || (a.level || 'none') === f.level) &&
     (!f.date || !state.busyOn.has(a.id)));
-  const fee = (a) => (a.min_fee_eur == null ? Infinity : a.min_fee_eur);
+  const fee = (a) => eventFee(a) ?? Infinity;
   const sorters = {
     order: (x, y) => x.sort_order - y.sort_order || x.full_name.localeCompare(y.full_name, 'lv'),
     feeAsc: (x, y) => fee(x) - fee(y),
-    feeDesc: (x, y) => (y.min_fee_eur ?? -1) - (x.min_fee_eur ?? -1),
+    feeDesc: (x, y) => (eventFee(y) ?? -1) - (eventFee(x) ?? -1),
     name: (x, y) => x.full_name.localeCompare(y.full_name, 'lv'),
   };
   return list.sort(sorters[f.sort] || sorters.order);
@@ -79,7 +82,7 @@ function filteredApplications() {
   return state.applications.toSorted((x, y) => (y.score ?? -1) - (x.score ?? -1)).filter((p) =>
     (!f.status || p.status === f.status) &&
     (!f.skill || p.skills.includes(f.skill)) &&
-    (!f.maxFee || (p.min_fee_eur != null && p.min_fee_eur <= Number(f.maxFee))));
+    (!f.maxFee || (eventFee(p) != null && eventFee(p) <= Number(f.maxFee))));
 }
 
 function draw() {
@@ -96,7 +99,7 @@ function draw() {
       <td><span class="status-badge status-badge--${a.status}">${STATUS[a.status]}</span>${a.needs_review ? '<br><span class="status-badge status-badge--pending">izmainīts, pārskatiet</span>' : ''}${a.show_on_site ? '' : '<br><span class="muted small">nerāda lapā</span>'}</td>
       <td class="small">${a.skills.map(esc).join(', ')}</td>
       <td class="small">${a.user_id ? esc(state.emails[a.user_id] || '') : '<span class="muted">nav konta</span>'}${a.phone ? `<br>${esc(a.phone)}` : ''}</td>
-      <td>${a.min_fee_eur != null ? `${a.min_fee_eur} €` : '<span class="muted">—</span>'}</td>
+      <td>${a.min_fee_eur != null ? feeText(a) : '<span class="muted">—</span>'}</td>
       <td class="actions"><div class="row-actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}</div></td>
     </tr>`;
   const list = filtered();
@@ -121,7 +124,7 @@ function draw() {
       <div class="app-card__meta">
         ${p.troupes ? `<span>🎭 ${esc(p.troupes)}</span>` : ''}
         ${p.experience_years != null ? `<span>${p.experience_years} g. pieredze</span>` : ''}
-        ${p.min_fee_eur != null ? `<span>💶 no ${p.min_fee_eur} €</span>` : ''}
+        ${p.min_fee_eur != null ? `<span>💶 no ${feeText(p)}</span>` : ''}
         ${[...p.skills, ...p.formats].map((s) => `<span>${esc(s)}</span>`).join('')}
         ${p.languages.length ? `<span>🗣 ${esc(p.languages.join(', '))}</span>` : ''}
         ${p.regions.length ? `<span>📍 ${esc(p.regions.join(', '))}</span>` : ''}
@@ -285,7 +288,7 @@ view.addEventListener('click', async (e) => {
       troupeId = t.id;
     }
     const { data: actor, error: aErr } = await sb.from('actors').insert({
-      full_name: p.full_name, stage_name: p.stage_name, phone: p.phone, min_fee_eur: p.min_fee_eur, experience_years: p.experience_years, troupe_id: troupeId,
+      full_name: p.full_name, stage_name: p.stage_name, phone: p.phone, min_fee_eur: p.min_fee_eur, fee_unit: p.fee_unit, experience_years: p.experience_years, troupe_id: troupeId,
       skills: p.skills, formats: p.formats, languages: p.languages, regions: p.regions, bio: p.about, status: 'draft',
     }).select().single();
     if (aErr) return fail(aErr.message === 'banned' ? 'Šo cilvēku nevar pievienot.' : aErr.message);

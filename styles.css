@@ -959,3 +959,6 @@ section[id] { scroll-margin-top: 70px; }
 .suggest__list .btn { margin-left: auto; white-space: nowrap; }
 .suggest__note { margin: .5em 0 0; color: var(--muted); }
 .suggest__note:empty { display: none; }
+
+/* Fee input with a per event / per hour selector */
+.fee-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }

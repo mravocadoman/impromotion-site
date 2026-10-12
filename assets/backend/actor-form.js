@@ -43,7 +43,12 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       <fieldset class="private"><legend>Redz tikai Impromotion</legend>
         <div class="grid2">
           <label class="field"><span>Tālrunis</span><input type="tel" name="phone" value="${esc(a.phone)}" maxlength="40"></label>
-          <label class="field"><span>Minimālais honorārs (EUR par pasākumu)</span><input type="number" name="min_fee_eur" value="${esc(a.min_fee_eur)}" min="0" step="10" placeholder="Piemēram, 100"></label>
+          <div class="field"><span>Minimālais honorārs, EUR</span>
+            <div class="fee-row">
+              <input type="number" name="min_fee_eur" value="${esc(a.min_fee_eur)}" min="0" step="5" placeholder="Piemēram, 50" aria-label="Minimālais honorārs, EUR">
+              <select name="fee_unit" aria-label="Par ko"><option value="event" ${a.fee_unit !== 'hour' ? 'selected' : ''}>par pasākumu</option><option value="hour" ${a.fee_unit === 'hour' ? 'selected' : ''}>par stundu</option></select>
+            </div>
+          </div>
           <label class="field"><span>Cik gadus improvizējat?</span><input type="number" name="experience_years" value="${esc(a.experience_years)}" min="0" max="60"></label>
         </div>
       </fieldset>
@@ -120,6 +125,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       socials: Object.fromEntries(SOCIALS.map((s) => [s, fd.get(`social_${s}`).trim()]).filter(([, v]) => v)),
       phone: fd.get('phone').trim() || null,
       min_fee_eur: fd.get('min_fee_eur') ? Number(fd.get('min_fee_eur')) : null,
+      fee_unit: fd.get('fee_unit') === 'hour' ? 'hour' : 'event',
       experience_years: fd.get('experience_years') ? Number(fd.get('experience_years')) : null,
       show_on_site: fd.has('show_on_site'),
       allow_ads: fd.has('allow_ads'),
