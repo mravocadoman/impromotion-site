@@ -434,14 +434,14 @@
         return true;
       }).map((r) => ({
         ...r,
-        score: r.skills_hit * 3 + r.formats_hit * 2 + (level && r.level === level ? 3 : level && r.level ? -2 : 0) + (r.kind === 'troupe' ? (wantShow ? 3 : -1) : 0),
+        score: r.skills_hit * 3 + r.formats_hit * 2 + (level && r.level === level ? 3 : level && r.level ? -2 : 0) + (r.kind === 'troupe' ? (wantShow ? 3 : -1) : 0) + (r.vetted === false ? -2 : 0),
       })).sort((x, y) => y.score - x.score || x.name.localeCompare(y.name, 'lv')).slice(0, 6);
       const img = (p) => (p && p.startsWith('/assets/') ? p
         : p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}` : '/assets/img/apple-touch-icon.png');
       suggestBox.querySelector('.suggest__list').innerHTML = top.map((r) => {
         const on = picked(r.name);
         const tags = [
-          r.kind === 'troupe' ? 'kolektīvs' : '', LEVELS[r.level] || '',
+          r.kind === 'troupe' ? 'kolektīvs' : '', r.vetted === false ? 'jauns' : '', LEVELS[r.level] || '',
           r.kind === 'actor' && r.available ? (fem(r.name) ? 'brīva' : 'brīvs') : '',
           r.kind === 'troupe' && r.free_members ? `brīvi ${r.free_members} no ${r.members}` : '',
         ].filter(Boolean);
@@ -471,7 +471,7 @@
       <button class="actor__open" type="button" aria-haspopup="dialog">
         <span class="actor__photo"><img src="${escHtml(photo)}" alt="${escHtml(a.full_name)}" width="600" height="600" loading="lazy"></span>
         ${a.stage_name ? `<span class="actor__nick">“${escHtml(a.stage_name)}”</span>` : ''}
-        <span class="actor__name">${escHtml(a.full_name)}</span>${troupe}
+        <span class="actor__name">${escHtml(a.full_name)}</span>${troupe}${a.vetted === false ? '<span class="actor__new">Jauns</span>' : ''}
         <span class="actor__short">${escHtml(a.short_bio || '')}</span>
         <span class="actor__more">Iepazīties →</span>
       </button>
@@ -497,8 +497,18 @@
       const photo = (p) => (p && p.startsWith('/assets/') ? p
         : p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}`
         : '/assets/img/apple-touch-icon.png');
-      grid.innerHTML = actors.map((a) => actorCard(a, photo(a.photo_path))).join('');
+      // Checked pros in the main grid; self-published profiles in "Jaunie talanti" below.
+      const vetted = actors.filter((a) => a.vetted !== false);
+      const fresh = actors.filter((a) => a.vetted === false);
+      grid.innerHTML = vetted.map((a) => actorCard(a, photo(a.photo_path))).join('');
       grid.querySelectorAll('.actor').forEach(bindActor);
+      if (fresh.length) {
+        const box = document.getElementById('jaunie');
+        const newGrid = box.querySelector('.actors__grid');
+        newGrid.innerHTML = fresh.map((a) => actorCard(a, photo(a.photo_path))).join('');
+        newGrid.querySelectorAll('.actor').forEach(bindActor);
+        box.hidden = false;
+      }
 
       // Skill filter, only worth it once the team is bigger than one screen.
       const skills = [...new Set(actors.flatMap((a) => a.skills))].sort((x, y) => x.localeCompare(y, 'lv'));

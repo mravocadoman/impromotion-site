@@ -968,3 +968,7 @@ section[id] { scroll-margin-top: 70px; }
 .join-troupe img { width: 64px; height: 64px; border-radius: 12px; object-fit: contain; background: #fff; padding: 4px; flex: none; }
 .join-troupe p { margin: 0; display: grid; gap: 2px; }
 .join-troupe strong { color: var(--yellow); }
+
+/* Self-published, not yet checked profiles */
+.actors-new { margin-top: clamp(40px, 6vw, 72px); }
+.actor__new { display: inline-block; margin-top: 4px; padding: 2px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--cyan); color: var(--ink); }

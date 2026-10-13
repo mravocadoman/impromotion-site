@@ -11,7 +11,8 @@ export const FORMATS = ['Korporatīvie pasākumi', 'Kāzas', 'Dzimšanas dienas'
 export const LANGUAGES = ['latviešu', 'angļu', 'krievu', 'vācu'];
 export const REGIONS = ['Rīga', 'Pierīga', 'Kurzeme', 'Zemgale', 'Vidzeme', 'Latgale', 'Visa Latvija', 'Ārzemes'];
 export const SOCIALS = ['facebook', 'instagram', 'tiktok', 'youtube', 'x'];
-export const STATUS = { draft: 'Melnraksts', pending: 'Gaida apstiprinājumu', approved: 'Apstiprināts', hidden: 'Paslēpts' };
+// pending = published by the actor, live as a new talent; approved = checked by Impromotion.
+export const STATUS = { draft: 'Melnraksts', pending: 'Publicēts, gaida pārbaudi', approved: 'Pārbaudīts', hidden: 'Paslēpts' };
 
 // Site assets ('/assets/...') or files in our own bucket; nothing from other hosts.
 export const photoUrl = (path) => {

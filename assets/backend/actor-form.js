@@ -72,7 +72,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
 
       <div class="actor-form__actions">
         <button class="btn btn--yellow btn--lg" type="submit">Saglabāt</button>
-        ${!admin && a.status === 'draft' ? '<button class="btn btn--ghost btn--lg" type="button" data-submit-review>Iesniegt apstiprināšanai</button>' : ''}
+        ${!admin && a.status === 'draft' ? '<button class="btn btn--ghost btn--lg" type="button" data-submit-review>Publicēt profilu</button>' : ''}
       </div>
     </form>`;
 
@@ -159,5 +159,6 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
   };
 
   form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
-  form.querySelector('[data-submit-review]')?.addEventListener('click', () => save({ status: 'pending' }));
+  // Publishing is the consent to show the profile: it goes live under "Jaunie talanti" until Impromotion checks it.
+  form.querySelector('[data-submit-review]')?.addEventListener('click', () => save({ status: 'pending', show_on_site: true }));
 }
