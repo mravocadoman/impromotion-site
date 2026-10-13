@@ -646,7 +646,7 @@
       const r = btn.getBoundingClientRect();
       confetti(r.left + r.width / 2, r.top);
     } catch (err) {
-      say('Neizdevās nosūtīt. Lūdzu, rakstiet mums WhatsApp vai uz rihards.zeila@gmail.com.', 'error');
+      say('Neizdevās nosūtīt. Lūdzu, rakstiet mums WhatsApp vai uz hello@impromotion.lv.', 'error');
     } finally {
       btn.disabled = false;
     }

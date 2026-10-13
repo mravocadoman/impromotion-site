@@ -32,6 +32,9 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+/* body's overflow-x only clips scrolling: phones still zoom out to fit the tilted marquee's
+   corners, which pushes the fixed nav off the edge. Clipping main keeps the page at screen width. */
+main { overflow-x: clip; }
 /* film grain */
 body::after {
   content: "";
@@ -122,9 +125,24 @@ p:last-child { margin-bottom: 0; }
   justify-content: space-between;
   gap: 24px;
   padding: 14px max(16px, calc((100% - var(--wrap)) / 2));
-  transition: background-color .3s, backdrop-filter .3s, padding .3s;
+  transition: padding .3s;
 }
-.nav--solid { background: rgba(11, 10, 31, .78); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); padding-block: 8px; border-bottom: 1px solid var(--line); }
+/* The frosted bar sits on a pseudo-element: backdrop-filter on .nav itself would make it the
+   containing block for the fixed mobile menu and squash the menu into the bar. */
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(11, 10, 31, .78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.nav--solid { padding-block: 8px; }
+.nav--solid::before { opacity: 1; }
 .nav__logo img { height: 52px; width: auto; transition: transform .4s var(--ease-spring); }
 .nav__logo:hover img { transform: rotate(-6deg) scale(1.06); }
 .nav__links { display: flex; align-items: center; gap: clamp(14px, 2.2vw, 30px); }

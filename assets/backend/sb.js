@@ -81,7 +81,7 @@ export async function mountLogin(root, { redirectPath }) {
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + redirectPath } });
     if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudiet e-pastu (arī mēstules).'; return; }
     status.textContent = /database error|not invited|signups/i.test(error.message)
-      ? 'Šis e-pasts nav uzaicināts. Rakstiet uz rihards.zeila@gmail.com.'
+      ? 'Šis e-pasts nav uzaicināts. Rakstiet uz hello@impromotion.lv.'
       : /rate|seconds/i.test(error.message) ? 'Pārāk daudz mēģinājumu. Pagaidiet minūti un mēģiniet vēlreiz.' : `Neizdevās nosūtīt saiti: ${error.message}`;
   });
 }
