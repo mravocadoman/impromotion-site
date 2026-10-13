@@ -172,11 +172,11 @@
           duplicate: ['Tavs pieteikums jau ir pie mums. Sazināsimies drīzumā.', 'ok'],
           invalid: ['Pārbaudi e-pastu un laukus. Kaut kas neizskatās pareizi.', 'error'],
           busy: ['Šobrīd ir daudz pieteikumu. Pamēģini vēlreiz pēc stundas.', 'error'],
-          consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz rihards.zeila@gmail.com.', 'error'];
+          consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'];
         say(...msg);
         if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ienākt profilā →</a>');
         if (msg[1] === 'ok') form.reset();
-      } catch { say('Neizdevās nosūtīt. Raksti uz rihards.zeila@gmail.com.', 'error'); }
+      } catch { say('Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'); }
       finally { btn.disabled = false; }
     });
   </script>
