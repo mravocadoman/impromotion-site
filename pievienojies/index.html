@@ -127,6 +127,14 @@
     const form = document.getElementById('join');
     // A collective's join link: /pievienojies/?k=<token>. Shows the collective and puts the actor straight into it.
     const joinToken = new URLSearchParams(location.search).get('k');
+    // Where the visitor came from: the ?no= tag on our links (fb-amatierteatri, email-humors…), else the referring site.
+    const source = (() => {
+      const tag = (new URLSearchParams(location.search).get('no') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
+      let saved = '';
+      try { if (tag) sessionStorage.setItem('imp-src', tag); saved = sessionStorage.getItem('imp-src') || ''; } catch (e) { saved = tag; }
+      if (saved) return saved;
+      try { const host = new URL(document.referrer).hostname; return host && host !== location.hostname ? `ref:${host}` : ''; } catch (e) { return ''; }
+    })();
     if (joinToken) {
       fetch(`${SUPABASE_URL}/rest/v1/rpc/troupe_join_info`, {
         method: 'POST', headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
@@ -156,7 +164,7 @@
         p_full_name: fd.get('full_name'), p_stage_name: fd.get('stage_name'), p_email: fd.get('email'), p_phone: fd.get('phone'),
         p_troupes: fd.get('troupes'), p_experience_years: num('experience_years'),
         p_skills: fd.getAll('skills'), p_formats: fd.getAll('formats'), p_languages: fd.getAll('languages'), p_regions: fd.getAll('regions'),
-        p_min_fee_eur: num('min_fee_eur'), p_fee_unit: fd.get('fee_unit'), p_join_token: joinToken || null, p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
+        p_min_fee_eur: num('min_fee_eur'), p_fee_unit: fd.get('fee_unit'), p_join_token: joinToken || null, p_source: source || null, p_links: fd.get('links'), p_about: fd.get('about'), p_consent: true,
       };
       const btn = form.querySelector('[type=submit]');
       btn.disabled = true; say('Sūtām…');

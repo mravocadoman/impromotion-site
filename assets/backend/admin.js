@@ -125,6 +125,7 @@ function draw() {
       ${p.score != null ? `<p class="small"><span class="status-badge status-badge--${{ good: 'approved', maybe: 'pending', weak: 'hidden' }[p.verdict] || 'draft'}">${{ good: 'Labs kandidāts', maybe: 'Varbūt', weak: 'Vājš' }[p.verdict] || ''} · ${p.score}/100</span>${p.auto_rejected ? ' <span class="muted">noraidīts automātiski</span>' : ''}<br><span class="muted">${esc(p.score_notes.join('; '))}</span></p>` : ''}
       <div class="app-card__meta">
         ${p.troupes ? `<span>🎭 ${esc(p.troupes)}</span>` : ''}
+        ${p.source ? `<span>🔗 avots: ${esc(p.source)}</span>` : ''}
         ${p.experience_years != null ? `<span>${p.experience_years} g. pieredze</span>` : ''}
         ${p.min_fee_eur != null ? `<span>💶 no ${feeText(p)}</span>` : ''}
         ${[...p.skills, ...p.formats].map((s) => `<span>${esc(s)}</span>`).join('')}
