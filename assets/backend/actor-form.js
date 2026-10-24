@@ -12,6 +12,17 @@ const chipGroup = (name, options, selected, allowCustom) => {
 
 export function renderActorForm(root, actor, { admin = false, troupes = [], adminNotes = '', onSaved } = {}) {
   const a = { skills: [], formats: [], languages: [], regions: [], socials: {}, ...actor };
+  const draft = !admin && a.status === 'draft';
+  // Tell the actor in plain words whether clients can see the profile, since "Saglabāt" alone never publishes it.
+  const missing = [[a.photo_path, 'foto'], [a.short_bio, 'īss apraksts kartītei'], [a.min_fee_eur, 'minimālais honorārs'], [a.skills.length, 'ko protat']]
+    .filter(([v]) => !v).map(([, label]) => label);
+  const note = admin ? '' : draft
+    ? `Jūsu profils vēl nav publicēts, tāpēc klienti to neredz. Kad viss gatavs, spiediet “Saglabāt un publicēt”.${missing.length ? `<br>Vēl trūkst: ${missing.join(', ')}.` : ''}`
+    : !a.show_on_site && a.status !== 'hidden'
+      ? 'Jūsu profils mājaslapā nav redzams, jo nav atzīmēts “Drīkst rādīt manu profilu un foto impromotion.lv mājaslapā”.'
+      : a.status === 'pending'
+        ? 'Jūsu profils ir publicēts sadaļā “Jaunie talanti”. Pēc pirmā kopīgā pasākuma to pārcelsim pie pārbaudītajiem profesionāļiem.'
+        : '';
   root.innerHTML = `
     <form class="actor-form" novalidate>
       <div class="actor-form__top">
@@ -26,6 +37,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
           <p class="status-badge status-badge--${a.status}">${STATUS[a.status] || a.status}</p>
         </div>
       </div>
+      ${note ? `<p class="publish-note">${note}</p>` : ''}
 
       <label class="field"><span>Īsi par sevi (redzams uz kartītes) <em class="count" data-count="short_bio"></em></span><textarea name="short_bio" rows="2" maxlength="200">${esc(a.short_bio)}</textarea></label>
       <label class="field"><span>Joks kartītei (parādās, kad uzbrauc ar peli; neobligāti)</span><input name="quip" value="${esc(a.quip)}" maxlength="60" placeholder="Piemēram: Domāja, ka tas ir teātra pulciņš."></label>
@@ -71,8 +83,9 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       </fieldset>` : ''}
 
       <div class="actor-form__actions">
-        <button class="btn btn--yellow btn--lg" type="submit">Saglabāt</button>
-        ${!admin && a.status === 'draft' ? '<button class="btn btn--ghost btn--lg" type="button" data-submit-review>Publicēt profilu</button>' : ''}
+        ${draft
+          ? '<button class="btn btn--yellow btn--lg" type="button" data-submit-review>Saglabāt un publicēt</button><button class="btn btn--ghost btn--lg" type="submit">Saglabāt melnrakstu</button>'
+          : '<button class="btn btn--yellow btn--lg" type="submit">Saglabāt</button>'}
       </div>
     </form>`;
 
@@ -154,7 +167,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       const { error: noteErr } = await sb.from('actor_admin_notes').upsert({ actor_id: a.id, notes, updated_at: new Date().toISOString() });
       if (noteErr) { toast(`Piezīmes nesaglabājās: ${noteErr.message}`, 'error'); return; }
     }
-    toast('Saglabāts.');
+    toast(draft && !extra.status ? 'Saglabāts kā melnraksts. Klienti to vēl neredz.' : 'Saglabāts.');
     onSaved?.();
   };
 

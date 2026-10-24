@@ -175,14 +175,14 @@
         });
         const result = await res.json();
         const msg = { ok: ['Paldies! Pieteikums saņemts. Sazināsimies drīzumā. 🎉', 'ok'],
-          joined: ['Gatavs! Tavs profils ir izveidots. Ienāc impromotion.lv/aktieriem/ ar šo pašu e-pastu, pievieno foto un atzīmē aizņemtās dienas. 🎉', 'ok'],
+          joined: ['Tavs profils ir izveidots, bet vēl nav publicēts. Ieej impromotion.lv/aktieriem/ ar to pašu e-pasta adresi, pievieno foto un spied “Saglabāt un publicēt”. Instrukciju nosūtījām arī uz e-pastu. 🎉', 'ok'],
           badlink: ['Šī kolektīva saite vairs nav derīga. Pajautā kolektīvam jaunu vai piesakies bez tās.', 'error'],
           duplicate: ['Tavs pieteikums jau ir pie mums. Sazināsimies drīzumā.', 'ok'],
           invalid: ['Pārbaudi e-pastu un laukus. Kaut kas neizskatās pareizi.', 'error'],
           busy: ['Šobrīd ir daudz pieteikumu. Pamēģini vēlreiz pēc stundas.', 'error'],
           consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'];
         say(...msg);
-        if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ienākt profilā →</a>');
+        if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ieiet profilā →</a>');
         if (msg[1] === 'ok') form.reset();
       } catch { say('Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'); }
       finally { btn.disabled = false; }
