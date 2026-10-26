@@ -593,6 +593,8 @@ p:last-child { margin-bottom: 0; }
 .actor__open:hover { border-color: rgba(253, 203, 8, .6); }
 .actor__photo { display: block; width: 72%; margin-bottom: -16px; transition: transform .5s var(--ease-spring); }
 .actor__photo img { width: 100%; height: auto; clip-path: circle(48.5%); }
+/* Cut-out photos (polish-profile) get the same white disc and yellow ring the team portraits have baked in. */
+img[src$="-cut.webp"] { background: radial-gradient(circle closest-side, #fff 0 76%, #fdcb08 calc(76% + 1px) 100%, transparent 100%); border-radius: 50%; }
 .actor__open:hover .actor__photo { transform: scale(1.05) rotate(-3deg); }
 .actor__nick {
   position: relative;

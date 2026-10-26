@@ -20,6 +20,8 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
     ? `Jūsu profils vēl nav publicēts, tāpēc klienti to neredz. Kad viss gatavs, spiediet “Saglabāt un publicēt”.${missing.length ? `<br>Vēl trūkst: ${missing.join(', ')}.` : ''}`
     : !a.show_on_site && a.status !== 'hidden'
       ? 'Jūsu profils mājaslapā nav redzams, jo nav atzīmēts “Drīkst rādīt manu profilu un foto impromotion.lv mājaslapā”.'
+      : a.status === 'pending' && (!a.photo_path || !a.short_bio?.trim())
+        ? `Jūsu profils ir publicēts, bet mājaslapā to rādīsim tikai tad, kad būs pievienots ${[!a.photo_path && 'foto', !a.short_bio?.trim() && 'īss apraksts kartītei'].filter(Boolean).join(' un ')}.`
       : a.status === 'pending'
         ? 'Jūsu profils ir publicēts sadaļā “Jaunie talanti”. Pēc pirmā kopīgā pasākuma to pārcelsim pie pārbaudītajiem profesionāļiem.'
         : '';
@@ -120,7 +122,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
     if (error) { toast(`Foto neaugšupielādējās: ${error.message}`, 'error'); return; }
     newPhotoPath = path;
     form.querySelector('.photo-pick__img').src = photoUrl(path);
-    toast('Foto augšupielādēts. Nospiediet "Saglabāt".');
+    toast('Foto augšupielādēts. Nospiediet "Saglabāt". Pēc minūtes fonu noņemsim automātiski.');
   });
 
   const collect = () => {
