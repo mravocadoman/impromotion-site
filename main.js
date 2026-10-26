@@ -584,6 +584,13 @@
 
   /* ---------- Event brief → n8n (saves the lead, e-mails Rihards, pings WhatsApp) ---------- */
   const LEAD_URL = 'https://marketingaskola.app.n8n.cloud/webhook/impromotion-lead?k=imp-lv-2026';
+  // Where the visitor came from (?utm_source= / ?no= tag or the referring site), kept for the whole visit.
+  const leadSource = (() => {
+    const q = new URLSearchParams(location.search);
+    let s = q.get('utm_source') || q.get('no') || '';
+    if (!s && document.referrer) { try { const h = new URL(document.referrer).host; if (h !== location.host) s = `ref:${h}`; } catch {} }
+    try { if (s) sessionStorage.setItem('imp-lead-src', s.slice(0, 80)); return sessionStorage.getItem('imp-lead-src') || ''; } catch { return s.slice(0, 80); }
+  })();
   const form = document.getElementById('brief');
   const status = document.getElementById('brief-status');
   const guests = document.getElementById('guests');
@@ -629,6 +636,11 @@
       level: data.get('level') ? form.querySelector('[name="level"]').selectedOptions[0].textContent : '',
       page: location.href,
       website: data.get('website'),
+      // raw values for the CRM (the labels above are for the e-mail)
+      date_iso: data.get('date') || '',
+      budget_eur: data.get('budget') || '',
+      level_key: data.get('level') || '',
+      source: leadSource,
     };
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;

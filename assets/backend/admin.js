@@ -3,13 +3,14 @@ import { sb, $, esc, greet, toast, mountLogin, currentProfile, photoUrl, SKILLS,
 import { renderActorForm } from './actor-form.js';
 import { mountCalendar } from './calendar.js';
 import { renderTroupeForm } from './troupe-form.js';
+import { loadCrm, crmPanel, bindCrm } from './crm.js';
 
 const view = $('#view');
 const modal = $('#edit-modal');
 modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-let state = { actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, joinLinks: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
+let state = { crm: { inquiries: [], candidates: {} }, actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, joinLinks: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
   filters: { status: '', skill: '', format: '', troupe: '', date: '', language: '', region: '', maxFee: '', level: '', sort: 'order', group: false },
   appFilters: { status: 'new', skill: '', maxFee: '' } };
 
@@ -39,6 +40,7 @@ async function loadAll() {
   if (settings.data) state.settings = settings.data;
   state.joinLinks = Object.fromEntries(joinLinks.data.map((l) => [l.troupe_id, l.token]));
   state.emails = Object.fromEntries(profiles.data.map((p) => [p.id, p.email]));
+  state.crm = await loadCrm();
   return true;
 }
 
@@ -147,6 +149,8 @@ function draw() {
       <h1 class="h2">Aktieri un kolektīvi</h1>
       ${pending ? `<p class="notice">${pending} ${pending === 1 ? 'profils gaida' : 'profili gaida'} jūsu apskati.</p>` : ''}
     </div>
+
+    ${crmPanel(state.crm, state.settings.client_markup_pct)}
 
     <section class="panel">
       <div class="filters">
@@ -405,6 +409,8 @@ view.addEventListener('submit', async (e) => {
   }
   await loadAll(); draw();
 });
+
+bindCrm(view, () => state.crm, async () => { if (await loadAll()) draw(); });
 
 let shown = false;
 async function show() {

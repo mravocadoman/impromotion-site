@@ -878,6 +878,8 @@ section[id] { scroll-margin-top: 70px; }
 .status-badge--pending { background: rgba(253, 203, 8, .2); color: var(--yellow); }
 .status-badge--approved { background: rgba(62, 224, 255, .18); color: var(--cyan); }
 .status-badge--hidden { background: rgba(255, 79, 139, .18); color: var(--pink); }
+.crm-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.crm-form__wide { grid-column: 1 / -1; }
 .publish-note { margin: 0 0 1.25rem; padding: .85rem 1rem; border-radius: 12px; border: 1px solid rgba(253, 203, 8, .45); background: rgba(253, 203, 8, .1); line-height: 1.5; }
 .cal__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
