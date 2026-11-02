@@ -299,7 +299,7 @@
       const photo = modal.querySelector('.modal__photo');
       photo.src = img.src;
       photo.alt = img.alt;
-      modal.querySelector('.modal__nick').textContent = actor.querySelector('.actor__nick').textContent;
+      modal.querySelector('.modal__nick').textContent = actor.querySelector('.actor__nick')?.textContent || '';
       modal.querySelector('.modal__name').textContent = actor.querySelector('.actor__name').textContent;
       modal.querySelector('.modal__body').innerHTML = actor.querySelector('.actor__bio').innerHTML;
       modal.dataset.actor = actor.querySelector('.actor__name').textContent;

@@ -609,6 +609,7 @@ img[src$="-cut.webp"] { background: radial-gradient(circle closest-side, #fff 0 
   box-shadow: 3px 3px 0 var(--pink);
   margin-bottom: 14px;
 }
+.actor__photo + .actor__name { margin-top: 30px; } /* no nickname tag to sit on the photo's overlap */
 .actor__name { display: block; font-size: 1.5rem; font-weight: 800; font-variation-settings: "wdth" 85; text-transform: uppercase; line-height: 1; margin-bottom: 10px; }
 .actor__short { display: block; color: var(--muted); font-size: .98rem; line-height: 1.4; margin-bottom: 16px; }
 .actor__more { margin-top: auto; font-weight: 700; color: var(--yellow); }
