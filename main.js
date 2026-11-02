@@ -655,6 +655,7 @@
       refreshAvailability();
       updateGuests();
       say('Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉', 'ok');
+      window.impTrack?.('Lead');
       const r = btn.getBoundingClientRect();
       confetti(r.left + r.width / 2, r.top);
     } catch (err) {

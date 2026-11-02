@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=20261102">
 </head>
 <body class="blog-page">
   <a class="skip" href="#saturs">Pāriet uz saturu</a>
@@ -183,10 +183,12 @@
           consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'];
         say(...msg);
         if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ieiet profilā →</a>');
+        if (result === 'ok' || result === 'joined') window.impTrack?.('CompleteRegistration');
         if (msg[1] === 'ok') form.reset();
       } catch { say('Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'); }
       finally { btn.disabled = false; }
     });
   </script>
+  <script src="/assets/track.js?v=20261102" defer></script>
 </body>
 </html>
