@@ -54,7 +54,7 @@
       if (!actor) {
         view.innerHTML = profile.role === 'admin'
           ? `<div class="panel"><h1 class="h2">Sveiks, admin!</h1><p>Aktieru profili, ielūgumi un pieejamība ir <a href="/admin/">admina lapā</a>.</p></div>`
-          : `<div class="panel"><h1 class="h2">Profils vēl nav piesaistīts</h1><p>Jūsu e-pasts (${esc(profile.email)}) nav saistīts ar aktiera profilu. Rakstiet uz hello@impromotion.lv.</p></div>`;
+          : `<div class="panel"><h1 class="h2">Profils vēl nav piesaistīts</h1><p>Tavs e-pasts (${esc(profile.email)}) nav saistīts ar aktiera profilu. Uzraksti uz hello@impromotion.lv, un to sakārtosim.</p></div>`;
         return;
       }
 
@@ -62,8 +62,8 @@
         <div class="app__intro">
           <p class="eyebrow eyebrow--yellow">Aktiera profils</p>
           <h1 class="h2">${esc(greet(actor.full_name))}</h1>
-          <p class="muted">Šeit aizpildiet, ko protat, un atzīmējiet dienas, kad nevarat strādāt. Mājaslapā rādām tikai to, kam piekrītat. Tālrunis un honorārs paliek redzami tikai Impromotion.</p>
-          <p class="small muted">Lai vēlāk atgrieztos, atveriet impromotion.lv, izvēlnē spiediet “Aktieriem” un ierakstiet savu e-pastu. Atnāks jauna saite ienākšanai.</p>
+          <p class="muted">Šeit norādi, ko proti, un atzīmē dienas, kad nevari strādāt. Mājaslapā rādām tikai to, kam piekrīti. Tālruņa numurs un honorārs būs redzami tikai Impromotion komandai.</p>
+          <p class="small muted">Lai vēlāk atgrieztos, atver impromotion.lv, izvēlnē spied “Aktieriem” un ieraksti savu e-pastu. E-pastā saņemsi jaunu saiti, lai ienāktu profilā.</p>
         </div>
         <div class="app__cols">
           <section class="panel" id="profile"></section>
@@ -77,7 +77,7 @@
       const STATUS_B = { tentative: 'provizoriski', confirmed: 'apstiprināta', done: 'notikusi' };
       $('#gigs').innerHTML = (gigs || []).length
         ? gigs.map((g) => `<li><div><strong>${esc(g.day.split('-').reverse().join('.'))} · ${esc(g.title)}</strong><span class="muted small"> ${STATUS_B[g.status] || ''}${g.actor_fee_eur != null ? ` · honorārs ${g.actor_fee_eur} €` : ''}</span>${g.location ? `<br><span class="small">${esc(g.location)}</span>` : ''}${g.details ? `<p class="small gig__details">${esc(g.details)}</p>` : ''}</div></li>`).join('')
-        : '<li class="muted">Pagaidām nav. Kad Impromotion jums ierezervēs pasākumu, tas parādīsies šeit.</li>';
+        : '<li class="muted">Pagaidām pasākumu nav. Kad Impromotion Tevi rezervēs pasākumam, tas parādīsies šeit.</li>';
       mountCalendar($('#calendar'), actor.id, { booked: (gigs || []).map((g) => g.day) });
 
       // Collective admins also edit their collective's profile here.
@@ -91,7 +91,7 @@
           const panel = document.createElement('section');
           panel.className = 'panel';
           panel.id = 'kolektivs';
-          panel.innerHTML = `<p class="eyebrow eyebrow--yellow">Mans kolektīvs</p><h2 class="h2">${esc(troupe.name)}</h2><p class="muted">Jūs esat šī kolektīva admins. Šeit aizpildiet kolektīva profilu, ko rādīsim impromotion.lv.</p><div id="troupe-form"></div>`;
+          panel.innerHTML = `<p class="eyebrow eyebrow--yellow">Mans kolektīvs</p><h2 class="h2">${esc(troupe.name)}</h2><p class="muted">Tu pārvaldi šī kolektīva profilu. Šeit norādi informāciju par kolektīvu, ko rādīsim impromotion.lv.</p><div id="troupe-form"></div>`;
           view.querySelector('.app__intro').after(panel);
           renderTroupeForm($('#troupe-form'), troupe, { members: members || [], onSaved: show });
           if (location.hash === '#kolektivs') panel.scrollIntoView();

@@ -956,12 +956,27 @@ section[id] { scroll-margin-top: 70px; }
 .admin-tab.is-on { background: var(--yellow); color: var(--ink); }
 .admin-tab__n { display: inline-block; min-width: 1.6em; padding: 0 .45em; border-radius: 99px; background: var(--pink); color: #fff; font-size: .78rem; text-align: center; }
 [data-tab][hidden] { display: none !important; }
-.crm-item > summary { cursor: pointer; list-style: none; align-items: center; }
-.crm-item > summary::-webkit-details-marker { display: none; }
-.crm-item > summary::after { content: "▾"; margin-left: auto; color: var(--muted); transition: transform .2s; }
-.crm-item[open] > summary::after { transform: rotate(180deg); }
-.crm-item:not([open]) { gap: 0; }
-.crm-item--closed:not([open]) { opacity: .6; }
+.kanban { display: grid; grid-template-columns: repeat(6, minmax(220px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-top: 14px; }
+.kcol { display: flex; flex-direction: column; gap: 10px; min-height: 140px; padding: 12px; border-radius: 18px; background: rgba(255, 255, 255, .03); border: 1.5px dashed transparent; }
+.kcol.is-over { border-color: var(--yellow); background: rgba(253, 203, 8, .06); }
+.kcol--closed { opacity: .7; }
+.kcol__title { display: flex; justify-content: space-between; align-items: center; margin: 0; font-size: .95rem; }
+.kcol__title span { min-width: 1.8em; padding: 0 .5em; border-radius: 99px; background: rgba(255, 255, 255, .1); font-size: .8rem; text-align: center; }
+.kcol__list { display: grid; gap: 10px; align-content: start; }
+.kcard { display: grid; gap: 6px; padding: 12px; border-radius: 14px; background: #16284d; border: 1.5px solid var(--line); cursor: pointer; font-size: .9rem; }
+.kcard:hover, .kcard:focus-visible { border-color: rgba(253, 203, 8, .6); }
+.kcard--late { border-color: var(--pink); }
+.kcard__chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.kcard__chips em { font-style: normal; font-size: .75rem; padding: .15em .55em; border-radius: 99px; background: rgba(255, 255, 255, .08); }
+.kcard__chips .kcard__late { background: rgba(255, 79, 139, .2); color: var(--pink); font-weight: 700; }
+.kcard .btn { justify-self: start; }
+.crm-h { margin: 22px 0 8px; font-size: 1.05rem; }
+.crm-msg { white-space: pre-line; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, .05); }
+.crm-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.crm-table th { text-align: left; font-size: .78rem; color: var(--muted); font-weight: 600; padding: 4px 8px; }
+.crm-table td { padding: 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+.crm-table td:last-child { text-align: right; }
+.crm-yes { color: var(--cyan); } .crm-no { color: var(--pink); }
 
 /* Actor login link in the shared nav */
 .nav__links .nav__login { padding: 6px 14px; border: 1.5px solid rgba(255, 246, 220, .35); border-radius: 999px; }

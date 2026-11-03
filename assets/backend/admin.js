@@ -119,7 +119,7 @@ function draw() {
       <td class="small">${a.skills.map(esc).join(', ')}</td>
       <td class="small">${a.user_id ? esc(state.emails[a.user_id] || '') : '<span class="muted">nav konta</span>'}${a.phone ? `<br>${esc(a.phone)}` : ''}</td>
       <td>${a.min_fee_eur != null ? feeText(a) : '<span class="muted">—</span>'}</td>
-      <td class="actions"><div class="row-actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}</div></td>
+      <td class="actions"><div class="row-actions"><button class="btn btn--ghost btn--sm" data-edit="${a.id}">Rediģēt</button>${a.user_id ? '' : `<button class="btn btn--ghost btn--sm" data-invite-link="${a.id}">Ielūguma saite</button>`}<button class="link-btn" data-del-actor="${a.id}">dzēst</button></div></td>
     </tr>`;
   const list = filtered();
   let rows;
@@ -375,6 +375,18 @@ view.addEventListener('click', async (e) => {
     return;
   }
 
+  const delActor = e.target.closest('[data-del-actor]');
+  if (delActor) {
+    const a = state.actors.find((x) => x.id === delActor.dataset.delActor);
+    const gigs = state.bookings.filter((b) => b.actor_id === a.id).length;
+    if (!confirm(`Dzēst ${a.full_name} profilu neatgriezeniski?\n\nKopā ar to pazudīs aizņemtās dienas, ielūguma saites, piezīmes${gigs ? ` un ${gigs} nākamās haltūras` : ''}. Pieteikums paliks sarakstā.`)) return;
+    const { error } = await sb.from('actors').delete().eq('id', a.id);
+    if (error) return toast(error.message, 'error');
+    toast(`${a.full_name} profils izdzēsts.`);
+    await loadAll(); draw();
+    return;
+  }
+
   const del = e.target.closest('[data-del-invite]');
   if (del) {
     await sb.from('invites').delete().eq('email', del.dataset.delInvite);
@@ -426,7 +438,7 @@ view.addEventListener('submit', async (e) => {
   await loadAll(); draw();
 });
 
-bindCrm(view, () => state.crm, async () => { if (await loadAll()) draw(); });
+bindCrm(view, () => state.crm, async () => { if (await loadAll()) draw(); }, { modal, body: $('#edit-body') });
 
 let shown = false;
 async function show() {

@@ -17,13 +17,13 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
   const missing = [[a.photo_path, 'foto'], [a.short_bio, 'īss apraksts kartītei'], [a.min_fee_eur, 'minimālais honorārs'], [a.skills.length, 'ko protat']]
     .filter(([v]) => !v).map(([, label]) => label);
   const note = admin ? '' : draft
-    ? `Jūsu profils vēl nav publicēts, tāpēc klienti to neredz. Kad viss gatavs, spiediet “Saglabāt un publicēt”.${missing.length ? `<br>Vēl trūkst: ${missing.join(', ')}.` : ''}`
+    ? `Tavs profils vēl nav publicēts, tāpēc klienti to neredz. Kad viss gatavs, spied “Saglabāt un publicēt”.${missing.length ? `<br>Vēl trūkst: ${missing.join(', ')}.` : ''}`
     : !a.show_on_site && a.status !== 'hidden'
-      ? 'Jūsu profils mājaslapā nav redzams, jo nav atzīmēts “Drīkst rādīt manu profilu un foto impromotion.lv mājaslapā”.'
+      ? 'Tavs profils mājaslapā nav redzams, jo nav atzīmēts “Drīkst rādīt manu profilu un foto impromotion.lv mājaslapā”.'
       : a.status === 'pending' && (!a.photo_path || !a.short_bio?.trim())
-        ? `Jūsu profils ir publicēts, bet mājaslapā to rādīsim tikai tad, kad būs pievienots ${[!a.photo_path && 'foto', !a.short_bio?.trim() && 'īss apraksts kartītei'].filter(Boolean).join(' un ')}.`
+        ? `Tavs profils ir publicēts, bet mājaslapā to rādīsim tikai tad, kad būs pievienots ${[!a.photo_path && 'foto', !a.short_bio?.trim() && 'īss apraksts kartītei'].filter(Boolean).join(' un ')}.`
       : a.status === 'pending'
-        ? 'Jūsu profils ir publicēts sadaļā “Jaunie talanti”. Pēc pirmā kopīgā pasākuma to pārcelsim pie pārbaudītajiem profesionāļiem.'
+        ? 'Tavs profils ir publicēts sadaļā “Jaunie talanti”. Pēc pirmā kopīgā pasākuma Tavu profilu pārcelsim pie pārbaudītajiem profesionāļiem.'
         : '';
   root.innerHTML = `
     <form class="actor-form" novalidate>
@@ -45,7 +45,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
       <label class="field"><span>Joks kartītei (parādās, kad uzbrauc ar peli; neobligāti)</span><input name="quip" value="${esc(a.quip)}" maxlength="60" placeholder="Piemēram: Domāja, ka tas ir teātra pulciņš."></label>
       <label class="field"><span>Vairāk par sevi <em class="count" data-count="bio"></em></span><textarea name="bio" rows="7" maxlength="2000">${esc(a.bio)}</textarea></label>
 
-      <fieldset><legend>Ko jūs darāt</legend>${chipGroup('skills', SKILLS, a.skills, true)}</fieldset>
+      <fieldset><legend>Ko Tu dari</legend>${chipGroup('skills', SKILLS, a.skills, true)}</fieldset>
       <fieldset><legend>Kādus pasākumus vadāt</legend>${chipGroup('formats', FORMATS, a.formats, true)}</fieldset>
       <fieldset><legend>Valodas</legend>${chipGroup('languages', LANGUAGES, a.languages, true)}</fieldset>
       <fieldset><legend>Kur strādājat</legend>${chipGroup('regions', REGIONS, a.regions, false)}</fieldset>
@@ -122,7 +122,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
     if (error) { toast(`Foto neaugšupielādējās: ${error.message}`, 'error'); return; }
     newPhotoPath = path;
     form.querySelector('.photo-pick__img').src = photoUrl(path);
-    toast('Foto augšupielādēts. Nospiediet "Saglabāt". Pēc minūtes fonu noņemsim automātiski.');
+    toast('Foto augšupielādēts. Nospied “Saglabāt”. Pēc minūtes foto fonu noņemsim automātiski.');
   });
 
   const collect = () => {
@@ -158,7 +158,7 @@ export function renderActorForm(root, actor, { admin = false, troupes = [], admi
 
   const save = async (extra = {}) => {
     const row = { ...collect(), ...extra };
-    if (!row.full_name) { toast('Ierakstiet vārdu un uzvārdu.', 'error'); return; }
+    if (!row.full_name) { toast('Ieraksti vārdu un uzvārdu.', 'error'); return; }
     const badLink = Object.values(row.socials).find((u) => !isHttps(u));
     if (badLink) { toast('Sociālo tīklu saitēm jāsākas ar https://', 'error'); return; }
     if (admin) row.needs_review = false;

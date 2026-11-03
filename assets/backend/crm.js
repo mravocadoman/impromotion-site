@@ -47,69 +47,129 @@ export function castingText(i) {
 }
 
 const BOOKED = { tentative: 'provizoriski', confirmed: '✓ droši', done: 'notika' };
-const STATUS_TONE = { 'jauns': 'hidden', 'sazināts': 'pending', 'piedāvājums': 'pending', 'apstiprināts': 'approved', 'notika': 'approved' };
-// The inquiry whose lineup is being built stays open across redraws; saving closes it.
-let openInquiry = null;
 const eur = (v) => (v == null ? '?' : `${v.toLocaleString('lv-LV')} €`);
+const dmy = (d) => d.split('-').reverse().join('.');
+// The next step for each column, as a one-click button on the card.
+const NEXT = { 'jauns': ['sazināts', '✓ Sazinājos'], 'sazināts': ['piedāvājums', 'Piedāvājums nosūtīts'], 'piedāvājums': ['apstiprināts', 'Apstiprināt'], 'apstiprināts': ['notika', 'Notika'] };
+// Moves that e-mail the lineup or cancel bookings ask first (the DB trigger acts on the status).
+const CONFIRM = { 'apstiprināts': 'Apstiprināt? Sastāvam aizies e-pasts ar pasākuma datiem.', 'notika': 'Atzīmēt, ka pasākums notika? Jaunie talanti no sastāva pāries pie pārbaudītajiem.', 'atteikts': 'Atzīmēt kā atteiktu? Sastāva rezervācijas tiks atceltas.' };
+let markupPct = 30;
+let openId = null;  // the inquiry shown in the window, kept open across reloads
 
-export function crmPanel({ inquiries, candidates, cast = {} }, markupPct) {
+const daysSince = (t) => Math.floor((Date.now() - new Date(t).getTime()) / 86400000);
+
+export function crmPanel({ inquiries, candidates, cast = {} }, markup) {
+  markupPct = markup;
   const open = inquiries.filter((i) => OPEN.includes(i.status));
   const sums = open.reduce((s, i) => { const e = estimate(i, candidates[i.id] || [], markupPct, cast[i.id]); s.price += e.price || 0; s.margin += e.margin || 0; return s; }, { price: 0, margin: 0 });
   const card = (i) => {
-    const cands = candidates[i.id] || [];
-    const lineup = cast[i.id] || [];
-    const e = estimate(i, cands, markupPct, lineup);
-    const isOpen = OPEN.includes(i.status);
-    const bookingOf = (actorId) => lineup.find((b) => b.actor_id === actorId);
-    return `<details class="app-card crm-item${isOpen ? '' : ' crm-item--closed'}" data-inq="${i.id}" ${openInquiry === i.id ? 'open' : ''}>
-      <summary class="app-card__head">
-        <strong>${esc(i.event_date ? i.event_date.split('-').reverse().join('.') : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')} · ${esc(i.name || 'bez vārda')}</strong>
-        <span class="status-badge status-badge--${STATUS_TONE[i.status] || 'draft'}">${esc(CRM_STATUS[i.status] || i.status)}</span>
-      </summary>
-      <p class="muted small">${i.email ? esc(i.email) : ''}${i.phone ? ` · ${esc(i.phone)}` : ''} · ienāca ${esc(new Date(i.created_at).toLocaleDateString('lv-LV'))}</p>
-      <div class="app-card__meta">
-        ${i.guests ? `<span>👥 ${i.guests} viesi</span>` : ''}
-        ${i.people ? `<span>${esc(i.people)} izpild.</span>` : ''}
-        ${i.budget_label ? `<span>💶 ${esc(i.budget_label)}</span>` : ''}
-        ${i.level ? `<span>līmenis: ${esc(i.level)}</span>` : ''}
-        ${i.wants.map((w) => `<span>${esc(w)}</span>`).join('')}
-        ${i.source ? `<span>🔗 ${esc(i.source)}</span>` : ''}
-        ${i.draft_at ? '<span>✉️ atbilde Gmail melnrakstos</span>' : ''}
-      </div>
-      ${i.shortlist ? `<p class="small">Klients izvēlējās: ${esc(i.shortlist)}</p>` : ''}
-      ${i.message ? `<details class="small"><summary>${esc(i.message.slice(0, 140))}${i.message.length > 140 ? '…' : ''}</summary><p>${esc(i.message)}</p></details>` : ''}
-      ${lineup.length ? `<p class="small"><strong>Sastāvs:</strong> ${lineup.map((b) => `${esc(b.actors?.full_name || '?')} <span class="muted">(${BOOKED[b.status] || b.status})</span>`).join(' · ')}</p>` : ''}
-      ${isOpen ? `<p class="small"><strong>Var derēt:</strong> ${cands.length ? cands.map((c) => {
-        const b = bookingOf(c.actor_id);
-        const btn = i.event_date ? `<button class="btn btn--ghost btn--sm" type="button" data-assign="${i.id}" data-actor="${c.actor_id}" data-fee="${c.fee_eur ?? ''}" data-booking="${b?.id || ''}">${b ? 'Noņemt' : 'Pievienot'}</button>` : '';
-        return `${esc(c.name)} <span class="muted">${c.available === false ? '✗ aizņemts' : c.available ? '✓ brīvs' : ''}${c.fee_eur != null ? ` · no ${c.fee_eur} €` : ''}${c.vetted ? '' : ' · jauns'}</span> ${btn}`;
-      }).join(' · ') : '<span class="muted">neviens no sarakstā esošajiem</span>'}</p>
-      ${i.event_date ? '' : '<p class="small muted">Lai pievienotu aktierus, ieraksti pasākuma datumu un saglabā.</p>'}
-      <p class="small"><strong>${e.agreed ? 'Norunāts' : 'Aptuveni'}:</strong> klientam ${eur(e.price)}, aktieriem ${eur(e.cost)}, peļņa ${eur(e.margin)}</p>` : ''}
-      <form class="crm-form" data-inquiry="${i.id}">
-        <label class="field"><span>Statuss</span><select name="status">${Object.entries(CRM_STATUS).map(([k, v]) => `<option value="${k}" ${i.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-        <label class="field"><span>Datums</span><input type="date" name="event_date" value="${i.event_date || ''}"></label>
-        <label class="field"><span>Cena klientam €</span><input type="number" name="price_eur" min="0" step="10" value="${i.price_eur ?? ''}"></label>
-        <label class="field"><span>Aktieriem €</span><input type="number" name="cost_eur" min="0" step="10" value="${i.cost_eur ?? ''}"></label>
-        <label class="field crm-form__wide"><span>Piezīmes</span><textarea name="notes" rows="2" maxlength="4000">${esc(i.notes || '')}</textarea></label>
-        <div class="row-actions" style="justify-content:flex-start">
-          <button class="btn btn--yellow btn--sm" type="submit">Saglabāt</button>
-          ${isOpen ? `<button class="btn btn--ghost btn--sm" type="button" data-casting="${i.id}">Kastinga teksts</button>` : ''}
-        </div>
-      </form>
-    </details>`;
+    const e = estimate(i, candidates[i.id] || [], markupPct, cast[i.id]);
+    const waiting = i.status === 'jauns' && daysSince(i.created_at) >= 1;
+    const lineup = (cast[i.id] || []).length;
+    const next = NEXT[i.status];
+    return `<article class="kcard${waiting ? ' kcard--late' : ''}" draggable="true" data-inq="${i.id}" tabindex="0">
+      <strong>${esc(i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')}</strong>
+      <span>${esc(i.name || 'bez vārda')}${i.guests ? ` · ${i.guests} viesi` : ''}</span>
+      <span class="kcard__chips">${waiting ? `<em class="kcard__late">⏰ gaida ${daysSince(i.created_at)} d.</em>` : ''}${e.price != null ? `<em>~${eur(e.price)}</em>` : ''}${lineup ? `<em>🎭 ${lineup}</em>` : ''}${i.source ? `<em>🔗 ${esc(i.source)}</em>` : ''}${i.draft_at && i.status === 'jauns' ? '<em>✉️ melnraksts</em>' : ''}</span>
+      ${next ? `<button class="btn btn--ghost btn--sm" type="button" data-move="${i.id}" data-to="${next[0]}">${next[1]}</button>` : ''}
+    </article>`;
   };
+  const cols = Object.entries(CRM_STATUS).map(([k, label]) => {
+    const items = inquiries.filter((i) => i.status === k);
+    return `<div class="kcol${OPEN.includes(k) ? '' : ' kcol--closed'}" data-col="${k}"><h3 class="kcol__title">${label} <span>${items.length}</span></h3><div class="kcol__list">${items.map(card).join('') || '<p class="muted small">Tukšs</p>'}</div></div>`;
+  }).join('');
   return `<section class="panel">
-      <h2 class="panel__title">Pasākumu pieprasījumi${open.filter((i) => i.status === 'jauns').length ? ` <span class="notice">${open.filter((i) => i.status === 'jauns').length} jauni</span>` : ''}</h2>
+      <h2 class="panel__title">Pasākumu pieprasījumi</h2>
       <p class="small">Atvērti: <strong>${open.length}</strong> · iespējamie ieņēmumi <strong>${eur(sums.price)}</strong> · aptuvenā peļņa <strong>${eur(sums.margin)}</strong>
-        <span class="muted">(pēc budžeta vai lētākajiem brīvajiem aktieriem + ${markupPct} %)</span></p>
-      <div class="app-list">${inquiries.map(card).join('') || '<p class="muted">Pieprasījumu vēl nav.</p>'}</div>
+        <span class="muted">· velc kartīti uz citu kolonnu vai spied pogu tajā; klikšķis atver detaļas</span></p>
+      <div class="kanban">${cols}</div>
     </section>`;
 }
 
-// Wires the panel's buttons and forms; `reload` redraws the admin page after a save.
-export function bindCrm(view, getCrm, reload) {
-  view.addEventListener('click', async (e) => {
+// Everything about one inquiry, shown in the admin window.
+function detail(i, cands, lineup) {
+  const isOpen = OPEN.includes(i.status);
+  const e = estimate(i, cands, markupPct, lineup);
+  const bookingOf = (actorId) => lineup.find((b) => b.actor_id === actorId);
+  const free = (c) => (c.available === false ? '<span class="crm-no">✗ aizņemts</span>' : c.available ? '<span class="crm-yes">✓ brīvs</span>' : '<span class="muted">datums nav zināms</span>');
+  return `<p class="eyebrow eyebrow--yellow">${esc(CRM_STATUS[i.status])}</p>
+    <h2 class="h2">${esc(i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')}</h2>
+    <p><strong>${esc(i.name || 'bez vārda')}</strong>${i.email ? ` · <a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : ''}${i.phone ? ` · <a href="tel:${esc(i.phone)}">${esc(i.phone)}</a>` : ''} <span class="muted small">· ienāca ${esc(new Date(i.created_at).toLocaleDateString('lv-LV'))}</span></p>
+    <div class="app-card__meta">
+      ${i.guests ? `<span>👥 ${i.guests} viesi</span>` : ''}${i.people ? `<span>${esc(i.people)} izpild.</span>` : ''}${i.budget_label ? `<span>💶 ${esc(i.budget_label)}</span>` : ''}${i.level ? `<span>līmenis: ${esc(i.level)}</span>` : ''}
+      ${i.wants.map((w) => `<span>${esc(w)}</span>`).join('')}${i.source ? `<span>🔗 ${esc(i.source)}</span>` : ''}${i.draft_at ? '<span>✉️ atbilde Gmail melnrakstos</span>' : ''}
+    </div>
+    ${i.shortlist ? `<p class="small">Klients izvēlējās: ${esc(i.shortlist)}</p>` : ''}
+    ${i.message ? `<p class="crm-msg">${esc(i.message)}</p>` : ''}
+
+    <h3 class="crm-h">Sastāvs</h3>
+    ${lineup.length ? `<table class="crm-table"><tbody>${lineup.map((b) => `<tr><td><strong>${esc(b.actors?.full_name || '?')}</strong></td><td>${BOOKED[b.status] || b.status}</td><td>${b.actor_fee_eur != null ? `${b.actor_fee_eur} €` : ''}</td><td>${isOpen ? `<button class="btn btn--ghost btn--sm" data-assign="${i.id}" data-booking="${b.id}">Noņemt</button>` : ''}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="muted small">Vēl neviens nav pievienots.</p>'}
+
+    ${isOpen ? `<h3 class="crm-h">Kas var derēt</h3>
+    ${!i.event_date ? '<p class="notice">Ieraksti pasākuma datumu un saglabā, tad varēsi pievienot aktierus.</p>' : ''}
+    ${cands.length ? `<table class="crm-table"><thead><tr><th>Aktieris</th><th>Datumā</th><th>Honorārs</th><th>Līmenis</th><th></th></tr></thead><tbody>${cands.filter((c) => !bookingOf(c.actor_id)).map((c) => `<tr>
+      <td><strong>${esc(c.name)}</strong>${c.vetted ? '' : ' <span class="muted small">jauns</span>'}</td><td>${free(c)}</td><td>${c.fee_eur != null ? `no ${c.fee_eur} €` : '<span class="muted">?</span>'}</td><td>${esc(c.level || '')}</td>
+      <td>${i.event_date ? `<button class="btn btn--yellow btn--sm" data-assign="${i.id}" data-actor="${c.actor_id}" data-fee="${c.fee_eur ?? ''}">Pievienot</button>` : ''}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="muted small">Neviens no sarakstā esošajiem neatbilst.</p>'}
+    <p class="small"><strong>${e.agreed ? 'Norunāts' : 'Aptuveni'}:</strong> klientam ${eur(e.price)}, aktieriem ${eur(e.cost)}, peļņa ${eur(e.margin)}</p>` : ''}
+
+    <form class="crm-form" data-inquiry="${i.id}">
+      <label class="field"><span>Statuss</span><select name="status">${Object.entries(CRM_STATUS).map(([k, v]) => `<option value="${k}" ${i.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="field"><span>Datums</span><input type="date" name="event_date" value="${i.event_date || ''}"></label>
+      <label class="field"><span>Cena klientam €</span><input type="number" name="price_eur" min="0" step="10" value="${i.price_eur ?? ''}"></label>
+      <label class="field"><span>Aktieriem €</span><input type="number" name="cost_eur" min="0" step="10" value="${i.cost_eur ?? ''}"></label>
+      <label class="field crm-form__wide"><span>Piezīmes</span><textarea name="notes" rows="2" maxlength="4000">${esc(i.notes || '')}</textarea></label>
+      <div class="row-actions" style="justify-content:flex-start">
+        <button class="btn btn--yellow btn--sm" type="submit">Saglabāt</button>
+        ${isOpen ? `<button class="btn btn--ghost btn--sm" type="button" data-casting="${i.id}">Kastinga teksts</button>` : ''}
+      </div>
+    </form>`;
+}
+
+// Wires the board and the window; `reload` refetches and redraws the admin page.
+export function bindCrm(view, getCrm, reload, { modal, body }) {
+  const show = (id) => {
+    const crm = getCrm();
+    const i = crm.inquiries.find((x) => x.id === id);
+    if (!i) { openId = null; return; }
+    openId = id;
+    body.innerHTML = detail(i, crm.candidates[id] || [], crm.cast?.[id] || []);
+    if (!modal.open) modal.showModal();
+  };
+  modal.addEventListener('close', () => { openId = null; });
+  const refresh = async () => { await reload(); if (openId && modal.open) show(openId); };
+
+  const move = async (id, to) => {
+    const crm = getCrm();
+    const i = crm.inquiries.find((x) => x.id === id);
+    if (!i || i.status === to) return;
+    if ((crm.cast?.[id] || []).length && CONFIRM[to] && !confirm(CONFIRM[to])) return;
+    const { error } = await sb.from('inquiries').update({ status: to }).eq('id', id);
+    if (error) return toast(error.message, 'error');
+    toast(`Pārvietots: ${CRM_STATUS[to]}.`);
+    refresh();
+  };
+
+  view.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-move]');
+    if (btn) { e.stopPropagation(); return move(btn.dataset.move, btn.dataset.to); }
+    const c = e.target.closest('.kcard');
+    if (c) show(c.dataset.inq);
+  });
+  view.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('.kcard')) show(e.target.dataset.inq); });
+  view.addEventListener('dragstart', (e) => { const c = e.target.closest('.kcard'); if (c) e.dataTransfer.setData('text/plain', c.dataset.inq); });
+  view.addEventListener('dragover', (e) => { const col = e.target.closest('.kcol'); if (col) { e.preventDefault(); col.classList.add('is-over'); } });
+  view.addEventListener('dragleave', (e) => { e.target.closest('.kcol')?.classList.remove('is-over'); });
+  view.addEventListener('drop', (e) => {
+    const col = e.target.closest('.kcol');
+    if (!col) return;
+    e.preventDefault();
+    col.classList.remove('is-over');
+    move(e.dataTransfer.getData('text/plain'), col.dataset.col);
+  });
+
+  body.addEventListener('click', async (e) => {
     const add = e.target.closest('[data-assign]');
     if (add) {
       add.disabled = true;
@@ -119,32 +179,29 @@ export function bindCrm(view, getCrm, reload) {
         : await sb.from('bookings').insert({ actor_id: add.dataset.actor, day: i.event_date, inquiry_id: i.id, status: 'tentative',
             title: i.event_type || 'Pasākums', client: i.name || null, actor_fee_eur: add.dataset.fee ? Number(add.dataset.fee) : null });
       if (error) { add.disabled = false; return toast(error.message, 'error'); }
-      openInquiry = i.id;
       toast(add.dataset.booking ? 'Aktieris noņemts no pasākuma.' : i.status === 'apstiprināts' ? 'Pievienots un apstiprināts, aktierim aizies e-pasts.' : 'Pievienots provizoriski. Kad statusu nomainīsi uz “Apstiprināts”, aktieriem aizies e-pasts.');
-      return reload();
+      return refresh();
     }
     const btn = e.target.closest('[data-casting]');
     if (!btn) return;
-    const i = getCrm().inquiries.find((x) => x.id === btn.dataset.casting);
-    const text = castingText(i);
+    const text = castingText(getCrm().inquiries.find((x) => x.id === btn.dataset.casting));
     try { await navigator.clipboard.writeText(text); toast('Kastinga teksts nokopēts. Ieliec to Facebook grupās vai aktieru čatā.'); }
-    catch { prompt('Nokopējiet kastinga tekstu:', text); }
+    catch { prompt('Nokopē kastinga tekstu:', text); }
   });
-  view.addEventListener('submit', async (e) => {
+  body.addEventListener('submit', async (e) => {
     const form = e.target.closest('.crm-form');
     if (!form) return;
     e.preventDefault();
     const fd = new FormData(form);
     const num = (k) => (fd.get(k) ? Number(fd.get(k)) : null);
-    const { error } = await sb.from('inquiries').update({ status: fd.get('status'), event_date: fd.get('event_date') || null, price_eur: num('price_eur'), cost_eur: num('cost_eur'), notes: fd.get('notes').trim() || null }).eq('id', form.dataset.inquiry);
-    if (error) return toast(error.message, 'error');
-    const was = getCrm().inquiries.find((x) => x.id === form.dataset.inquiry)?.status;
+    const id = form.dataset.inquiry;
+    const was = getCrm().inquiries.find((x) => x.id === id)?.status;
     const now = fd.get('status');
-    const hasCast = (getCrm().cast?.[form.dataset.inquiry] || []).length > 0;
-    toast(!hasCast ? 'Pieprasījums saglabāts.' : now !== was && now === 'apstiprināts' ? 'Apstiprināts. Sastāvam aizies e-pasts ar pasākuma datiem.'
-      : now !== was && now === 'notika' ? 'Pasākums atzīmēts kā noticis. Jaunie talanti no sastāva tagad ir pārbaudīto sarakstā.'
-      : now !== was && now === 'atteikts' ? 'Atteikts. Sastāva rezervācijas atceltas.' : 'Pieprasījums saglabāts.');
-    openInquiry = null;
+    if (now !== was && (getCrm().cast?.[id] || []).length && CONFIRM[now] && !confirm(CONFIRM[now])) return;
+    const { error } = await sb.from('inquiries').update({ status: now, event_date: fd.get('event_date') || null, price_eur: num('price_eur'), cost_eur: num('cost_eur'), notes: fd.get('notes').trim() || null }).eq('id', id);
+    if (error) return toast(error.message, 'error');
+    toast('Pieprasījums saglabāts.');
+    modal.close();
     reload();
   });
 }

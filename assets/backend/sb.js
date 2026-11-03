@@ -60,9 +60,9 @@ export async function mountLogin(root, { redirectPath }) {
     <form class="panel login" novalidate>
       <h1 class="h2">${invite ? esc(greet(invite.full_name)) : 'Ienākt'}</h1>
       <p class="muted">${invite
-        ? `Šī ir jūsu personīgā saite, lai pārņemtu profilu <strong>${who}</strong> impromotion.lv lapā. Ierakstiet savu e-pastu. Atsūtīsim saiti, ar kuru ienākt bez paroles, un ar šo e-pastu ienāksiet arī turpmāk.`
-        : 'Ierakstiet e-pastu, ar kuru esat uzaicināts. Atsūtīsim saiti, ar kuru ienākt bez paroles.'}</p>
-      ${token && !invite ? '<p class="notice">Šī ielūguma saite nav derīga. Palūdziet Rihardam jaunu.</p>' : ''}
+        ? `Šī ir Tava personīgā saite, ar kuru vari pārņemt profilu <strong>${who}</strong> impromotion.lv lapā. Ieraksti savu e-pastu, un atsūtīsim saiti, ar kuru ienākt bez paroles. Ar šo pašu e-pastu ienāksi arī turpmāk.`
+        : 'Ieraksti e-pastu, uz kuru saņēmi ielūgumu, un atsūtīsim saiti, ar kuru ienākt bez paroles.'}</p>
+      ${token && !invite ? '<p class="notice">Šī ielūguma saite vairs nav derīga. Palūdz Rihardam jaunu ielūguma saiti.</p>' : ''}
       <label class="field"><span>E-pasts</span><input type="email" name="email" autocomplete="email" required></label>
       <button class="btn btn--yellow btn--lg" type="submit">Sūtīt ienākšanas saiti</button>
       <p class="login__status muted" role="status"></p>
@@ -76,13 +76,13 @@ export async function mountLogin(root, { redirectPath }) {
     status.textContent = 'Sūtām…';
     if (invite) {
       const { data: claimed, error: claimErr } = await sb.rpc('claim_invite', { p_token: token, p_email: email });
-      if (claimErr || !claimed) { status.textContent = 'Šo ielūgumu jau izmantoja cits e-pasts. Ierakstiet to pašu e-pastu vai palūdziet Rihardam jaunu saiti.'; return; }
+      if (claimErr || !claimed) { status.textContent = 'Šo ielūgumu jau izmantoja cits e-pasts. Ieraksti e-pastu, ar kuru ielūgumu izmantoji pirmo reizi, vai palūdz Rihardam jaunu saiti.'; return; }
     }
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + redirectPath } });
-    if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudiet e-pastu (arī mēstules).'; return; }
+    if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudi e-pastu, arī mēstuļu mapi.'; return; }
     status.textContent = /database error|not invited|signups/i.test(error.message)
-      ? 'Šis e-pasts nav uzaicināts. Rakstiet uz hello@impromotion.lv.'
-      : /rate|seconds/i.test(error.message) ? 'Pārāk daudz mēģinājumu. Pagaidiet minūti un mēģiniet vēlreiz.' : `Neizdevās nosūtīt saiti: ${error.message}`;
+      ? 'Uz šo e-pasta adresi ielūgums nav nosūtīts. Uzraksti uz hello@impromotion.lv.'
+      : /rate|seconds/i.test(error.message) ? 'Pārāk daudz mēģinājumu. Pagaidi minūti un mēģini vēlreiz.' : `Neizdevās nosūtīt saiti: ${error.message}`;
   });
 }
 

@@ -80,7 +80,7 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], no
     if (error) { toast(`Logo neaugšupielādējās: ${error.message}`, 'error'); return; }
     newLogoPath = path;
     form.querySelector('.photo-pick__img').src = photoUrl(path);
-    toast('Logo augšupielādēts. Nospiediet "Saglabāt".');
+    toast('Logo augšupielādēts. Nospied “Saglabāt”.');
   });
 
   let saving = false;
@@ -106,7 +106,7 @@ export function renderTroupeForm(root, troupe, { admin = false, members = [], no
       row.needs_review = false;
       row.level = fd.get('level') || null;
     }
-    if (!row.name) return toast('Ierakstiet kolektīva nosaukumu.', 'error');
+    if (!row.name) return toast('Ieraksti kolektīva nosaukumu.', 'error');
     const badLink = [row.website, ...Object.values(row.socials)].find((u) => u && !isHttps(u));
     if (badLink) return toast('Saitēm jāsākas ar https://', 'error');
     saving = true;

@@ -43,7 +43,7 @@ export function mountCalendar(root, actorId, { readOnly = false, booked = [] } =
           <button type="button" class="btn btn--ghost btn--sm" data-nav="1" aria-label="Nākamais mēnesis">→</button>
         </div>
         <div class="cal__grid">${DAYS.map((d) => `<span class="cal__dow">${d}</span>`).join('')}${cells}</div>
-        <p class="muted small">${readOnly ? 'Rozā dienās aktieris ir aizņemts.' : 'Atzīmējiet dienas, kad esat aizņemts. Rozā = aizņemts, dzeltens = Impromotion haltūra.'}</p>
+        <p class="muted small">${readOnly ? 'Rozā dienās aktieris ir aizņemts.' : 'Atzīmē dienas, kad nevari strādāt. Rozā: aizņemts. Dzeltens: Impromotion haltūra.'}</p>
       </div>`;
   };
 
