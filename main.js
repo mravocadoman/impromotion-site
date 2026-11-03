@@ -398,10 +398,11 @@
 
   // "Jums varētu derēt": suggestions that follow the form (type, wants, date, people, budget, level).
   // public_match only says yes/no about budget and availability, never an actor's price.
-  const TYPE_FORMAT = { 'Korporatīvais pasākums': 'Korporatīvie pasākumi', 'Kāzas': 'Kāzas', 'Dzimšanas diena': 'Dzimšanas dienas', 'Improvizācijas izrāde': 'Izrādes', 'Apmācības': 'Apmācības' };
+  const TYPE_FORMAT = { 'Korporatīvais pasākums': 'Korporatīvie pasākumi', 'Kāzas': 'Kāzas', 'Dzimšanas diena': 'Dzimšanas dienas', 'Improvizācijas izrāde': 'Izrādes', 'Apmācības': 'Apmācības', 'Ziemassvētku ballīte': 'Korporatīvie pasākumi', 'Bērnu ballīte': 'Bērnu ballītes' };
   const WANT_SKILLS = {
     'pasākuma vadītājs': ['Pasākumu vadīšana'], 'animatori': ['Animatora darbs'], 'slēptās lomas': ['Slēptās lomas'],
     'improvizācijas izrāde': ['Improvizācijas izrādes'], 'komandas treniņš': ['Komandas treniņi', 'Apmācības'], 'spēles un viktorīnas': ['Viktorīnas', 'Sporta spēles'],
+    'stand-up': ['Stand-up'], 'tostmeistars': ['Tosti', 'Pasākumu vadīšana'], 'mūzika un dziesmas': ['Dziedāšana', 'Mūzikas instruments'], 'dejas': ['Dejas'],
   };
   const LEVELS = { jauns: 'Jauns talants', 'pieredzējis': 'Pieredzējis', top: 'Top profesionālis' };
   const briefForm = document.getElementById('brief');

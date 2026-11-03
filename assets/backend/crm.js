@@ -5,9 +5,10 @@ import { sb, esc, toast } from './sb.js';
 export const CRM_STATUS = { 'jauns': 'Jauns', 'sazināts': 'Sazināts', 'piedāvājums': 'Piedāvājums nosūtīts', 'apstiprināts': 'Apstiprināts', 'notika': 'Notika', 'atteikts': 'Atteikts' };
 const OPEN = ['jauns', 'sazināts', 'piedāvājums', 'apstiprināts'];
 const MONTHS = ['janvārī', 'februārī', 'martā', 'aprīlī', 'maijā', 'jūnijā', 'jūlijā', 'augustā', 'septembrī', 'oktobrī', 'novembrī', 'decembrī'];
-const WHERE = { 'Korporatīvais pasākums': 'korporatīvajā pasākumā', 'Kāzas': 'kāzās', 'Dzimšanas diena': 'dzimšanas dienas svinībās', 'Improvizācijas izrāde': 'izrādē', 'Apmācības': 'apmācībās' };
+const WHERE = { 'Korporatīvais pasākums': 'korporatīvajā pasākumā', 'Kāzas': 'kāzās', 'Dzimšanas diena': 'dzimšanas dienas svinībās', 'Improvizācijas izrāde': 'izrādē', 'Apmācības': 'apmācībās', 'Ziemassvētku ballīte': 'Ziemassvētku ballītē', 'Bērnu ballīte': 'bērnu ballītē' };
 const WANT_WHO = { 'pasākuma vadītājs': 'pasākuma vadītāju', 'animatori': 'animatorus', 'slēptās lomas': 'aktierus slēptajām lomām',
-  'improvizācijas izrāde': 'improvizatorus izrādei', 'komandas treniņš': 'komandas treniņa vadītāju', 'spēles un viktorīnas': 'spēļu un viktorīnu vadītāju' };
+  'improvizācijas izrāde': 'improvizatorus izrādei', 'komandas treniņš': 'komandas treniņa vadītāju', 'spēles un viktorīnas': 'spēļu un viktorīnu vadītāju',
+  'stand-up': 'stand-up komiķi', 'tostmeistars': 'tostmeistaru', 'mūzika un dziesmas': 'mūziķus vai dziedātājus', 'dejas': 'dejotājus' };
 
 export async function loadCrm() {
   const { data, error } = await sb.from('inquiries').select('*').order('created_at', { ascending: false });
