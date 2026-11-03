@@ -5,7 +5,7 @@ const MONTHS = ['Janvāris', 'Februāris', 'Marts', 'Aprīlis', 'Maijs', 'Jūnij
 const DAYS = ['P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'];
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-export function mountCalendar(root, actorId, { readOnly = false, booked = [] } = {}) {
+export function mountCalendar(root, actorId, { readOnly = false, booked = [], fem = false } = {}) {
   const bookedDays = new Set(booked);
   let cursor = new Date();
   cursor.setDate(1);
@@ -43,7 +43,7 @@ export function mountCalendar(root, actorId, { readOnly = false, booked = [] } =
           <button type="button" class="btn btn--ghost btn--sm" data-nav="1" aria-label="Nākamais mēnesis">→</button>
         </div>
         <div class="cal__grid">${DAYS.map((d) => `<span class="cal__dow">${d}</span>`).join('')}${cells}</div>
-        <p class="muted small">${readOnly ? 'Rozā dienās aktieris ir aizņemts.' : 'Atzīmē dienas, kad nevari strādāt. Rozā: aizņemts. Dzeltens: Impromotion haltūra.'}</p>
+        <p class="muted small">${readOnly ? (fem ? 'Rozā dienās aktrise ir aizņemta.' : 'Rozā dienās aktieris ir aizņemts.') : `Atzīmē dienas, kad esi ${fem ? 'aizņemta' : 'aizņemts'}. Rozā: aizņemta diena. Dzeltens: Impromotion haltūra.`}</p>
       </div>`;
   };
 

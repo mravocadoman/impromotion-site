@@ -24,6 +24,9 @@ export const photoUrl = (path) => {
 export const isHttps = (u) => /^https:\/\/[^\s<>"]+$/i.test(u);
 
 // Latvian greeting in the vocative: Kristers -> "Sveiks, Krister!", Sandis -> "Sveiks, Sandi!", Leina -> "Sveika, Leina!".
+// Latvian first names ending in -a or -e are women's names: Leina, Ginta, Alise. Used to pick brīva/brīvs etc.
+export const isFem = (fullName) => /[ae]$/i.test(String(fullName || '').trim().split(/\s+/)[0] || '');
+
 export function greet(fullName) {
   const first = String(fullName || '').trim().split(/\s+/)[0] || '';
   if (!first) return 'Sveiki!';

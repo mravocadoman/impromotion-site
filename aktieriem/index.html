@@ -78,7 +78,7 @@
       $('#gigs').innerHTML = (gigs || []).length
         ? gigs.map((g) => `<li><div><strong>${esc(g.day.split('-').reverse().join('.'))} · ${esc(g.title)}</strong><span class="muted small"> ${STATUS_B[g.status] || ''}${g.actor_fee_eur != null ? ` · honorārs ${g.actor_fee_eur} €` : ''}</span>${g.location ? `<br><span class="small">${esc(g.location)}</span>` : ''}${g.details ? `<p class="small gig__details">${esc(g.details)}</p>` : ''}</div></li>`).join('')
         : '<li class="muted">Pagaidām pasākumu nav. Kad Impromotion Tevi rezervēs pasākumam, tas parādīsies šeit.</li>';
-      mountCalendar($('#calendar'), actor.id, { booked: (gigs || []).map((g) => g.day) });
+      mountCalendar($('#calendar'), actor.id, { booked: (gigs || []).map((g) => g.day), fem: /[ae]$/i.test(String(actor.full_name || '').trim().split(/\s+/)[0] || '') });
 
       // Collective admins also edit their collective's profile here.
       const { data: troupeId } = await sb.rpc('my_troupe_id');

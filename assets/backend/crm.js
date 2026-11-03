@@ -1,7 +1,7 @@
 // Client inquiries (CRM) on the admin page: pipeline totals, each event with the actors who could do it,
 // a rough revenue estimate, status, agreed price and notes, plus a ready casting-call text.
 // Assigning an actor books them for the event date; the status then confirms, closes or cancels those bookings (DB trigger).
-import { sb, esc, toast } from './sb.js';
+import { sb, esc, toast, isFem } from './sb.js';
 
 export const CRM_STATUS = { 'jauns': 'Jauns', 'sazināts': 'Sazināts', 'piedāvājums': 'Piedāvājums nosūtīts', 'apstiprināts': 'Apstiprināts', 'notika': 'Notika', 'atteikts': 'Atteikts' };
 const OPEN = ['jauns', 'sazināts', 'piedāvājums', 'apstiprināts'];
@@ -91,7 +91,7 @@ function detail(i, cands, lineup) {
   const isOpen = OPEN.includes(i.status);
   const e = estimate(i, cands, markupPct, lineup);
   const bookingOf = (actorId) => lineup.find((b) => b.actor_id === actorId);
-  const free = (c) => (c.available === false ? '<span class="crm-no">✗ aizņemts</span>' : c.available ? '<span class="crm-yes">✓ brīvs</span>' : '<span class="muted">datums nav zināms</span>');
+  const free = (c) => (c.available === false ? `<span class="crm-no">✗ ${isFem(c.name) ? 'aizņemta' : 'aizņemts'}</span>` : c.available ? `<span class="crm-yes">✓ ${isFem(c.name) ? 'brīva' : 'brīvs'}</span>` : '<span class="muted">datums nav zināms</span>');
   return `<p class="eyebrow eyebrow--yellow">${esc(CRM_STATUS[i.status])}</p>
     <h2 class="h2">${esc(i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')}</h2>
     <p><strong>${esc(i.name || 'bez vārda')}</strong>${i.email ? ` · <a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : ''}${i.phone ? ` · <a href="tel:${esc(i.phone)}">${esc(i.phone)}</a>` : ''} <span class="muted small">· ienāca ${esc(new Date(i.created_at).toLocaleDateString('lv-LV'))}</span></p>
@@ -109,7 +109,7 @@ function detail(i, cands, lineup) {
     ${isOpen ? `<h3 class="crm-h">Kas var derēt</h3>
     ${!i.event_date ? '<p class="notice">Ieraksti pasākuma datumu un saglabā, tad varēsi pievienot aktierus.</p>' : ''}
     ${cands.length ? `<table class="crm-table"><thead><tr><th>Aktieris</th><th>Datumā</th><th>Honorārs</th><th>Līmenis</th><th></th></tr></thead><tbody>${cands.filter((c) => !bookingOf(c.actor_id)).map((c) => `<tr>
-      <td><strong>${esc(c.name)}</strong>${c.vetted ? '' : ' <span class="muted small">jauns</span>'}</td><td>${free(c)}</td><td>${c.fee_eur != null ? `no ${c.fee_eur} €` : '<span class="muted">?</span>'}</td><td>${esc(c.level || '')}</td>
+      <td><strong>${esc(c.name)}</strong>${c.vetted ? '' : ` <span class="muted small">${isFem(c.name) ? 'jauna' : 'jauns'}</span>`}</td><td>${free(c)}</td><td>${c.fee_eur != null ? `no ${c.fee_eur} €` : '<span class="muted">?</span>'}</td><td>${esc(c.level || '')}</td>
       <td>${i.event_date ? `<button class="btn btn--yellow btn--sm" data-assign="${i.id}" data-actor="${c.actor_id}" data-fee="${c.fee_eur ?? ''}">Pievienot</button>` : ''}</td></tr>`).join('')}</tbody></table>`
       : '<p class="muted small">Neviens no sarakstā esošajiem neatbilst.</p>'}
     <p class="small"><strong>${e.agreed ? 'Norunāts' : 'Aptuveni'}:</strong> klientam ${eur(e.price)}, aktieriem ${eur(e.cost)}, peļņa ${eur(e.margin)}</p>` : ''}

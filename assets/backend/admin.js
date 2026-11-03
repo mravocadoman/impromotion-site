@@ -1,5 +1,5 @@
 // Admin page: all actors with private fields, invites, troupes and a "who is free on" date filter.
-import { sb, $, esc, greet, toast, mountLogin, currentProfile, photoUrl, SKILLS, FORMATS, LANGUAGES, REGIONS, STATUS } from './sb.js';
+import { sb, $, esc, greet, isFem, toast, mountLogin, currentProfile, photoUrl, SKILLS, FORMATS, LANGUAGES, REGIONS, STATUS } from './sb.js';
 import { renderActorForm } from './actor-form.js';
 import { mountCalendar } from './calendar.js';
 import { renderTroupeForm } from './troupe-form.js';
@@ -413,7 +413,8 @@ view.addEventListener('submit', async (e) => {
       client: fd.get('client').trim() || null, client_price_eur: num('client_price_eur'), actor_fee_eur: num('actor_fee_eur'),
       status: fd.get('status'), details: fd.get('details').trim() || null };
     const clash = await sb.from('busy_dates').select('day').eq('actor_id', row.actor_id).eq('day', row.day);
-    if (clash.data?.length && !confirm('Aktieris šajā dienā atzīmējis, ka ir aizņemts. Pievienot tik un tā?')) return;
+    const who = state.actors.find((x) => x.id === row.actor_id)?.full_name || '';
+    if (clash.data?.length && !confirm(`${who} šajā dienā ${isFem(who) ? 'atzīmējusi, ka ir aizņemta' : 'atzīmējis, ka ir aizņemts'}. Pievienot tik un tā?`)) return;
     const { error } = await sb.from('bookings').insert(row);
     if (error) return toast(error.message, 'error');
     toast('Haltūra pievienota. Aktieris to redzēs savā profilā.');

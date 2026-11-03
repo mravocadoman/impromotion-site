@@ -442,7 +442,7 @@
       suggestBox.querySelector('.suggest__list').innerHTML = top.map((r) => {
         const on = picked(r.name);
         const tags = [
-          r.kind === 'troupe' ? 'kolektīvs' : '', r.vetted === false ? 'jauns' : '', LEVELS[r.level] || '',
+          r.kind === 'troupe' ? 'kolektīvs' : '', r.vetted === false ? (fem(r.name) ? 'jauna' : 'jauns') : '', LEVELS[r.level] || '',
           r.kind === 'actor' && r.available ? (fem(r.name) ? 'brīva' : 'brīvs') : '',
           r.kind === 'troupe' && r.free_members ? `brīvi ${r.free_members} no ${r.members}` : '',
         ].filter(Boolean);
@@ -472,7 +472,7 @@
       <button class="actor__open" type="button" aria-haspopup="dialog">
         <span class="actor__photo"><img src="${escHtml(photo)}" alt="${escHtml(a.full_name)}" width="600" height="600" loading="lazy"></span>
         ${a.stage_name ? `<span class="actor__nick">“${escHtml(a.stage_name)}”</span>` : ''}
-        <span class="actor__name">${escHtml(a.full_name)}</span>${troupe}${a.vetted === false ? '<span class="actor__new">Jauns</span>' : ''}
+        <span class="actor__name">${escHtml(a.full_name)}</span>${troupe}${a.vetted === false ? `<span class="actor__new">${/[ae]$/i.test(String(a.full_name).split(/\s+/)[0]) ? 'Jauna' : 'Jauns'}</span>` : ''}
         <span class="actor__short">${escHtml(a.short_bio || '')}</span>
         <span class="actor__more">Iepazīties →</span>
       </button>
