@@ -12,7 +12,22 @@ modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); 
 
 let state = { crm: { inquiries: [], candidates: {} }, actors: [], troupes: [], invites: [], links: [], bookings: [], applications: [], troupeNotes: {}, joinLinks: {}, settings: { client_markup_pct: 30 }, emails: {}, busyOn: new Set(),
   filters: { status: '', skill: '', format: '', troupe: '', date: '', language: '', region: '', maxFee: '', level: '', sort: 'order', group: false },
-  appFilters: { status: 'new', skill: '', maxFee: '' } };
+  appFilters: { status: 'new', skill: '', maxFee: '' }, tab: 'pieprasijumi' };
+
+// One section at a time; the tab lives in the URL hash so a reload or a shared link keeps it.
+const TAB_KEYS = ['pieprasijumi', 'aktieri', 'pieteikumi', 'halturas', 'kolektivi'];
+const tabFromHash = () => (TAB_KEYS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'pieprasijumi');
+state.tab = tabFromHash();
+window.addEventListener('hashchange', () => {
+  state.tab = tabFromHash();
+  view.querySelectorAll('[data-tab]').forEach((el) => { el.hidden = el.dataset.tab !== state.tab; });
+  view.querySelectorAll('.admin-tab').forEach((a) => {
+    const on = a.getAttribute('href') === `#${state.tab}`;
+    a.classList.toggle('is-on', on);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  window.scrollTo({ top: 0 });
+});
 
 async function loadAll() {
   const today = new Date().toISOString().slice(0, 10);
@@ -143,16 +158,17 @@ function draw() {
       </div>` : `<div class="row-actions" style="justify-content:flex-start"><span class="status-badge status-badge--${p.status === 'invited' ? 'approved' : 'hidden'}">${p.status === 'invited' ? 'Uzaicināts' : 'Noraidīts'}</span>${p.status === 'rejected' ? `<button class="btn btn--ghost btn--sm" data-app-restore="${p.id}">Atjaunot</button>` : ''}</div>`}
     </article>`).join('');
 
+  const newInquiries = state.crm.inquiries.filter((i) => i.status === 'jauns').length;
+  const tabs = [['pieprasijumi', 'Pieprasījumi', newInquiries], ['aktieri', 'Aktieri', pending], ['pieteikumi', 'Pieteikumi', newApps],
+    ['halturas', 'Haltūras', 0], ['kolektivi', 'Kolektīvi un ielūgumi', state.troupes.filter((t) => t.needs_review).length]];
+  const pane = (k) => `data-tab="${k}" ${state.tab === k ? '' : 'hidden'}`;
   view.innerHTML = `
-    <div class="app__intro">
-      <p class="eyebrow eyebrow--yellow">Admins</p>
-      <h1 class="h2">Aktieri un kolektīvi</h1>
-      ${pending ? `<p class="notice">${pending} ${pending === 1 ? 'profils gaida' : 'profili gaida'} jūsu apskati.</p>` : ''}
-    </div>
+    <nav class="admin-tabs" aria-label="Admina sadaļas">${tabs.map(([k, label, n]) => `<a href="#${k}" class="admin-tab${state.tab === k ? ' is-on' : ''}"${state.tab === k ? ' aria-current="page"' : ''}>${label}${n ? ` <span class="admin-tab__n">${n}</span>` : ''}</a>`).join('')}</nav>
 
-    ${crmPanel(state.crm, state.settings.client_markup_pct)}
+    <div ${pane('pieprasijumi')}>${crmPanel(state.crm, state.settings.client_markup_pct)}</div>
 
-    <section class="panel">
+    <section class="panel" ${pane('aktieri')}>
+      <h2 class="panel__title">Aktieri${pending ? ` <span class="notice">${pending} gaida apskati</span>` : ''}</h2>
       <div class="filters">
         <label class="field"><span>Statuss</span><select data-f="status"><option value="">Visi</option>${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${state.filters.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
         <label class="field"><span>Prasme</span><select data-f="skill"><option value="">Visas</option>${options(SKILLS, state.filters.skill)}</select></label>
@@ -175,7 +191,7 @@ function draw() {
       <button class="btn btn--ghost" type="button" id="new-actor">+ Jauns aktiera profils</button>
     </section>
 
-    <section class="panel">
+    <section class="panel" ${pane('pieteikumi')}>
       <h2 class="panel__title">Pieteikumi${newApps ? ` <span class="notice">${newApps} jauni</span>` : ''}</h2>
       <p class="muted small">Jauni improvizatori piesakās lapā <a href="/pievienojies/">impromotion.lv/pievienojies/</a>.</p>
       <div class="filters">
@@ -186,7 +202,7 @@ function draw() {
       <div class="app-list">${appCards || '<p class="muted">Nav pieteikumu ar šiem filtriem.</p>'}</div>
     </section>
 
-    <section class="panel">
+    <section class="panel" ${pane('halturas')}>
       <h2 class="panel__title">Haltūras</h2>
       <form id="booking-form" class="booking-form">
         <label class="field"><span>Datums</span><input type="date" name="day" required></label>
@@ -203,7 +219,7 @@ function draw() {
       <ul class="plain-list">${bookingRows || '<li class="muted">Nākamo haltūru nav.</li>'}</ul>
     </section>
 
-    <div class="app__cols">
+    <div class="app__cols" ${pane('kolektivi')}>
       <section class="panel">
         <h2 class="panel__title">Uzaicināt</h2>
         <p class="muted small">Pēc ielūguma aktieris ienāk <strong>impromotion.lv/aktieriem/</strong> ar savu e-pastu un pats aizpilda profilu.</p>
@@ -245,7 +261,7 @@ async function openEditor(id) {
   body.innerHTML = '<div class="app__cols"><div id="edit-form"></div><aside><h2 class="panel__title">Aizņemtās dienas</h2><div id="edit-cal"></div></aside></div>';
   renderActorForm($('#edit-form'), a, {
     admin: true, troupes: state.troupes, adminNotes: note?.notes || '',
-    onSaved: async () => { await loadAll(); draw(); },
+    onSaved: async () => { modal.close(); await loadAll(); draw(); },
   });
   mountCalendar($('#edit-cal'), a.id, { booked: state.bookings.filter((b) => b.actor_id === a.id).map((b) => b.day) });
   modal.showModal();

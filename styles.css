@@ -949,6 +949,19 @@ section[id] { scroll-margin-top: 70px; }
 .app-card__meta span { font-size: .82rem; padding: .2em .65em; border-radius: 99px; background: rgba(255, 255, 255, .08); }
 .app-card p { margin: 0; white-space: pre-line; }
 .app-list { display: grid; gap: 12px; }
+/* admin: tabs, and inquiries that open on click */
+.admin-tabs { position: sticky; top: 72px; z-index: 20; display: flex; gap: 6px; overflow-x: auto; padding: 8px; border-radius: 99px; background: rgba(11, 10, 31, .92); border: 1.5px solid var(--line); backdrop-filter: blur(8px); }
+.admin-tab { flex: none; padding: .55em 1.1em; border-radius: 99px; color: var(--text); text-decoration: none; font-weight: 700; white-space: nowrap; }
+.admin-tab:hover { background: rgba(255, 255, 255, .08); }
+.admin-tab.is-on { background: var(--yellow); color: var(--ink); }
+.admin-tab__n { display: inline-block; min-width: 1.6em; padding: 0 .45em; border-radius: 99px; background: var(--pink); color: #fff; font-size: .78rem; text-align: center; }
+[data-tab][hidden] { display: none !important; }
+.crm-item > summary { cursor: pointer; list-style: none; align-items: center; }
+.crm-item > summary::-webkit-details-marker { display: none; }
+.crm-item > summary::after { content: "▾"; margin-left: auto; color: var(--muted); transition: transform .2s; }
+.crm-item[open] > summary::after { transform: rotate(180deg); }
+.crm-item:not([open]) { gap: 0; }
+.crm-item--closed:not([open]) { opacity: .6; }
 
 /* Actor login link in the shared nav */
 .nav__links .nav__login { padding: 6px 14px; border: 1.5px solid rgba(255, 246, 220, .35); border-radius: 999px; }
