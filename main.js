@@ -304,7 +304,6 @@
       modal.querySelector('.modal__body').innerHTML = actor.querySelector('.actor__bio').innerHTML;
       modal.dataset.actor = actor.querySelector('.actor__name').textContent;
       modal.dataset.slug = actor.dataset.slug || '';
-      modal.querySelector('[data-book-actor]').textContent = picked(modal.dataset.actor) ? 'Izņemt no pieteikuma' : 'Pievienot pieteikumam +';
       modal.showModal();
     });
   };
@@ -312,154 +311,13 @@
   modal.querySelector('.modal__close').addEventListener('click', () => modal.close());
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 
-  // Shortlist: clients can pick several actors and collectives. The brief form lists them and,
-  // once a date is set, shows who is free that day (public_availability: yes/no per pick, nothing more).
   const escHtml = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const picksBox = document.getElementById('picks');
-  const picksBar = document.getElementById('picks-bar');
-  const dateInput = document.querySelector('#brief [name="date"]');
-  const peopleInput = document.querySelector('#brief [name="people"]');
-  let picks = []; // { kind: 'actor' | 'troupe', name, slug }
-  let avail = {}; // 'kind:slug' -> row from public_availability for the chosen date
-  let peopleTouched = false;
-  let barSuppressed = false;
-  peopleInput.addEventListener('change', () => { peopleTouched = true; });
-  const picked = (name) => picks.some((p) => p.name === name);
-  const fem = (name) => /[ae]$/i.test(String(name).trim().split(/\s+/)[0] || '');
-  const statusOf = (p) => {
-    if (!dateInput.value) return '';
-    const a = avail[`${p.kind}:${p.slug}`];
-    if (!p.slug || !a) return 'pieejamību pārbaudīsim';
-    if (p.kind === 'troupe') return a.free_members ? `brīvi ${a.free_members} no ${a.members}` : 'šajā datumā aizņemti';
-    return a.available ? (fem(p.name) ? 'brīva' : 'brīvs') : (fem(p.name) ? 'aizņemta' : 'aizņemts');
+  // "Pieteikt" on an actor or collective: note who they liked (hidden field) and go to the short form.
+  const bookWith = (name) => {
+    document.querySelector('#brief [name="actor"]').value = name;
+    document.getElementById('brief').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   };
-  const renderPicks = () => {
-    picksBox.querySelector('.picks__list').innerHTML = picks.map((p, i) => {
-      const st = statusOf(p);
-      const tone = /aizņemt/.test(st) ? 'busy' : /brīv/.test(st) ? 'free' : '';
-      return `<li><span>${escHtml(p.name)}${p.kind === 'troupe' ? ' <em>kolektīvs</em>' : ''}</span>${st ? `<span class="picks__status picks__status--${tone}">${escHtml(st)}</span>` : ''}<button type="button" data-unpick="${i}" aria-label="Noņemt: ${escHtml(p.name)}">✕</button></li>`;
-    }).join('');
-    const anyBusy = picks.some((p) => /aizņemt/.test(statusOf(p)));
-    picksBox.querySelector('.picks__hint').textContent = !dateInput.value ? 'Izvēlieties datumu, un parādīsim, kurš tajā dienā ir brīvs.'
-      : anyBusy ? 'Ja kāds ir aizņemts, piedāvāsim līdzvērtīgu aizvietotāju.' : '';
-    picksBox.hidden = !picks.length;
-    picksBar.hidden = !picks.length || barSuppressed;
-    picksBar.querySelector('span').textContent = `Izvēle: ${picks.map((p) => (p.kind === 'troupe' ? p.name : p.name.split(/\s+/)[0])).join(', ')}`;
-    document.querySelector('#brief [name="actor"]').value = picks
-      .map((p) => p.name + (p.kind === 'troupe' ? ' (kolektīvs)' : '') + (statusOf(p) ? `: ${statusOf(p)}` : '')).join('; ');
-    if (!peopleTouched) {
-      const n = picks.some((p) => p.kind === 'troupe') ? 0 : picks.length;
-      peopleInput.value = !n ? '' : n <= 3 ? String(n) : n <= 6 ? '4–6' : '7+';
-    }
-    document.querySelectorAll('[data-book-troupe]').forEach((b) => { b.textContent = picked(b.dataset.bookTroupe) ? 'Izņemt no pieteikuma' : 'Pievienot pieteikumam +'; });
-  };
-  let availSeq = 0;
-  const refreshAvailability = async () => {
-    const seq = ++availSeq;
-    refreshSuggest(); // defined below; only ever called after setup
-    avail = {};
-    renderPicks();
-    const day = dateInput.value;
-    const slugs = (k) => picks.filter((p) => p.kind === k && p.slug).map((p) => p.slug);
-    if (!day || !picks.some((p) => p.slug)) return;
-    try {
-      const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('/assets/backend/config.js');
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_availability`, {
-        method: 'POST',
-        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_day: day, p_actor_slugs: slugs('actor'), p_troupe_slugs: slugs('troupe') }),
-      });
-      const rows = res.ok ? await res.json() : [];
-      if (seq !== availSeq) return;
-      avail = Object.fromEntries((Array.isArray(rows) ? rows : []).map((r) => [`${r.kind}:${r.slug}`, r]));
-    } catch (err) { /* statuses stay "pārbaudīsim" */ }
-    if (seq === availSeq) renderPicks();
-  };
-  const togglePick = (pick) => {
-    if (picked(pick.name)) picks = picks.filter((p) => p.name !== pick.name);
-    else if (picks.length < 8) picks.push(pick);
-    refreshAvailability();
-  };
-  modal.querySelector('[data-book-actor]').addEventListener('click', () => {
-    togglePick({ kind: 'actor', name: modal.dataset.actor, slug: modal.dataset.slug });
-    modal.close();
-  });
-  picksBox.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-unpick]');
-    if (!b) return;
-    picks.splice(Number(b.dataset.unpick), 1);
-    refreshAvailability();
-  });
-  dateInput.addEventListener('change', refreshAvailability);
-  picksBar.addEventListener('click', () => document.getElementById('brief').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }));
-  // No need for the bar while the form itself is on screen.
-  new IntersectionObserver(([entry]) => { barSuppressed = entry.isIntersecting; renderPicks(); }, { threshold: 0.15 })
-    .observe(document.getElementById('kontakti'));
-
-  // "Jums varētu derēt": suggestions that follow the form (type, wants, date, people, budget, level).
-  // public_match only says yes/no about budget and availability, never an actor's price.
-  const TYPE_FORMAT = { 'Korporatīvais pasākums': 'Korporatīvie pasākumi', 'Kāzas': 'Kāzas', 'Dzimšanas diena': 'Dzimšanas dienas', 'Improvizācijas izrāde': 'Izrādes', 'Apmācības': 'Apmācības', 'Ziemassvētku ballīte': 'Korporatīvie pasākumi', 'Bērnu ballīte': 'Bērnu ballītes' };
-  const WANT_SKILLS = {
-    'pasākuma vadītājs': ['Pasākumu vadīšana'], 'animatori': ['Animatora darbs'], 'slēptās lomas': ['Slēptās lomas'],
-    'improvizācijas izrāde': ['Improvizācijas izrādes'], 'komandas treniņš': ['Komandas treniņi', 'Apmācības'], 'spēles un viktorīnas': ['Viktorīnas', 'Sporta spēles'],
-    'stand-up': ['Stand-up'], 'tostmeistars': ['Tosti', 'Pasākumu vadīšana'], 'mūzika un dziesmas': ['Dziedāšana', 'Mūzikas instruments'], 'dejas': ['Dejas'],
-  };
-  const LEVELS = { jauns: 'Jauns talants', 'pieredzējis': 'Pieredzējis', top: 'Top profesionālis' };
-  const briefForm = document.getElementById('brief');
-  const suggestBox = document.getElementById('suggest');
-  const peopleNum = () => ({ '': Math.max(picks.filter((p) => p.kind === 'actor').length, 1), '4–6': 5, '7+': 7 })[peopleInput.value] ?? Number(peopleInput.value);
-  let suggestSeq = 0;
-  let suggestTimer;
-  const runSuggest = async () => {
-    const seq = ++suggestSeq;
-    const fd = new FormData(briefForm);
-    const skills = [...new Set(fd.getAll('want').flatMap((w) => WANT_SKILLS[w] || []))];
-    const fmt = TYPE_FORMAT[fd.get('type')];
-    const level = fd.get('level') || '';
-    const budget = fd.get('budget') && fd.get('budget') !== '2001' ? Number(fd.get('budget')) : null;
-    try {
-      const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('/assets/backend/config.js');
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_match`, {
-        method: 'POST',
-        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_day: dateInput.value || null, p_budget: budget, p_people: peopleNum(), p_level: level || null, p_skills: skills, p_formats: fmt ? [fmt] : [] }),
-      });
-      const rows = res.ok ? await res.json() : [];
-      if (seq !== suggestSeq || !Array.isArray(rows)) return;
-      const wantShow = skills.includes('Improvizācijas izrādes') || fmt === 'Izrādes';
-      let busy = 0;
-      let over = 0;
-      const top = rows.filter((r) => {
-        if ((r.kind === 'actor' && r.available === false) || (r.kind === 'troupe' && r.free_members === 0)) { busy += 1; return false; }
-        if (r.fits_budget === false) { over += 1; return false; }
-        return true;
-      }).map((r) => ({
-        ...r,
-        score: r.skills_hit * 3 + r.formats_hit * 2 + (level && r.level === level ? 3 : level && r.level ? -2 : 0) + (r.kind === 'troupe' ? (wantShow ? 3 : -1) : 0) + (r.vetted === false ? -2 : 0),
-      })).sort((x, y) => y.score - x.score || x.name.localeCompare(y.name, 'lv')).slice(0, 6);
-      const img = (p) => (p && p.startsWith('/assets/') ? p
-        : p && /^[0-9a-z-]+\/[\w.-]+$/i.test(p) ? `${SUPABASE_URL}/storage/v1/object/public/actor-photos/${p}` : '/assets/img/apple-touch-icon.png');
-      suggestBox.querySelector('.suggest__list').innerHTML = top.map((r) => {
-        const on = picked(r.name);
-        const tags = [
-          r.kind === 'troupe' ? 'kolektīvs' : '', r.vetted === false ? (fem(r.name) ? 'jauna' : 'jauns') : '', LEVELS[r.level] || '',
-          r.kind === 'actor' && r.available ? (fem(r.name) ? 'brīva' : 'brīvs') : '',
-          r.kind === 'troupe' && r.free_members ? `brīvi ${r.free_members} no ${r.members}` : '',
-        ].filter(Boolean);
-        return `<li><img${r.kind === 'troupe' ? ' class="is-logo"' : ''} src="${escHtml(img(r.photo_path))}" alt="" width="44" height="44" loading="lazy"><span class="suggest__name">${escHtml(r.name)}${tags.length ? `<small>${escHtml(tags.join(' · '))}</small>` : ''}</span><button type="button" class="btn btn--sm ${on ? 'btn--ghost' : 'btn--yellow'}" data-suggest-kind="${escHtml(r.kind)}" data-suggest-slug="${escHtml(r.slug)}" data-suggest-name="${escHtml(r.name)}">${on ? 'Izvēlēts ✓' : '+ Pievienot'}</button></li>`;
-      }).join('');
-      const notes = [busy && `aizņemti šajā datumā: ${busy}`, over && `pāri budžetam: ${over}`].filter(Boolean);
-      suggestBox.querySelector('.suggest__note').textContent = notes.length ? `Neparādām (${notes.join(', ')}).` : '';
-      suggestBox.hidden = !top.length;
-    } catch (err) { suggestBox.hidden = true; }
-  };
-  const refreshSuggest = () => { clearTimeout(suggestTimer); suggestTimer = setTimeout(runSuggest, 250); };
-  briefForm.addEventListener('change', refreshSuggest);
-  suggestBox.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-suggest-name]');
-    if (b) togglePick({ kind: b.dataset.suggestKind, slug: b.dataset.suggestSlug, name: b.dataset.suggestName });
-  });
-  refreshSuggest();
+  modal.querySelector('[data-book-actor]').addEventListener('click', () => { modal.close(); bookWith(modal.dataset.actor); });
 
   // Live profiles from the actor backend. The static cards in index.html stay as the fallback.
   const SOCIAL_LABELS = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 'X' };
@@ -559,7 +417,7 @@
             ${t.description ? `<p class="troupe-card__desc">${escHtml(t.description)}</p>` : ''}
             ${t.members?.length ? `<p class="small"><strong>Aktieri:</strong> ${escHtml(t.members.join(', '))}</p>` : ''}
             ${links ? `<p class="socials">${links}</p>` : ''}
-            <button class="btn btn--sm btn--yellow" type="button" data-book-troupe="${escHtml(t.name)}" data-slug="${escHtml(t.slug)}">${picked(t.name) ? 'Izņemt no pieteikuma' : 'Pievienot pieteikumam +'}</button>
+            <button class="btn btn--sm btn--yellow" type="button" data-book-troupe="${escHtml(t.name)}" data-slug="${escHtml(t.slug)}">Pieteikt pasākumu →</button>
           </div>
         </article>`;
       }).join('');
@@ -567,7 +425,7 @@
       box.addEventListener('click', (e) => {
         const b = e.target.closest('[data-book-troupe]');
         if (!b) return;
-        togglePick({ kind: 'troupe', name: b.dataset.bookTroupe, slug: b.dataset.slug });
+        bookWith(`${b.dataset.bookTroupe} (kolektīvs)`);
       });
     } catch (err) { /* no collectives section */ }
   })();
@@ -617,17 +475,15 @@
     e.target.classList.remove('is-invalid');
   });
 
-  // Mobile dock: "Pieteikt pasākumu" + WhatsApp + call, after the hero and away from the form,
-  // the shortlist bar and the cookie bar.
+  // Mobile dock: "Pieteikt pasākumu" + WhatsApp + call, after the hero and away from the form and the cookie bar.
   const dock = document.getElementById('cta-dock');
   if (dock) {
     let pastHero = false;
     let nearForm = false;
-    const sync = () => { dock.hidden = !pastHero || nearForm || !document.getElementById('picks-bar').hidden || !!document.querySelector('.consent'); };
+    const sync = () => { dock.hidden = !pastHero || nearForm || !!document.querySelector('.consent'); };
     new IntersectionObserver(([en]) => { pastHero = !en.isIntersecting; sync(); }).observe(document.getElementById('top'));
     new IntersectionObserver(([en]) => { nearForm = en.isIntersecting; sync(); }, { threshold: 0.05 }).observe(document.getElementById('kontakti'));
     new MutationObserver(sync).observe(document.body, { childList: true, subtree: false, attributes: true, attributeFilter: ['hidden'] });
-    new MutationObserver(sync).observe(document.getElementById('picks-bar'), { attributes: true, attributeFilter: ['hidden'] });
   }
 
   form.addEventListener('submit', async (e) => {
@@ -680,9 +536,6 @@
       const res = await fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(res.status);
       form.reset();
-      picks = [];
-      peopleTouched = false;
-      refreshAvailability();
       updateGuests();
       say('Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉', 'ok');
       window.impTrack?.('Lead');

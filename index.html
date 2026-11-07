@@ -518,16 +518,6 @@
             <label class="field"><span>Datums</span><input type="date" name="date"></label>
             <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">(kārtīga balle)</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
           </div>
-          <div class="suggest" id="suggest" hidden>
-            <p class="picks__label">Jums varētu derēt</p>
-            <ul class="suggest__list"></ul>
-            <p class="suggest__note small"></p>
-          </div>
-          <div class="picks" id="picks" hidden>
-            <p class="picks__label">Jūsu izvēle</p>
-            <ul class="picks__list"></ul>
-            <p class="picks__hint small"></p>
-          </div>
           <details class="join-more brief-more">
             <summary>Pastāstīt vairāk jau tagad <em>(nav obligāti)</em></summary>
             <div class="join-more__body">
@@ -593,8 +583,6 @@
     <a class="cta-dock__icon" href="tel:+37120381931" aria-label="Zvanīt">📞</a>
   </nav>
 
-  <button class="picks-bar" id="picks-bar" type="button" hidden>🎭 <span></span> <strong>Turpināt pieteikumu →</strong></button>
-
   <footer class="footer">
     <div class="wrap footer__wrap">
       <img src="assets/img/logo-white.webp" alt="Impromotion" width="500" height="250" loading="lazy">
@@ -615,11 +603,11 @@
       </div>
     </div>
     <div class="modal__body"></div>
-    <button class="btn btn--yellow modal__book" type="button" data-book-actor>Pievienot pieteikumam +</button>
+    <button class="btn btn--yellow modal__book" type="button" data-book-actor>Pieteikt pasākumu →</button>
   </dialog>
 
   <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
-  <script src="main.js?v=20261108" defer></script>
+  <script src="main.js?v=20261108b" defer></script>
   <script src="/assets/track.js?v=20261108" defer></script>
 </body>
 </html>
