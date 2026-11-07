@@ -13,15 +13,16 @@ const WANT_WHO = { 'pasākuma vadītājs': 'pasākuma vadītāju', 'animatori': 
 
 export async function loadCrm() {
   const { data, error } = await sb.from('inquiries').select('*').order('created_at', { ascending: false });
-  if (error) { toast(`Pieprasījumi neielādējās: ${error.message}`, 'error'); return { inquiries: [], candidates: {}, cast: {} }; }
+  if (error) { toast(`Pieprasījumi neielādējās: ${error.message}`, 'error'); return { inquiries: [], candidates: {}, cast: {}, clicks: [] }; }
   const open = data.filter((i) => OPEN.includes(i.status));
-  const [lists, booked] = await Promise.all([
+  const [lists, booked, clicks] = await Promise.all([
     Promise.all(open.map((i) => sb.rpc('inquiry_candidates', { p_id: i.id }))),
+    sb.from('contact_clicks').select('kind, created_at').gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
     sb.from('bookings').select('id, inquiry_id, actor_id, status, actor_fee_eur, actors(full_name)').not('inquiry_id', 'is', null).neq('status', 'cancelled'),
   ]);
   const cast = {};
   for (const b of booked.data || []) (cast[b.inquiry_id] ||= []).push(b);
-  return { inquiries: data, candidates: Object.fromEntries(open.map((i, n) => [i.id, lists[n].data || []])), cast };
+  return { inquiries: data, candidates: Object.fromEntries(open.map((i, n) => [i.id, lists[n].data || []])), cast, clicks: clicks.data || [] };
 }
 
 const peopleCount = (p) => ({ '': 1, '4–6': 5, '7+': 7 })[p ?? ''] ?? (Number(p) || 1);
@@ -58,7 +59,7 @@ let openId = null;  // the inquiry shown in the window, kept open across reloads
 
 const daysSince = (t) => Math.floor((Date.now() - new Date(t).getTime()) / 86400000);
 
-export function crmPanel({ inquiries, candidates, cast = {} }, markup) {
+export function crmPanel({ inquiries, candidates, cast = {}, clicks = [] }, markup) {
   markupPct = markup;
   const open = inquiries.filter((i) => OPEN.includes(i.status));
   const sums = open.reduce((s, i) => { const e = estimate(i, candidates[i.id] || [], markupPct, cast[i.id]); s.price += e.price || 0; s.margin += e.margin || 0; return s; }, { price: 0, margin: 0 });
@@ -82,6 +83,11 @@ export function crmPanel({ inquiries, candidates, cast = {} }, markup) {
       <h2 class="panel__title">Pasākumu pieprasījumi</h2>
       <p class="small">Atvērti: <strong>${open.length}</strong> · iespējamie ieņēmumi <strong>${eur(sums.price)}</strong> · aptuvenā peļņa <strong>${eur(sums.margin)}</strong>
         <span class="muted">· velc kartīti uz citu kolonnu vai spied pogu tajā; klikšķis atver detaļas</span></p>
+      <p class="small">Klikšķi uz kontaktiem: ${[['whatsapp', '💬 WhatsApp'], ['call', '📞 zvani'], ['email', '✉️ e-pasts']].map(([k, l]) => {
+        const all = clicks.filter((c) => c.kind === k);
+        const week = all.filter((c) => daysSince(c.created_at) < 7).length;
+        return `${l} <strong>${week}</strong> <span class="muted">(30 d.: ${all.length})</span>`;
+      }).join(' · ')} <span class="muted">· pēdējās 7 dienās</span></p>
       <div class="kanban">${cols}</div>
     </section>`;
 }

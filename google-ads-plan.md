@@ -1,0 +1,67 @@
+# Google Ads: Christmas party search campaign (draft, not built)
+
+People searching for an event host in November and December are ready to book now, so search ads catch demand that Meta has to create. Nothing here is live and nothing spends until you confirm a budget.
+
+## Before it can run
+
+1. **Ad account.** There is no Impromotion Google Ads account yet. The only one connected (584-867-7621) belongs to Starfleet Portraits. Create one at ads.google.com with billing in EUR.
+2. **Conversion tag.** The site has no Google tag. Add the gtag to `index.html` and fire a `conversion` on the same form success that already fires the Meta `Lead` event in `assets/track.js`. Without it, Google can't optimise for leads.
+3. **Budget.** Your number. 10 €/day for 14 days (140 €) is enough to see whether search brings leads before Christmas.
+
+## Campaign
+
+| Setting | Value |
+|---|---|
+| Type | Search only (no Display, no Search partners) |
+| Location | Rīga and 30 km around, people *in* the area |
+| Language | Latvian, English |
+| Bidding | Maximise clicks with a 1,50 € cap for the first week, then Maximise conversions once 10+ leads are tracked |
+| Landing page | https://impromotion.lv/#kontakti with `?utm_source=google&utm_medium=cpc&utm_campaign=xmas` |
+| Schedule | 7:00 to 23:00 |
+
+## Ad groups and keywords (phrase match)
+
+**Christmas party**
+"ziemassvētku ballītes vadītājs", "ziemassvētku ballīte uzņēmumam", "ziemassvētku pasākuma izklaide", "korporatīvā ziemassvētku ballīte", "ballītes izklaide darbiniekiem"
+
+**Event host**
+"pasākuma vadītājs", "pasākumu vadītājs rīgā", "korporatīvo pasākumu vadītājs", "vakara vadītājs", "ballītes vadītājs", "tamada"
+
+**Improv and show**
+"improvizācijas teātris pasākumam", "improvizācijas izrāde", "aktieri pasākumam", "izklaide korporatīvajam pasākumam", "slēptais viesmīlis aktieris"
+
+**Negatives:** darbs, vakance, vakances, cv, bezmaksas, kursi, skola, studijas, bērnu, wikipedia
+
+## Responsive search ad (one per group, same assets)
+
+Headlines (≤ 30 characters, all checked):
+1. Pasākuma vadītājs Rīgā
+2. Ziemassvētku ballītes vadītājs
+3. Improvizācijas aktieri
+4. Vakars bez garlaicīgām runām
+5. Aktieris viesmīļa lomā
+6. Korporatīvo pasākumu vadītājs
+7. Latviski un angliski
+8. Pieteikt pasākumu
+9. Vakars, ko kolēģi atcerēsies
+10. 10+ gadi improvizācijā
+11. Improvizācijas izrāde ballītē
+12. Smiekli bez scenārija
+13. Impromotion aktieri
+14. Spēles, viktorīnas un šovs
+15. Uzņēmuma ballīte ar humoru
+
+Pin headline 2 to position 1 in the Christmas group and headline 1 in the host group.
+
+Descriptions (≤ 90 characters):
+1. Vadītājs, slēptās lomas un improvizācijas izrāde jūsu Ziemassvētku ballītē Rīgā.
+2. Viens no viesmīļiem ir aktieris, un kolēģi visu vakaru min, kurš tas ir.
+3. Atsūtiet datumu un viesu skaitu, un sagatavosim piedāvājumu ar programmu un cenu.
+4. Improvizācijas aktieri ar 10+ gadu pieredzi. Strādājam latviski un angliski.
+
+Sitelinks: Slēptās lomas (/#lomas), Aktieri (/#aktieri), Pakalpojumi (/#pakalpojumi), Sazināties (/#kontakti).
+Call asset: +371 20 381 931.
+
+## Success line after 14 days
+
+A lead costs under 30 € and at least one inquiry becomes a call. If not, pause and move the budget to Meta retargeting.

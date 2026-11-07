@@ -13,6 +13,28 @@
   };
   window.impTrack = (event, params) => { if (window.fbq) fbq('track', event, params); };
 
+  // WhatsApp, call and e-mail clicks: Meta "Contact" (with consent) and our own count (always,
+  // no personal data). The ?no= / utm_source tag matches what the inquiry form stores.
+  const src = () => {
+    const q = new URLSearchParams(location.search);
+    let s = q.get('no') || q.get('utm_source') || '';
+    try { if (s) sessionStorage.setItem('imp-lead-src', s.slice(0, 80)); s = sessionStorage.getItem('imp-lead-src') || s; } catch {}
+    return s.slice(0, 80);
+  };
+  src();
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href]');
+    const href = a?.getAttribute('href') || '';
+    const kind = /^https:\/\/wa\.me\//.test(href) ? 'whatsapp' : href.startsWith('tel:') ? 'call' : href.startsWith('mailto:') ? 'email' : '';
+    if (!kind) return;
+    window.impTrack('Contact', { content_name: kind });
+    fetch('https://cflnjdiwipwkcnepunpd.supabase.co/rest/v1/rpc/log_contact_click', {
+      method: 'POST', keepalive: true,
+      headers: { apikey: 'sb_publishable_gzvMdNypjLXuDZMlvSFRDA_JnPupN5a', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_kind: kind, p_page: location.pathname + location.hash, p_source: src() || null }),
+    }).catch(() => {});
+  });
+
   let choice = null;
   try { choice = localStorage.getItem(KEY); } catch {}
   if (choice === 'yes') return load();

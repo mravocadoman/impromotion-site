@@ -1046,3 +1046,24 @@ section[id] { scroll-margin-top: 70px; }
 .join-more[open] summary::before { content: "－ "; }
 .join-more__body { display: grid; gap: 22px; padding: 4px 18px 18px; }
 @media (max-width: 520px) { .join-form .btn--lg { width: 100%; justify-content: center; } }
+
+/* ---------- Event brief: short form first, the rest folded ---------- */
+#brief { scroll-margin-top: 90px; }
+.brief { border-color: rgba(253, 203, 8, .55); }
+.brief__head h3 { margin: 0 0 6px; font-size: 1.5rem; }
+.brief__head p { margin: 0; color: var(--muted); }
+.brief .field input:not([type="range"]), .brief .field textarea, .brief select { font-size: max(16px, 1rem); }
+.brief .is-invalid { border-color: var(--pink) !important; box-shadow: 0 0 0 4px rgba(255, 79, 139, .2) !important; }
+.brief em { font-style: normal; font-weight: 500; color: var(--muted); }
+.brief .field--range em { font-family: var(--hand); font-size: 1.3rem; color: var(--pink); font-weight: 600; }
+
+/* ---------- Section CTAs and the mobile dock ---------- */
+.section-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: clamp(30px, 5vw, 56px); }
+@media (max-width: 520px) { .section-cta .btn { flex: 1 1 100%; justify-content: center; } }
+.cta-dock { display: none; }
+@media (max-width: 720px) {
+  .cta-dock { position: fixed; z-index: 45; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: flex; gap: 8px; padding: 8px; border-radius: 999px; background: rgba(11, 10, 31, .92); border: 1.5px solid var(--line); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0, 0, 0, .45); }
+  .cta-dock[hidden] { display: none; }
+  .cta-dock .btn { flex: 1; justify-content: center; }
+  .cta-dock__icon { flex: 0 0 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--line); font-size: 1.3rem; text-decoration: none; }
+}

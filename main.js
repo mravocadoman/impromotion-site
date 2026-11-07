@@ -148,7 +148,7 @@
       const type = brief.querySelector(`[name="type"][value="${cta.dataset.type}"]`);
       const want = brief.querySelector(`[name="want"][value="${cta.dataset.want}"]`);
       if (type) type.checked = true;
-      if (want) want.checked = true;
+      if (want) { want.checked = true; want.closest('details').open = true; }
       brief.classList.remove('flash');
       void brief.offsetWidth;
       brief.classList.add('flash');
@@ -391,7 +391,7 @@
     refreshAvailability();
   });
   dateInput.addEventListener('change', refreshAvailability);
-  picksBar.addEventListener('click', () => document.getElementById('kontakti').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }));
+  picksBar.addEventListener('click', () => document.getElementById('brief').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }));
   // No need for the bar while the form itself is on screen.
   new IntersectionObserver(([entry]) => { barSuppressed = entry.isIntersecting; renderPicks(); }, { threshold: 0.15 })
     .observe(document.getElementById('kontakti'));
@@ -611,17 +611,45 @@
     status.textContent = text;
     status.dataset.tone = tone || '';
   };
+  form.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('is-invalid')) return;
+    form.querySelectorAll('[name="phone"], [name="email"]').forEach((el) => el.classList.remove('is-invalid'));
+    e.target.classList.remove('is-invalid');
+  });
+
+  // Mobile dock: "Pieteikt pasākumu" + WhatsApp + call, after the hero and away from the form,
+  // the shortlist bar and the cookie bar.
+  const dock = document.getElementById('cta-dock');
+  if (dock) {
+    let pastHero = false;
+    let nearForm = false;
+    const sync = () => { dock.hidden = !pastHero || nearForm || !document.getElementById('picks-bar').hidden || !!document.querySelector('.consent'); };
+    new IntersectionObserver(([en]) => { pastHero = !en.isIntersecting; sync(); }).observe(document.getElementById('top'));
+    new IntersectionObserver(([en]) => { nearForm = en.isIntersecting; sync(); }, { threshold: 0.05 }).observe(document.getElementById('kontakti'));
+    new MutationObserver(sync).observe(document.body, { childList: true, subtree: false, attributes: true, attributeFilter: ['hidden'] });
+    new MutationObserver(sync).observe(document.getElementById('picks-bar'), { attributes: true, attributeFilter: ['hidden'] });
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
     const phone = String(data.get('phone') || '').trim();
     const email = String(data.get('email') || '').trim();
-    if (!form.reportValidity()) return;
-    if (!phone && !email) {
-      say('Norādiet tālruni vai e-pastu, lai varam ar jums sazināties.', 'error');
-      form.querySelector('[name="phone"]').focus();
-      return;
+    // Mark what is missing, jump to the first one, and say why in plain words.
+    const nameEl = form.querySelector('[name="name"]');
+    const phoneEl = form.querySelector('[name="phone"]');
+    const emailEl = form.querySelector('[name="email"]');
+    form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+    const bad = [];
+    let why = '';
+    if (!nameEl.value.trim()) { bad.push(nameEl); why = 'Ierakstiet savu vārdu.'; }
+    if (!phone && !email) { bad.push(phoneEl, emailEl); why = why ? 'Ierakstiet vārdu un tālruni vai e-pastu.' : 'Norādiet tālruni vai e-pastu, lai varam ar jums sazināties.'; }
+    else if (email && !emailEl.checkValidity()) { bad.push(emailEl); why ||= 'Pārbaudiet e-pasta adresi.'; }
+    if (bad.length) {
+      bad.forEach((el) => el.classList.add('is-invalid'));
+      bad[0].focus();
+      bad[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return say(why, 'error');
     }
     const payload = {
       name: data.get('name'),
