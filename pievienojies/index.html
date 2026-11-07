@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=20261103">
+  <link rel="stylesheet" href="/styles.css?v=20261107">
 </head>
 <body class="blog-page">
   <a class="skip" href="#saturs">Pāriet uz saturu</a>
@@ -45,10 +45,51 @@
     <div class="post__wrap">
       <p class="eyebrow eyebrow--yellow">Aktieriem un vadītājiem</p>
       <h1 class="post__title">Esi improvizators? Spēlē pie mums.</h1>
-      <p class="post__lead">Impromotion meklē improvizācijas aktierus, pasākumu vadītājus un animatorus visā Latvijā. Mēs atrodam klientus, sarakstāmies un izrakstām rēķinus. Tu spēlē, nosaki savu honorāru un pats izvēlies, kurām haltūrām piekrist.</p>
+      <p class="post__lead">Mēs atrodam klientus, sarakstāmies un izrakstām rēķinus. Tu spēlē, nosaki savu honorāru un izvēlies, kurām haltūrām piekrist.</p>
+
+      <form class="brief join-form" id="join" novalidate>
+        <div class="join-troupe" id="join-troupe" hidden>
+          <img src="" alt="" width="64" height="64">
+          <p><strong></strong><span>Aizpildi formu, un Tavs profils uzreiz būs šajā kolektīvā.</span></p>
+        </div>
+        <h2 class="panel__title">Izveido profilu 1 minūtē</h2>
+        <p class="join-form__hint">Vajag tikai vārdu un e-pastu. Foto, honorāru un pārējo vari pievienot vēlāk savā profilā.</p>
+        <label class="field"><span>Vārds, uzvārds</span><input name="full_name" required maxlength="80" autocomplete="name" autocapitalize="words" enterkeyhint="next"></label>
+        <label class="field"><span>E-pasts</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next"></label>
+        <label class="field"><span>Tālrunis <em>(nav obligāti)</em></span><input type="tel" name="phone" maxlength="40" autocomplete="tel" inputmode="tel" enterkeyhint="done"></label>
+        <fieldset><legend>Ko Tu dari? <em>(atzīmē, kas der)</em></legend><div class="chips" data-chips="skills"></div></fieldset>
+        <details class="join-more">
+          <summary>Pastāstīt vairāk jau tagad <em>(nav obligāti)</em></summary>
+          <div class="join-more__body">
+            <div class="brief__row brief__row--even">
+              <label class="field"><span>Skatuves vārds</span><input name="stage_name" maxlength="40" placeholder="Ja tāds ir" autocomplete="nickname"></label>
+              <label class="field"><span>Cik gadus improvizē?</span><input type="number" name="experience_years" min="0" max="60" step="1" inputmode="numeric"></label>
+            </div>
+            <label class="field"><span>Improvizācijas teātris vai kolektīvs</span><input name="troupes" maxlength="200" placeholder="Piemēram, Pietura"></label>
+            <fieldset><legend>Kādus pasākumus vadi?</legend><div class="chips" data-chips="formats"></div></fieldset>
+            <fieldset><legend>Valodas</legend><div class="chips" data-chips="languages"></div></fieldset>
+            <fieldset><legend>Kur vari strādāt?</legend><div class="chips" data-chips="regions"></div></fieldset>
+            <div class="field"><span>Minimālais honorārs, EUR (redz tikai Impromotion)</span>
+              <div class="fee-row">
+                <input type="number" name="min_fee_eur" min="0" step="5" placeholder="Piemēram, 50" inputmode="numeric" aria-label="Minimālais honorārs, EUR">
+                <select name="fee_unit" aria-label="Par ko">
+                  <option value="event">par pasākumu</option>
+                  <option value="hour">par stundu</option>
+                </select>
+              </div>
+            </div>
+            <label class="field"><span>Saites: video, Instagram, Facebook, izrādes</span><textarea name="links" rows="2" maxlength="600" placeholder="Viena saite rindā"></textarea></label>
+            <label class="field"><span>Pastāsti par sevi</span><textarea name="about" rows="4" maxlength="1500" placeholder="Kur spēlē, ko esi vadījis, kas Tev padodas vislabāk"></textarea></label>
+          </div>
+        </details>
+        <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <div class="brief__actions"><button class="btn btn--yellow btn--lg" type="submit">Izveidot profilu →</button></div>
+        <p class="join-form__consent">Nospiežot pogu, piekrīti, ka Impromotion glabā šos datus, lai sazinātos ar Tevi par sadarbību. Datus nevienam citam nenododam, un pēc Tava lūguma tos izdzēsīsim.</p>
+        <p class="brief__note" id="join-status" role="status" aria-live="polite"></p>
+      </form>
 
       <ol class="steps-strip">
-        <li><strong>Profils</strong><span>Aizpildi formu zemāk. Tas aizņem pāris minūtes.</span></li>
+        <li><strong>Profils</strong><span>Aizpildi formu augstāk. Tas aizņem minūti.</span></li>
         <li><strong>Ienāc</strong><span>Ienāc impromotion.lv/aktieriem/ ar savu e-pastu, pievieno foto un atzīmē aizņemtās dienas.</span></li>
         <li><strong>Publicē</strong><span>Nospied “Publicēt profilu”, un Tavs profils uzreiz parādīsies sadaļā “Jaunie talanti”.</span></li>
         <li><strong>Pirmā haltūra</strong><span>Kad klientam vajag tieši tādu kā Tu, zvanām. Pēc kopīga darba Tevi pievienosim pārbaudīto profesionāļu sarakstam.</span></li>
@@ -61,46 +102,6 @@
         <li><span class="tip-grid__icon">🤝</span><span class="tip-grid__title">Kolektīvi arī</span><span class="tip-grid__text">Spēlē improvizācijas teātrī vai kolektīvā? Piesakieties visi kopā, rādīsim arī jūsu kolektīvu.</span></li>
       </ul>
 
-      <form class="brief join-form" id="join" novalidate>
-        <div class="join-troupe" id="join-troupe" hidden>
-          <img src="" alt="" width="64" height="64">
-          <p><strong></strong><span>Aizpildi formu, un tavs profils uzreiz būs šajā kolektīvā.</span></p>
-        </div>
-        <h2 class="panel__title">Izveido savu profilu</h2>
-        <div class="brief__row brief__row--even">
-          <label class="field"><span>Vārds, uzvārds *</span><input name="full_name" required maxlength="80" autocomplete="name"></label>
-          <label class="field"><span>Skatuves vārds</span><input name="stage_name" maxlength="40" placeholder="Ja tāds ir"></label>
-        </div>
-        <div class="brief__row brief__row--even">
-          <label class="field"><span>E-pasts *</span><input type="email" name="email" required maxlength="254" autocomplete="email"></label>
-          <label class="field"><span>Tālrunis</span><input type="tel" name="phone" maxlength="40" autocomplete="tel"></label>
-        </div>
-        <div class="brief__row brief__row--even">
-          <label class="field"><span>Improvizācijas teātris vai kolektīvs</span><input name="troupes" maxlength="200" placeholder="Piemēram, Pietura"></label>
-          <label class="field"><span>Cik gadus improvizē?</span><input type="number" name="experience_years" min="0" max="60" step="1"></label>
-        </div>
-        <fieldset><legend>Ko tu dari?</legend><div class="chips" data-chips="skills"></div></fieldset>
-        <fieldset><legend>Kādus pasākumus vadi?</legend><div class="chips" data-chips="formats"></div></fieldset>
-        <div class="brief__row brief__row--even">
-          <fieldset><legend>Valodas</legend><div class="chips" data-chips="languages"></div></fieldset>
-          <fieldset><legend>Kur vari strādāt?</legend><div class="chips" data-chips="regions"></div></fieldset>
-        </div>
-        <div class="field"><span>Minimālais honorārs, EUR (redz tikai Impromotion)</span>
-          <div class="fee-row">
-            <input type="number" name="min_fee_eur" min="0" step="5" placeholder="Piemēram, 50" aria-label="Minimālais honorārs, EUR">
-            <select name="fee_unit" aria-label="Par ko">
-              <option value="event">par pasākumu</option>
-              <option value="hour">par stundu</option>
-            </select>
-          </div>
-        </div>
-        <label class="field"><span>Saites: video, Instagram, Facebook, izrādes</span><textarea name="links" rows="2" maxlength="600" placeholder="Viena saite rindā"></textarea></label>
-        <label class="field"><span>Pastāsti par sevi</span><textarea name="about" rows="4" maxlength="1500" placeholder="Kur spēlē, ko esi vadījis, kas tev padodas vislabāk"></textarea></label>
-        <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-        <label class="check"><input type="checkbox" name="consent" required> Piekrītu, ka Impromotion glabā šos datus, lai sazinātos ar mani par sadarbību. Datus nevienam citam nenododam, un pēc tava lūguma tos izdzēsīsim.</label>
-        <div class="brief__actions"><button class="btn btn--yellow btn--lg" type="submit">Izveidot profilu</button></div>
-        <p class="brief__note" id="join-status" role="status" aria-live="polite"></p>
-      </form>
     </div>
   </main>
 
@@ -152,13 +153,20 @@
       }).catch(() => {});
     }
     const status = document.getElementById('join-status');
+    form.addEventListener('input', (e) => e.target.classList?.remove('is-invalid'));
     const say = (t, tone) => { status.textContent = t; status.dataset.tone = tone || ''; };
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
       if (fd.get('website')) return say('Paldies! Pieteikums saņemts.', 'ok');
-      if (!fd.get('full_name').trim() || !fd.get('email').trim()) return say('Ieraksti vārdu un e-pastu.', 'error');
-      if (!fd.has('consent')) return say('Atzīmē piekrišanu datu glabāšanai, citādi nevaram sazināties.', 'error');
+      // Mark what is missing and put the cursor there, so the visitor never hunts for the problem.
+      const bad = [...form.querySelectorAll('[required]')].filter((el) => !el.value.trim() || !el.checkValidity());
+      form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+      if (bad.length) {
+        bad.forEach((el) => el.classList.add('is-invalid'));
+        bad[0].focus(); bad[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+        return say(bad[0].name === 'email' && bad[0].value.trim() ? 'Pārbaudi e-pasta adresi.' : 'Ieraksti vārdu un e-pastu.', 'error');
+      }
       const num = (k) => (fd.get(k) ? Number(fd.get(k)) : null);
       const body = {
         p_full_name: fd.get('full_name'), p_stage_name: fd.get('stage_name'), p_email: fd.get('email'), p_phone: fd.get('phone'),
@@ -182,6 +190,7 @@
           busy: ['Šobrīd ir daudz pieteikumu. Pamēģini vēlreiz pēc stundas.', 'error'],
           consent: ['Atzīmē piekrišanu datu glabāšanai.', 'error'] }[result] || ['Neizdevās nosūtīt. Raksti uz hello@impromotion.lv.', 'error'];
         say(...msg);
+        status.scrollIntoView({ block: 'center', behavior: 'smooth' });
         if (result === 'joined') status.insertAdjacentHTML('beforeend', ' <a class="btn btn--sm btn--yellow" href="/aktieriem/">Ieiet profilā →</a>');
         if (result === 'ok' || result === 'joined') window.impTrack?.('CompleteRegistration');
         if (msg[1] === 'ok') form.reset();

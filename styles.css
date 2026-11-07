@@ -1031,3 +1031,18 @@ section[id] { scroll-margin-top: 70px; }
   background: var(--navy-2); color: var(--text); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); }
 .consent p { flex: 1 1 260px; margin: 0; font-size: .95rem; }
 .consent div { display: flex; gap: 8px; }
+
+/* Sign-up: three fields up front, the rest folded away */
+.join-form { border-color: rgba(253, 203, 8, .55); scroll-margin-top: 90px; }
+.join-form__hint { margin: -10px 0 0; color: var(--muted); }
+.join-form em { font-style: normal; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.join-form .field input:not([type="range"]), .join-form .field textarea, .join-form select { font-size: max(16px, 1rem); }
+.join-form .is-invalid { border-color: var(--pink) !important; box-shadow: 0 0 0 4px rgba(255, 79, 139, .2) !important; }
+.join-form__consent { margin: -8px 0 0; font-size: .8rem; color: var(--muted); }
+.join-more { border: 1.5px dashed rgba(255, 255, 255, .2); border-radius: 18px; padding: 0; }
+.join-more summary { cursor: pointer; padding: 14px 18px; font-weight: 700; list-style: none; }
+.join-more summary::-webkit-details-marker { display: none; }
+.join-more summary::before { content: "＋ "; color: var(--yellow); }
+.join-more[open] summary::before { content: "－ "; }
+.join-more__body { display: grid; gap: 22px; padding: 4px 18px 18px; }
+@media (max-width: 520px) { .join-form .btn--lg { width: 100%; justify-content: center; } }
