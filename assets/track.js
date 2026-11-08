@@ -1,8 +1,12 @@
 // Meta pixel (dataset "Impromotion" in the Mārketinga Skola business). It loads only after the visitor
 // agrees in the cookie bar; the choice is kept in localStorage. Forms report conversions through
 // window.impTrack('Lead'), which does nothing without consent.
+// Google Ads: fill ADS_ID ("AW-...") and the conversion labels from Google Ads > Goals; while ADS_ID
+// is empty nothing from Google loads. Same consent as Meta.
 (() => {
   const PIXEL = '2340918023375734';
+  const ADS_ID = '';
+  const ADS_LABELS = { Lead: '', Contact: '' };
   const KEY = 'imp-consent';
   const load = () => {
     /* eslint-disable */
@@ -10,8 +14,21 @@
     /* eslint-enable */
     fbq('init', PIXEL);
     fbq('track', 'PageView');
+    if (ADS_ID) {
+      const g = document.createElement('script');
+      g.async = true;
+      g.src = 'https://www.googletagmanager.com/gtag/js?id=' + ADS_ID;
+      document.head.append(g);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('js', new Date());
+      gtag('config', ADS_ID);
+    }
   };
-  window.impTrack = (event, params) => { if (window.fbq) fbq('track', event, params); };
+  window.impTrack = (event, params) => {
+    if (window.fbq) fbq('track', event, params);
+    if (window.gtag && ADS_LABELS[event]) gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LABELS[event] });
+  };
 
   // WhatsApp, call and e-mail clicks: Meta "Contact" (with consent) and our own count (always,
   // no personal data). The ?no= / utm_source tag matches what the inquiry form stores.
@@ -44,7 +61,7 @@
   bar.className = 'consent';
   bar.setAttribute('role', 'region');
   bar.setAttribute('aria-label', 'Sīkdatnes');
-  bar.innerHTML = '<p>Ja piekrītat, izmantosim Meta sīkdatnes, lai redzētu, kuras reklāmas atved apmeklētājus. Bez piekrišanas tās neizmantojam.</p>'
+  bar.innerHTML = '<p>Ja piekrītat, izmantosim Meta un Google sīkdatnes, lai redzētu, kuras reklāmas atved apmeklētājus. Bez piekrišanas tās neizmantojam.</p>'
     + '<div><button class="btn btn--sm btn--yellow" type="button" data-c="no">Atteikties</button>'
     + '<button class="btn btn--sm btn--yellow" type="button" data-c="yes">Piekrītu</button></div>';
   bar.addEventListener('click', (e) => {

@@ -5,7 +5,7 @@ People searching for an event host in November and December are ready to book no
 ## Before it can run
 
 1. **Ad account.** There is no Impromotion Google Ads account yet. The only one connected (584-867-7621) belongs to Starfleet Portraits. Create one at ads.google.com with billing in EUR.
-2. **Conversion tag.** The site has no Google tag. Add the gtag to `index.html` and fire a `conversion` on the same form success that already fires the Meta `Lead` event in `assets/track.js`. Without it, Google can't optimise for leads.
+2. **Conversion tag.** Built into `assets/track.js`, dormant until `ADS_ID` (AW-...) and two labels are filled in: `Lead` (form sent, primary goal) and `Contact` (WhatsApp, call or e-mail click, secondary). Create both conversion actions in Google Ads > Goals > Website, category "Submit lead form" and "Contact". Our own Supabase count also stores `utm_source=google`, so leads show up in the admin even without cookie consent.
 3. **Budget.** Your number. 10 €/day for 14 days (140 €) is enough to see whether search brings leads before Christmas.
 
 ## Campaign
@@ -16,7 +16,7 @@ People searching for an event host in November and December are ready to book no
 | Location | Rīga and 30 km around, people *in* the area |
 | Language | Latvian, English |
 | Bidding | Maximise clicks with a 1,50 € cap for the first week, then Maximise conversions once 10+ leads are tracked |
-| Landing page | https://impromotion.lv/#kontakti with `?utm_source=google&utm_medium=cpc&utm_campaign=xmas` |
+| Landing page | https://impromotion.lv/#brief with `?utm_source=google&utm_medium=cpc&utm_campaign=xmas` |
 | Schedule | 7:00 to 23:00 |
 
 ## Ad groups and keywords (phrase match)
@@ -59,7 +59,7 @@ Descriptions (≤ 90 characters):
 3. Atsūtiet datumu un viesu skaitu, un sagatavosim piedāvājumu ar programmu un cenu.
 4. Improvizācijas aktieri ar 10+ gadu pieredzi. Strādājam latviski un angliski.
 
-Sitelinks: Slēptās lomas (/#lomas), Aktieri (/#aktieri), Pakalpojumi (/#pakalpojumi), Sazināties (/#kontakti).
+Sitelinks: Slēptās lomas (/#lomas), Aktieri (/#aktieri), Pakalpojumi (/#pakalpojumi), Pieteikt pasākumu (/#brief).
 Call asset: +371 20 381 931.
 
 ## Success line after 14 days
