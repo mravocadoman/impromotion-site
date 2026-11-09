@@ -1,11 +1,13 @@
-# Google Ads: Christmas party search campaign (draft, not built)
+# Google Ads: Christmas party search campaign
+
+**Status 2026-11-09:** built as a saved draft in account 629-727-4403 ("Impromotion | Search | Ziemassvētki Rīga"), not published. As built: one ad group with all 16 keywords, Rīga 30 km (presence), AI Max text customization and URL expansion off, 10 €/day, max CPC 1,50 €. Sitelinks and call asset not added yet.
 
 People searching for an event host in November and December are ready to book now, so search ads catch demand that Meta has to create. Nothing here is live and nothing spends until you confirm a budget.
 
 ## Before it can run
 
-1. **Ad account.** There is no Impromotion Google Ads account yet. The only one connected (584-867-7621) belongs to Starfleet Portraits. Create one at ads.google.com with billing in EUR.
-2. **Conversion tag.** Built into `assets/track.js`, dormant until `ADS_ID` (AW-...) and two labels are filled in: `Lead` (form sent, primary goal) and `Contact` (WhatsApp, call or e-mail click, secondary). Create both conversion actions in Google Ads > Goals > Website, category "Submit lead form" and "Contact". Our own Supabase count also stores `utm_source=google`, so leads show up in the admin even without cookie consent.
+1. **Ad account.** Done: 629-727-4403, EUR, billing SIA Stonks.
+2. **Conversion tag.** Live in `assets/track.js` (AW-18563708225): `Lead` (form sent, primary goal) and `Contact` (WhatsApp, call or e-mail click, secondary). Create both conversion actions in Google Ads > Goals > Website, category "Submit lead form" and "Contact". Our own Supabase count also stores `utm_source=google`, so leads show up in the admin even without cookie consent.
 3. **Budget.** Your number. 10 €/day for 14 days (140 €) is enough to see whether search brings leads before Christmas.
 
 ## Campaign
