@@ -1,6 +1,6 @@
 # Google Ads: Christmas party search campaign
 
-**Status 2026-11-09:** built as a saved draft in account 629-727-4403 ("Impromotion | Search | Ziemassvētki Rīga"), not published. As built: one ad group with all 16 keywords, Rīga 30 km (presence), AI Max text customization and URL expansion off, 10 €/day, max CPC 1,50 €. Sitelinks and call asset not added yet.
+**Status 2026-11-09:** LIVE (enabled) in account "Impromotion" (629-727-4403), campaign "Impromotion | Search | Ziemassvētki Rīga" (id 24448919951). As built: one ad group with all 16 keywords, Rīga 30 km (presence), AI Max text customization and URL expansion off, 10 €/day, max CPC 1,50 €, 4 sitelinks, call asset 20381931. Campaign-specific conversion goal: Submit lead forms only (Pieteikums). WhatsApp/call/e-mail clicks stay a secondary (reporting-only) conversion.
 
 People searching for an event host in November and December are ready to book now, so search ads catch demand that Meta has to create. Nothing here is live and nothing spends until you confirm a budget.
 
