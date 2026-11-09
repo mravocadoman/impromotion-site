@@ -5,8 +5,8 @@
 // is empty nothing from Google loads. Same consent as Meta.
 (() => {
   const PIXEL = '2340918023375734';
-  const ADS_ID = '';
-  const ADS_LABELS = { Lead: '', Contact: '' };
+  const ADS_ID = 'AW-18563708225';
+  const ADS_LABELS = { Lead: 'KvtMCPnl-rQdEMHq7pNF', Contact: 'NV7lCM7QgrUdEMHq7pNF' };
   const KEY = 'imp-consent';
   const load = () => {
     /* eslint-disable */
