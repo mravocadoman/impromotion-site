@@ -33,14 +33,19 @@
     if (window.gtag && ADS_LABELS[event]) gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LABELS[event] });
   };
 
-  // WhatsApp, call and e-mail clicks: Meta "Contact" (with consent) and our own count (always,
-  // no personal data). The ?no= / utm_source tag matches what the inquiry form stores.
+  // Where the visitor came from, kept for the whole visit: ?no= tag, else ?utm_source=, else the
+  // referring site. ?no= wins because Meta adds utm_source=fb to every ad link. This runs on every
+  // page (blog included), so a reader who lands on a post from Google and then sends the form on
+  // the homepage still counts as "ref:google.com /blogs/...". The inquiry form reads window.impSrc.
   const src = () => {
     const q = new URLSearchParams(location.search);
     let s = q.get('no') || q.get('utm_source') || '';
+    if (!s && document.referrer) { try { const h = new URL(document.referrer).host; if (h !== location.host) s = 'ref:' + h.replace(/^www\./, ''); } catch {} }
+    if (s.startsWith('ref:') && location.pathname !== '/') s += ' ' + location.pathname;
     try { if (s) sessionStorage.setItem('imp-lead-src', s.slice(0, 80)); s = sessionStorage.getItem('imp-lead-src') || s; } catch {}
     return s.slice(0, 80);
   };
+  window.impSrc = src;
   src();
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href]');

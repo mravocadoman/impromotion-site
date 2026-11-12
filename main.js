@@ -443,14 +443,7 @@
 
   /* ---------- Event brief → n8n (saves the lead, e-mails Rihards, pings WhatsApp) ---------- */
   const LEAD_URL = 'https://marketingaskola.app.n8n.cloud/webhook/impromotion-lead?k=imp-lv-2026';
-  // Where the visitor came from (our ?no= tag, else ?utm_source=, else the referring site), kept for the whole visit.
-  // ?no= wins because Meta adds utm_source=fb to every ad link, which would hide which ad it was.
-  const leadSource = (() => {
-    const q = new URLSearchParams(location.search);
-    let s = q.get('no') || q.get('utm_source') || '';
-    if (!s && document.referrer) { try { const h = new URL(document.referrer).host; if (h !== location.host) s = `ref:${h}`; } catch {} }
-    try { if (s) sessionStorage.setItem('imp-lead-src', s.slice(0, 80)); return sessionStorage.getItem('imp-lead-src') || ''; } catch { return s.slice(0, 80); }
-  })();
+  // Where the visitor came from: assets/track.js keeps it for the whole visit (blog pages included).
   const form = document.getElementById('brief');
   const status = document.getElementById('brief-status');
   const guests = document.getElementById('guests');
@@ -526,7 +519,7 @@
       date_iso: data.get('date') || '',
       budget_eur: data.get('budget') || '',
       level_key: data.get('level') || '',
-      source: leadSource,
+      source: window.impSrc?.() || '',
     };
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;
