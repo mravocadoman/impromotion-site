@@ -64,8 +64,9 @@
   bar.className = 'consent';
   bar.setAttribute('role', 'region');
   bar.setAttribute('aria-label', 'Sīkdatnes');
-  bar.innerHTML = '<p>Ja piekrītat, izmantosim Meta un Google sīkdatnes, lai redzētu, kuras reklāmas atved apmeklētājus. Bez piekrišanas tās neizmantojam.</p>'
-    + '<div><button class="btn btn--sm btn--yellow" type="button" data-c="no">Atteikties</button>'
+  // "Piekrītu" is the main button, "Atteikties" stays the same size and one click away.
+  bar.innerHTML = '<p>🍪 Sīkdatnes mums palīdz saprast, kura reklāma jūs atveda, lai netērētu naudu reklāmām, kas nestrādā. Ja piekrītat, izmantosim Meta un Google sīkdatnes. Bez piekrišanas tās neieslēdzam.</p>'
+    + '<div><button class="btn btn--sm btn--ghost" type="button" data-c="no">Atteikties</button>'
     + '<button class="btn btn--sm btn--yellow" type="button" data-c="yes">Piekrītu</button></div>';
   bar.addEventListener('click', (e) => {
     const c = e.target.closest('[data-c]')?.dataset.c;
