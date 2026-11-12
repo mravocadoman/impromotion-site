@@ -21,6 +21,9 @@
       document.head.append(g);
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () { dataLayer.push(arguments); };
+      // Consent Mode v2: this only runs after "Piekrītu", so tell Google the visitor consented.
+      // Without these signals Google may drop EEA conversions.
+      gtag('consent', 'default', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
       gtag('js', new Date());
       gtag('config', ADS_ID);
     }
