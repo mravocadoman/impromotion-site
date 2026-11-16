@@ -153,6 +153,9 @@
       }).catch(() => {});
     }
     const status = document.getElementById('join-status');
+    // Coming from the login page with an address that has no profile yet: keep what they typed.
+    const preEmail = new URLSearchParams(location.search).get('email');
+    if (preEmail) form.querySelector('[name="email"]').value = preEmail.slice(0, 254);
     form.addEventListener('input', (e) => e.target.classList?.remove('is-invalid'));
     const say = (t, tone) => { status.textContent = t; status.dataset.tone = tone || ''; };
     form.addEventListener('submit', async (e) => {

@@ -64,7 +64,7 @@ export async function mountLogin(root, { redirectPath }) {
       <h1 class="h2">${invite ? esc(greet(invite.full_name)) : 'Ienākt'}</h1>
       <p class="muted">${invite
         ? `Šī ir Tava personīgā saite, ar kuru vari pārņemt profilu <strong>${who}</strong> impromotion.lv lapā. Ieraksti savu e-pastu, un atsūtīsim saiti, ar kuru ienākt bez paroles. Ar šo pašu e-pastu ienāksi arī turpmāk.`
-        : 'Ieraksti e-pastu, uz kuru saņēmi ielūgumu, un atsūtīsim saiti, ar kuru ienākt bez paroles.'}</p>
+        : 'Ja Tev jau ir profils, ieraksti savu e-pastu, un atsūtīsim saiti, ar kuru ienākt bez paroles. Pirmo reizi šeit? <a href="/pievienojies/">Aizpildi pieteikumu</a>, tas aizņem minūti, un profils tiks izveidots uzreiz.'}</p>
       ${token && !invite ? '<p class="notice">Šī ielūguma saite vairs nav derīga. Palūdz Rihardam jaunu ielūguma saiti.</p>' : ''}
       <label class="field"><span>E-pasts</span><input type="email" name="email" autocomplete="email" required></label>
       <button class="btn btn--yellow btn--lg" type="submit">Sūtīt ienākšanas saiti</button>
@@ -83,6 +83,11 @@ export async function mountLogin(root, { redirectPath }) {
     }
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + redirectPath } });
     if (!error) { status.textContent = 'Saite nosūtīta. Pārbaudi e-pastu, arī mēstuļu mapi.'; return; }
+    // No profile for this address yet: most of these are new actors who came to log in instead of signing up.
+    if (/database error|not invited|signups/i.test(error.message) && !invite) {
+      status.innerHTML = `Šim e-pastam vēl nav profila. Aizpildi pieteikumu (tas aizņem minūti), un pēc tam ienāksi ar šo pašu e-pastu. <a class="btn btn--sm btn--yellow" href="/pievienojies/?email=${encodeURIComponent(email)}">Aizpildīt pieteikumu →</a>`;
+      return;
+    }
     status.textContent = /database error|not invited|signups/i.test(error.message)
       ? 'Uz šo e-pasta adresi ielūgums nav nosūtīts. Uzraksti uz hello@impromotion.lv.'
       : /rate|seconds/i.test(error.message) ? 'Pārāk daudz mēģinājumu. Pagaidi minūti un mēģini vēlreiz.' : `Neizdevās nosūtīt saiti: ${error.message}`;
