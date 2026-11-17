@@ -2,6 +2,8 @@
 
 **Status 2026-11-09:** LIVE (enabled) in account "Impromotion" (629-727-4403), campaign "Impromotion | Search | Ziemassvētki Rīga" (id 24448919951). As built: one ad group with all 16 keywords, Rīga 30 km (presence), AI Max text customization and URL expansion off, 10 €/day, max CPC 1,50 €, 4 sitelinks, call asset 20381931. Campaign-specific conversion goal: Submit lead forms only (Pieteikums). WhatsApp/call/e-mail clicks stay a secondary (reporting-only) conversion.
 
+**Check 2026-11-18:** 55,56 € spent since launch, 2 form leads in Supabase (Ads counted 1; the first came before the consent fix), so about 28 € per lead. Changes: 13 phrase negatives added (the planned list had never gone in, plus kozmens, dj, muzikants from the search terms), max CPC cap raised from 1,50 € to 2,00 € (the cap was holding spend near 6 €/day), new sitelink "Cik maksā vadītājs?" to the price post, 4 callouts. Next check: switch to Maximise conversions at 10+ tracked leads; swap the Christmas copy after 20 December.
+
 People searching for an event host in November and December are ready to book now, so search ads catch demand that Meta has to create. Nothing here is live and nothing spends until you confirm a budget.
 
 ## Before it can run
