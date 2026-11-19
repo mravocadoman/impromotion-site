@@ -80,7 +80,7 @@
   }
   </script>
 </head>
-<body class="blog-page">
+<body>
   <a class="skip" href="#saturs">Pāriet uz saturu</a>
 
   <header class="nav nav--solid" id="nav">
@@ -92,132 +92,321 @@
     </button>
     <nav class="nav__links" id="nav-links">
       <a href="/#pakalpojumi">Pakalpojumi</a>
-      <a href="/#lomas">Slēptās lomas</a>
-      <a href="/#aktieri">Aktieri</a>
+      <a href="#ko-daram">Ko iekļauj</a>
+      <a href="#papildinajumi">Papildinājumi</a>
       <a href="/blogs/">Blogs</a>
-      <a href="/pievienojies/">Pievienojies</a>
-      <a class="nav__login" href="/aktieriem/">Aktieriem</a>
-      <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
+      <a class="btn btn--sm btn--yellow" href="#pieteikums">Pieteikt pasākumu</a>
     </nav>
   </header>
 
-  <main id="saturs" class="post">
-    <article class="post__wrap">
-      <nav class="crumbs" aria-label="Navigācija"><a href="/">Sākums</a> <span aria-hidden="true">/</span> <a href="/#pakalpojumi">Pakalpojumi</a></nav>
-      <p class="eyebrow eyebrow--yellow">Pasākumu organizēšana</p>
-      <h1 class="post__title">Pasākumu organizēšana no A līdz Z: jūs atnākat un svinat, mēs parūpējamies par pārējo</h1>
-      <p class="post__lead">Korporatīvā pasākuma rīkošana parasti nokrīt uz viena cilvēka pleciem, kuram tam pa vidu vēl jāpaveic arī savs darbs. Mēs to varam uzņemties pilnībā: atrodam vietu, saskaņojam ēdināšanu, mūziku un tehniku, saliekam laika plānu un pasākuma dienā esam uz vietas, lai viss notiktu laikā. Jums atliek pateikt datumu, budžetu un noskaņu. 🎉 Ja gribat vakaru, par kuru runās vēl nedēļu, klāt varat pievienot mūsu vadītāju vai improvizācijas aktierus.</p>
-
-      <nav class="toc" aria-label="Saturs">
-        <p class="toc__title">Saturs</p>
-        <ol>
-          <li><a href="#ko-daram">Ko mēs uzņemamies</a></li>
-          <li><a href="#ka-notiek">Kā notiek sadarbība: 5 soļi</a></li>
-          <li><a href="#papildinajumi">Papildinājumi: vadītājs un improvizācijas aktieri</a></li>
-          <li><a href="#pasakumi">Kādus pasākumus organizējam</a></li>
-          <li><a href="#cena">No kā veidojas cena</a></li>
-          <li><a href="#buj">Biežāk uzdotie jautājumi</a></li>
-        </ol>
-      </nav>
-
-      <div class="post__body">
-        <h2 id="ko-daram">Ko mēs uzņemamies</h2>
-        <p>Varat uzticēt mums visu pasākumu vai tikai to daļu, kurai pašiem nepietiek laika. Visbiežāk komandas vēlas, lai mēs parūpējamies par šo:</p>
-        <ul>
-          <li><strong>💡 Ideja un plāns.</strong> Pēc īsas sarunas piedāvājam pasākuma ideju, laika plānu un budžetu, kas atbilst jūsu kolektīvam, nevis kārtējo šablonu.</li>
-          <li><strong>📍 Vieta.</strong> Atlasām telpas, kas der jūsu cilvēku skaitam un budžetam, un saskaņojam visu ar saimniekiem: Rīgā, ārpus pilsētas vai jūsu birojā.</li>
-          <li><strong>🍽️ Ēdināšana un dzērieni.</strong> Saskaņojam ēdienkarti, alerģijas un veģetāros ēdienus, lai neviens nepaliktu izsalcis un rēķins nepārsteigtu.</li>
-          <li><strong>🗓️ Programma un laika plāns.</strong> Saliekam visu vakaru no ierašanās līdz dejām: kad uzrunas, kad vakariņas, kad izklaide un balvas. Izpildītājus atrodam un saskaņojam mēs.</li>
-          <li><strong>🎶 Mūzika, tehnika un noformējums.</strong> DJ vai dzīvā mūzika, skaņa, gaisma un dekorācijas, lai telpa izskatītos pēc svētkiem, nevis pēc sapulču zāles.</li>
-          <li><strong>📋 Koordinācija pasākuma dienā.</strong> Mūsu cilvēks ir uz vietas no pirmās piegādes līdz pēdējam viesim, tāpēc jums pašiem visu vakaru nav jāskatās pulkstenī. Visus jautājumus risina viens cilvēks, kurš zina visu pasākumu.</li>
-        </ul>
-
-        <figure class="post-figure"><img src="/assets/img/pasakumu-organizesana.webp" alt="Korporatīvais vakars bēniņu telpās: vadītājs uz skatuves sasmīdina viesus, priekšplānā koordinatore ar plānu" width="1536" height="1024" loading="lazy"><figcaption>Kamēr vadītājs sasmīdina zāli, koordinators rūpējas, lai nākamais punkts sāktos laikā.</figcaption></figure>
-
-        <h2 id="ka-notiek">Kā notiek sadarbība: 5 soļi</h2>
-        <ol>
-          <li><strong>Brīfs.</strong> Pastāstiet datumu, aptuveno viesu skaitu, budžetu un to, kāda noskaņa jums patīk. Pietiek ar īsu ziņu vai 15 minūšu zvanu.</li>
-          <li><strong>Piedāvājums.</strong> Atsūtām pasākuma ideju, laika plānu un tāmi, kurā katra pozīcija ir redzama atsevišķi.</li>
-          <li><strong>Saskaņošana.</strong> Kopā izvēlamies vietu, ēdienkarti un programmu. Visas sarunas ar piegādātājiem un saimniekiem uzņemamies mēs.</li>
-          <li><strong>Pasākuma diena.</strong> Mūsu koordinators ir uz vietas, piegādātāji strādā pēc laika plāna, un jūs svinat kopā ar kolēģiem.</li>
-          <li><strong>Pēc pasākuma.</strong> Nokārtojam norēķinus ar piegādātājiem un pajautājam, kas patika visvairāk, lai nākamreiz būtu vēl labāk.</li>
-        </ol>
-
-        <aside class="post-cta">
-          <p class="post-cta__kicker">Impromotion</p>
-          <p class="post-cta__title">Pastāstiet datumu, un pārējo izdomāsim mēs</p>
-          <p>Uzrakstiet, kad plānojat pasākumu, cik būs viesu un cik liels ir budžets. Atsūtīsim ideju, laika plānu un tāmi.</p>
-          <a class="btn btn--yellow" href="/#brief">Pieteikt pasākumu →</a>
-        </aside>
-
-        <h2 id="papildinajumi">Papildinājumi: vadītājs un improvizācijas aktieri</h2>
-        <p>Organizēšanu varat pasūtīt arī bez neviena aktiera. Taču bieži tieši cilvēks ar mikrofonu izšķir, vai par pasākumu runās vēl pēc nedēļas. Tāpēc jebkuram pasākumam varat pievienot mūsu pašu programmu:</p>
-        <table class="post-table">
-          <thead><tr><th>Papildinājums</th><th>Ko tas dod</th><th>Cena</th></tr></thead>
-          <tbody>
-            <tr><td>🎤 Pasākuma vadītājs</td><td>Improvizācijas aktieris vada visu vakaru, jūt zāli un iesaista arī klusākos kolēģus.</td><td>no&nbsp;350&nbsp;€</td></tr>
-            <tr><td>🕵️ Slēptā loma</td><td>Aktieris iejūtas viesmīļa vai cita darbinieka lomā, un viesi visu vakaru min, kurš patiesībā ir aktieris.</td><td>no&nbsp;250&nbsp;€</td></tr>
-            <tr><td>🎭 Pilnais šovs</td><td>Vadītājs, slēptās lomas un improvizācijas izrāde, kuras ainas rodas no viesu ieteikumiem.</td><td>no&nbsp;900&nbsp;€</td></tr>
-          </tbody>
-        </table>
-        <p>Kopā tas strādā vēl labāk. Mūsu vadītājs jau zina laika plānu un katru piegādātāju, tāpēc vakara vidū nav jāsaliek kopā cilvēki, kuri pirmoreiz strādā vienā komandā. Ja ēdiens kavējas vai runātājs iestrēgst sastrēgumā, vadītājs pauzi aizpilda tā, ka zālē neviens to nepamana.</p>
-        <p>Impromotion ir improvizācijas aktieru komanda, kas improvizācijā strādā jau vairāk nekā 10 gadus. Aktierus redzēsiet <a href="/#aktieri">komandas sadaļā</a>, bet par slēptajām lomām lasiet <a href="/#lomas">šeit</a>.</p>
-
-        <h2 id="pasakumi">Kādus pasākumus organizējam</h2>
-        <ul>
-          <li><strong>🎄 Ziemassvētku ballītes.</strong> Decembra vakari tiek rezervēti visātrāk, tāpēc šeit vērts sākt laikus. Idejas atradīsiet rakstā <a href="/blogs/ziemassvetku-pasakums-kolektivam-idejas/">Ziemassvētku pasākums kolektīvam</a>.</li>
-          <li><strong>🤝 Komandas saliedēšana.</strong> Improvizācijas treniņš dienā un svinīgs vakars pēc tam. <a href="/komandas-saliedesana/">Kā notiek komandas saliedēšana</a></li>
-          <li><strong>🥂 Uzņēmuma jubilejas un vasaras svētki.</strong> Pasākumi, kuros jāiesaista gan kolēģi, gan partneri un klienti.</li>
-          <li><strong>🎓 Konferenču vakara programma.</strong> Kad oficiālā daļa beigusies un viesiem jāsāk sarunāties savā starpā.</li>
-          <li><strong>🎂 Privātās svinības.</strong> Jubilejas un lielākas dzimšanas dienas, kurās saimniekam arī gribas atpūsties.</li>
-        </ul>
-
-        <h2 id="cena">No kā veidojas cena</h2>
-        <p>Organizēšanas cenu galvenokārt nosaka viesu skaits, vieta, ēdienkarte un tas, cik daudz darba uzticat mums. Tāpēc vienas cenas visiem pasākumiem nav, bet tāmē katru pozīciju redzat atsevišķi un varat izlemt, kur ietaupīt.</p>
-        <p>Vadītājs un aktieri nav obligāti. Ja tos pievienojat, cenas redzat jau tagad <a href="#papildinajumi">tabulā augstāk</a>. Vairāk par to, kā izvēlēties vadītāju, lasiet rakstā <a href="/blogs/cik-maksa-pasakuma-vaditajs/">Cik maksā pasākuma vadītājs</a>.</p>
-        <p>Ja vēl domājat, vai pasākumu rīkot pašiem vai uzticēt aģentūrai, ielūkojieties rakstā <a href="/blogs/pasakumu-agentura-vai-pasu-speki/">Pasākumu aģentūra vai pašu spēkiem</a>. Bet <a href="/blogs/korporativa-pasakuma-organizesana/">korporatīvā pasākuma plāns soli pa solim</a> palīdzēs, ja izlemsiet organizēt paši.</p>
-      </div>
-
-      <section class="faq" aria-labelledby="buj">
-        <h2 id="buj">Biežāk uzdotie jautājumi</h2>
-        <details><summary>Cik laikus jāsāk organizēt korporatīvais pasākums?</summary><p>Lielākam pasākumam labāk sākt 2-3 mēnešus iepriekš, jo labākās vietas un piektdienas vakarus decembrī rezervē ātri. Mazāku vakaru varam sarīkot arī dažās nedēļās. Uzrakstiet datumu, un uzreiz pateiksim, kas vēl ir iespējams.</p></details>
-        <details><summary>Vai varat noorganizēt tikai daļu pasākuma?</summary><p>Jā. Ja vieta un ēdināšana jums jau ir, varam uzņemties programmu, vadītāju un koordināciju pasākuma dienā. Ja vajag tikai vadītāju vai slēptās lomas, piesakiet tos atsevišķi.</p></details>
-        <details><summary>Vai pasākumā obligāti jāpiedalās jūsu aktieriem?</summary><p>Nē. Organizēšana ir atsevišķs pakalpojums, un programmu varam veidot ar jūsu izvēlētiem izpildītājiem vai bez izklaides daļas vispār. Vadītāju, slēptās lomas vai šovu pievienojat tikai tad, ja gribat.</p></details>
-        <details><summary>Cik maksā pasākuma organizēšana?</summary><p>Tas ir atkarīgs no viesu skaita, vietas, ēdienkartes un tā, cik daudz darba uzticat mums. Tāmē katru pozīciju redzat atsevišķi, lai varētu izvēlēties, kur ietaupīt un kur ne. Ja gribat pievienot mūsu programmu, orientējošās cenas ir šādas: vadītājs no 350 €, slēptā loma no 250 €, pilnais šovs no 900 €.</p></details>
-        <details><summary>Vai organizējat pasākumus arī ārpus Rīgas?</summary><p>Jā. Strādājam visā Latvijā: lauku mājās, viesu namos, muižās un uzņēmumu telpās. Ceļa izdevumus norādām piedāvājumā.</p></details>
-        <details><summary>Kas notiek, ja pasākuma dienā kaut kas aiziet greizi?</summary><p>Tieši tāpēc pasākuma dienā uz vietas ir mūsu koordinators, kurš risina problēmas, pirms viesi tās pamana. Ja vakaru vada mūsu vadītājs, aizkavējies ēdiens vai izslēgusies mūzika viņu neizsit no ritma, jo improvizācijas aktieri tieši tādām situācijām gatavojas katru nedēļu.</p></details>
-      </section>
-
-      <aside class="post-cta post-cta--big">
-        <p class="post-cta__kicker">Gatavi pasākumam bez galvassāpēm?</p>
-        <p class="post-cta__title">Pasākumu organizēšana no idejas līdz pēdējam viesim</p>
-        <p>Atsūtiet datumu, aptuveno viesu skaitu un budžetu, un sagatavosim ideju, laika plānu un tāmi. Strādājam latviski un angliski.</p>
-        <div class="post-cta__actions">
-          <a class="btn btn--yellow btn--lg" href="/#brief">Pieteikt pasākumu →</a>
-          <a class="btn btn--ghost btn--lg" href="https://wa.me/37120381931" target="_blank" rel="noopener">Rakstīt WhatsApp 💬</a>
+  <main id="saturs">
+    <!-- HERO -->
+    <section class="hero hero--page" id="top">
+      <div class="hero__stage" aria-hidden="true" style="background-image:url('/assets/img/pasakumu-organizesana.webp')"></div>
+      <div class="hero__dark" aria-hidden="true"></div>
+      <div class="hero__inner">
+        <p class="eyebrow eyebrow--yellow">Korporatīvie pasākumi Rīgā un visā Latvijā</p>
+        <h1 class="hero__title">
+          <span class="line">Pasākumu</span>
+          <span class="line">organizēšana</span>
+          <span class="line line--hl">no A līdz Z</span>
+        </h1>
+        <p class="hero__lead">Jūs pasakāt datumu, budžetu un noskaņu. Mēs atrodam vietu, saskaņojam ēdināšanu, mūziku un tehniku, saliekam laika plānu un pasākuma dienā esam uz vietas. Jūsu vienīgais uzdevums ir svinēt kopā ar kolēģiem. 🎉</p>
+        <div class="hero__ctas">
+          <a class="btn btn--yellow btn--lg" href="#pieteikums">Pieteikt pasākumu <span aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost btn--lg" href="#ko-daram">Ko iekļauj organizēšana</a>
         </div>
-      </aside>
+      </div>
+      <div class="stickers" aria-hidden="true">
+        <span class="sticker sticker--yellow" style="--r:-12deg">Viens kontakts<br>visam</span>
+        <span class="sticker sticker--pink" style="--r:9deg">Tāme pa<br>pozīcijām</span>
+        <span class="sticker sticker--cyan" style="--r:-4deg">Plāns B<br>jau gatavs</span>
+      </div>
+    </section>
 
-      <nav class="related" aria-label="Citi raksti">
-        <p class="related__title">Lasi arī</p>
-        <ul>
-          <li><a href="/blogs/korporativa-pasakuma-organizesana/">Kā noorganizēt korporatīvo pasākumu: plāns soli pa solim</a></li>
-          <li><a href="/blogs/pasakumu-agentura-vai-pasu-speki/">Pasākumu aģentūra vai pašu spēkiem: ko izvēlēties</a></li>
-          <li><a href="/blogs/cik-maksa-pasakuma-vaditajs/">Cik maksā pasākuma vadītājs: cenas korporatīvajam vakaram un ballītei</a></li>
-        </ul>
-      </nav>
-    </article>
+    <!-- MARQUEE -->
+    <div class="marquee" aria-label="Pasākumi, ko organizējam">
+      <div class="marquee__track">
+        <span>Ziemassvētku ballītes</span><i>✺</i><span>Uzņēmuma jubilejas</span><i>✺</i><span>Komandas saliedēšana</span><i>✺</i><span>Vasaras svētki</span><i>✺</i><span>Konferenču vakari</span><i>✺</i><span>Pasākumi klientiem</span><i>✺</i><span>Privātās svinības</span><i>✺</i>
+      </div>
+    </div>
+
+    <!-- WHAT WE TAKE ON -->
+    <section class="section pillars" id="ko-daram">
+      <div class="wrap">
+        <div class="services__head reveal">
+          <p class="eyebrow eyebrow--yellow">Ko iekļauj organizēšana</p>
+          <h2 class="h2">Viss, kas vajadzīgs <em>labam vakaram</em></h2>
+          <p>Varat uzticēt mums visu pasākumu vai tikai to daļu, kurai jums pašiem nepietiek laika. Lūk, ko visbiežāk uzņemamies.</p>
+        </div>
+        <div class="pillars__grid">
+          <article class="card card--tilt reveal" style="--r:-2deg">
+            <span class="card__num">01</span>
+            <h3>💡 Ideja un plāns</h3>
+            <p>Pēc īsas sarunas piedāvājam ideju, laika plānu un budžetu, kas der tieši jūsu kolektīvam, nevis kārtējo šablonu.</p>
+          </article>
+          <article class="card card--tilt card--pink reveal" style="--r:1.5deg">
+            <span class="card__num">02</span>
+            <h3>📍 Vieta</h3>
+            <p>Atlasām telpas pēc viesu skaita un budžeta un visu saskaņojam ar saimniekiem: Rīgā, ārpus pilsētas vai jūsu birojā.</p>
+          </article>
+          <article class="card card--tilt card--cyan reveal" style="--r:-1deg">
+            <span class="card__num">03</span>
+            <h3>🍽️ Ēdināšana</h3>
+            <p>Ēdienkarte, dzērieni, alerģijas un veģetārie ēdieni, lai neviens nepaliktu izsalcis un rēķins nevienu nepārsteigtu.</p>
+          </article>
+          <article class="card card--tilt card--cyan reveal" style="--r:1deg">
+            <span class="card__num">04</span>
+            <h3>🗓️ Programma</h3>
+            <p>Saliekam visu vakaru no ierašanās līdz dejām: kad uzrunas, kad vakariņas, kad izklaide un balvas. Izpildītājus atrodam un saskaņojam mēs.</p>
+          </article>
+          <article class="card card--tilt reveal" style="--r:-1.5deg">
+            <span class="card__num">05</span>
+            <h3>🎶 Mūzika un tehnika</h3>
+            <p>DJ vai dzīvā mūzika, skaņa, gaisma un noformējums, lai telpa izskatītos pēc svētkiem, nevis pēc sapulču zāles.</p>
+          </article>
+          <article class="card card--tilt card--pink reveal" style="--r:2deg">
+            <span class="card__num">06</span>
+            <h3>📋 Koordinācija</h3>
+            <p>Mūsu cilvēks ir uz vietas no pirmās piegādes līdz pēdējam viesim, tāpēc jums visu vakaru nav jāskatās pulkstenī.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="section process" id="ka-notiek">
+      <div class="wrap">
+        <h2 class="h2 reveal">No brīfa līdz <em>pēdējam viesim</em></h2>
+        <ol class="steps steps--4">
+          <li class="step reveal">
+            <span class="step__num">01</span>
+            <h3>Brīfs</h3>
+            <p>Pastāstiet datumu, aptuveno viesu skaitu, budžetu un noskaņu. Pietiek ar īsu ziņu vai 15 minūšu zvanu.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step__num">02</span>
+            <h3>Piedāvājums</h3>
+            <p>Atsūtām ideju, laika plānu un tāmi, kurā katra pozīcija redzama atsevišķi. Nekā sīkā drukā.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step__num">03</span>
+            <h3>Saskaņošana</h3>
+            <p>Kopā izvēlamies vietu, ēdienkarti un programmu. Visas sarunas ar piegādātājiem un saimniekiem uzņemamies mēs.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step__num">04</span>
+            <h3>Pasākuma diena</h3>
+            <p>Koordinators ir uz vietas, piegādātāji strādā pēc laika plāna, un jūs svinat. Norēķinus ar piegādātājiem nokārtojam mēs.</p>
+          </li>
+        </ol>
+        <div class="section-cta reveal">
+          <a class="btn btn--yellow btn--lg" href="#pieteikums">Pieteikt pasākumu <span aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost btn--lg" href="https://wa.me/37120381931" target="_blank" rel="noopener">Rakstīt WhatsApp <span aria-hidden="true">💬</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD-ONS -->
+    <section class="section services" id="papildinajumi">
+      <div class="wrap">
+        <div class="services__head reveal">
+          <p class="eyebrow eyebrow--yellow">Papildinājumi</p>
+          <h2 class="h2">Gribat, lai par vakaru runātu <em>vēl pēc nedēļas?</em></h2>
+          <p>Organizēšanu varat pasūtīt arī bez neviena aktiera. Taču bieži tieši cilvēks ar mikrofonu izšķir, vai vakars paliks atmiņā. Tāpēc jebkuram pasākumam varat pievienot mūsu pašu programmu.</p>
+        </div>
+        <div class="services__grid">
+          <article class="ticket reveal" style="--accent:var(--yellow)">
+            <div class="ticket__main">
+              <span class="ticket__emoji" aria-hidden="true">🎤</span>
+              <h3>Pasākuma vadītājs</h3>
+              <p>Improvizācijas aktieris vada visu vakaru, jūt zāli un iesaista arī klusākos kolēģus. Ja ēdiens kavējas, pauzi neviens nepamana.</p>
+            </div>
+            <div class="ticket__stub">
+              <span class="ticket__no">no 350&nbsp;€</span>
+              <a class="ticket__cta" href="#pieteikums" data-addon="pasākuma vadītājs">Pievienot <span aria-hidden="true">+</span></a>
+            </div>
+          </article>
+          <article class="ticket reveal" style="--accent:var(--pink)">
+            <div class="ticket__main">
+              <span class="ticket__emoji" aria-hidden="true">🕵️</span>
+              <h3>Slēptā loma</h3>
+              <p>Aktieris iejūtas viesmīļa vai jaunā kolēģa lomā, un viesi visu vakaru min, kurš patiesībā ir aktieris.</p>
+            </div>
+            <div class="ticket__stub">
+              <span class="ticket__no">no 250&nbsp;€</span>
+              <a class="ticket__cta" href="#pieteikums" data-addon="slēptās lomas">Pievienot <span aria-hidden="true">+</span></a>
+            </div>
+          </article>
+          <article class="ticket reveal" style="--accent:var(--cyan)">
+            <div class="ticket__main">
+              <span class="ticket__emoji" aria-hidden="true">🎭</span>
+              <h3>Pilnais šovs</h3>
+              <p>Vadītājs, slēptās lomas un improvizācijas izrāde, kuras ainas rodas no viesu ieteikumiem. Vakars, ko kolēģi pārstāstīs vēl Jāņos.</p>
+            </div>
+            <div class="ticket__stub">
+              <span class="ticket__no">no 900&nbsp;€</span>
+              <a class="ticket__cta" href="#pieteikums" data-addon="pilnais šovs">Pievienot <span aria-hidden="true">+</span></a>
+            </div>
+          </article>
+        </div>
+        <p class="services__foot reveal">Mūsu vadītājs jau zina laika plānu un katru piegādātāju, tāpēc vakara vidū nav jāsaliek kopā cilvēki, kuri pirmo reizi strādā vienā komandā. <a href="/#aktieri">Iepazīt aktierus</a></p>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="section why">
+      <div class="wrap">
+        <h2 class="h2 reveal">Kāpēc uzticēt pasākumu <em>mums?</em></h2>
+        <div class="why__list">
+          <div class="why__item reveal">
+            <h3>Viens kontakts visam</h3>
+            <p>Jums nav jāsazinās ar piecām firmām. Visus jautājumus risina viens cilvēks, kurš zina visu pasākumu.</p>
+          </div>
+          <div class="why__item reveal">
+            <h3>Tāme bez pārsteigumiem</h3>
+            <p>Katru pozīciju redzat atsevišķi, tāpēc varat izlemt, kur ietaupīt un kur ne.</p>
+          </div>
+          <div class="why__item reveal">
+            <h3>Plāns B jau gatavs</h3>
+            <p>Improvizācijā katru nedēļu trenējamies reaģēt uz to, kas notiek tieši tagad. Ja runātājs iestrēgst sastrēgumā, zālē to neviens nepamana.</p>
+          </div>
+          <div class="why__item reveal">
+            <h3>Latviski un angliski</h3>
+            <p>Rīgā, lauku mājās, muižās vai jūsu birojā. Strādājam visā Latvijā, un vakaru varam vadīt arī angliski.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BRIEF -->
+    <section class="section contact" id="pieteikums">
+      <div class="wrap contact__wrap">
+        <div class="contact__copy reveal">
+          <p class="eyebrow eyebrow--yellow">Pieteikums</p>
+          <h2 class="h2">Pastāstiet par <em>pasākumu.</em></h2>
+          <p>Atsūtiet datumu, aptuveno viesu skaitu un budžetu. Atbildēsim ar ideju, laika plānu un tāmi, kurā katra pozīcija redzama atsevišķi.</p>
+          <p>Organizēšanas cenu nosaka viesu skaits, vieta, ēdienkarte un tas, cik daudz darba uzticat mums, tāpēc to aprēķinām katram pasākumam. Piedāvājums ir bez maksas un bez saistībām.</p>
+          <ul class="contact__direct">
+            <li><a href="mailto:hello@impromotion.lv"><span aria-hidden="true">✉️</span> hello@impromotion.lv</a></li>
+            <li><a href="https://wa.me/37120381931" target="_blank" rel="noopener"><span aria-hidden="true">💬</span> +371 20 381 931 (WhatsApp)</a></li>
+            <li><a href="tel:+37120381931"><span aria-hidden="true">📞</span> Zvanīt</a></li>
+          </ul>
+        </div>
+
+        <form class="brief reveal" id="brief" novalidate>
+          <div class="brief__head">
+            <h3>Pasākuma pieteikums</h3>
+            <p>Pietiek ar vārdu un tālruni vai e-pastu. Pārējo noskaidrosim sarunā.</p>
+          </div>
+          <label class="field"><span>Jūsu vārds</span><input type="text" name="name" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Piemēram, Anna" required maxlength="100"></label>
+          <div class="brief__row brief__row--even">
+            <label class="field"><span>Tālrunis</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="+371 …" maxlength="40"></label>
+            <label class="field"><span>E-pasts</span><input type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="anna@uznemums.lv" maxlength="254"></label>
+          </div>
+          <fieldset>
+            <legend>Pasākuma veids</legend>
+            <div class="chips">
+              <label><input type="radio" name="type" value="Korporatīvais pasākums" checked><span>Korporatīvais</span></label>
+              <label><input type="radio" name="type" value="Ziemassvētku ballīte"><span>Ziemassvētku ballīte</span></label>
+              <label><input type="radio" name="type" value="Uzņēmuma jubileja"><span>Jubileja</span></label>
+              <label><input type="radio" name="type" value="Komandas saliedēšana"><span>Komandas saliedēšana</span></label>
+              <label><input type="radio" name="type" value="Konference"><span>Konference</span></label>
+              <label><input type="radio" name="type" value="Privātas svinības"><span>Privātas svinības</span></label>
+              <label><input type="radio" name="type" value="Cits"><span>Cits</span></label>
+            </div>
+          </fieldset>
+          <div class="brief__row">
+            <label class="field"><span>Datums</span><input type="date" name="date"></label>
+            <label class="field field--range"><span>Viesu skaits: <output id="guests-out">60</output> <em id="guests-mood">(kārtīga balle)</em></span><input type="range" name="guests" min="10" max="400" step="10" value="60" id="guests"></label>
+          </div>
+          <label class="field"><span>Kopējais budžets</span>
+            <select name="budget">
+              <option value="">Vēl nezinu</option>
+              <option>kopā līdz 3 tūkst. €</option>
+              <option>kopā 3-6 tūkst. €</option>
+              <option>kopā 6-12 tūkst. €</option>
+              <option>kopā 12-25 tūkst. €</option>
+              <option>kopā virs 25 tūkst. €</option>
+            </select>
+          </label>
+          <fieldset>
+            <legend>Pievienot mūsu programmu? <em>(nav obligāti)</em></legend>
+            <div class="chips">
+              <label><input type="checkbox" name="want" value="pasākuma vadītājs"><span>🎤 Vadītājs</span></label>
+              <label><input type="checkbox" name="want" value="slēptās lomas"><span>🕵️ Slēptās lomas</span></label>
+              <label><input type="checkbox" name="want" value="pilnais šovs"><span>🎭 Pilnais šovs</span></label>
+            </div>
+          </fieldset>
+          <details class="join-more brief-more">
+            <summary>Pastāstīt vairāk jau tagad <em>(nav obligāti)</em></summary>
+            <div class="join-more__body">
+              <fieldset>
+                <legend>Vieta</legend>
+                <div class="chips">
+                  <label><input type="radio" name="venue" value="jāatrod"><span>Jāatrod</span></label>
+                  <label><input type="radio" name="venue" value="jau ir"><span>Jau ir</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Kur?</legend>
+                <div class="chips">
+                  <label><input type="radio" name="where" value="Rīgā"><span>Rīgā</span></label>
+                  <label><input type="radio" name="where" value="ārpus Rīgas"><span>Ārpus Rīgas</span></label>
+                  <label><input type="radio" name="where" value="vēl nezinām"><span>Vēl nezinām</span></label>
+                </div>
+              </fieldset>
+              <label class="field"><span>Pastāstiet vairāk</span><textarea name="msg" rows="3" placeholder="Noskaņa, tēma, auditorija, trakākās idejas…" maxlength="2500"></textarea></label>
+            </div>
+          </details>
+          <label class="hp" aria-hidden="true">Mājaslapa <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          <div class="brief__actions">
+            <button class="btn btn--yellow btn--lg" type="submit">Nosūtīt pieteikumu <span aria-hidden="true">🎉</span></button>
+            <a class="btn btn--ghost btn--lg" href="https://wa.me/37120381931" target="_blank" rel="noopener">Rakstīt WhatsApp <span aria-hidden="true">💬</span></a>
+          </div>
+          <p class="brief__note" id="brief-status" role="status" aria-live="polite">Atbildēsim pēc iespējas ātrāk. Bez maksas un bez saistībām.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="buj">
+      <div class="wrap">
+        <h2 class="h2 reveal">Biežāk uzdotie <em>jautājumi</em></h2>
+        <div class="faq faq--page">
+          <details><summary>Cik laikus jāsāk organizēt korporatīvais pasākums?</summary><p>Lielākam pasākumam labāk sākt 2-3 mēnešus iepriekš, jo labākās vietas un piektdienas vakarus decembrī rezervē ātri. Mazāku vakaru varam sarīkot arī dažās nedēļās. Uzrakstiet datumu, un uzreiz pateiksim, kas vēl ir iespējams.</p></details>
+          <details><summary>Vai varat noorganizēt tikai daļu pasākuma?</summary><p>Jā. Ja vieta un ēdināšana jums jau ir, varam uzņemties programmu, vadītāju un koordināciju pasākuma dienā. Ja vajag tikai vadītāju vai slēptās lomas, piesakiet tos atsevišķi.</p></details>
+          <details><summary>Vai pasākumā obligāti jāpiedalās jūsu aktieriem?</summary><p>Nē. Organizēšana ir atsevišķs pakalpojums, un programmu varam veidot ar jūsu izvēlētiem izpildītājiem vai bez izklaides daļas vispār. Vadītāju, slēptās lomas vai šovu pievienojat tikai tad, ja gribat.</p></details>
+          <details><summary>Cik maksā pasākuma organizēšana?</summary><p>Tas ir atkarīgs no viesu skaita, vietas, ēdienkartes un tā, cik daudz darba uzticat mums. Tāmē katru pozīciju redzat atsevišķi, lai varētu izvēlēties, kur ietaupīt un kur ne. Ja gribat pievienot mūsu programmu, orientējošās cenas ir šādas: vadītājs no 350 €, slēptā loma no 250 €, pilnais šovs no 900 €.</p></details>
+          <details><summary>Vai organizējat pasākumus arī ārpus Rīgas?</summary><p>Jā. Strādājam visā Latvijā: lauku mājās, viesu namos, muižās un uzņēmumu telpās. Ceļa izdevumus norādām piedāvājumā.</p></details>
+          <details><summary>Kas notiek, ja pasākuma dienā kaut kas aiziet greizi?</summary><p>Tieši tāpēc pasākuma dienā uz vietas ir mūsu koordinators, kurš risina problēmas, pirms viesi tās pamana. Ja vakaru vada mūsu vadītājs, aizkavējies ēdiens vai izslēgusies mūzika viņu neizsit no ritma, jo improvizācijas aktieri tieši tādām situācijām gatavojas katru nedēļu.</p></details>
+        </div>
+        <nav class="related faq--page" aria-label="Citi raksti">
+          <p class="related__title">Lasi arī</p>
+          <ul>
+            <li><a href="/blogs/korporativa-pasakuma-organizesana/">Kā noorganizēt korporatīvo pasākumu: plāns soli pa solim</a></li>
+            <li><a href="/blogs/pasakumu-agentura-vai-pasu-speki/">Pasākumu aģentūra vai pašu spēkiem: ko izvēlēties</a></li>
+            <li><a href="/blogs/cik-maksa-pasakuma-vaditajs/">Cik maksā pasākuma vadītājs: cenas korporatīvajam vakaram un ballītei</a></li>
+          </ul>
+        </nav>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
     <div class="wrap footer__wrap">
       <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250" loading="lazy">
       <p>© 2026 Impromotion. Visas tiesības improvizētas.</p>
-      <a href="/" class="footer__top">Uz sākumlapu ↑</a>
+      <a href="/" class="footer__top">Sākums</a>
+      <a href="/blogs/" class="footer__top">Blogs</a>
+      <a href="/komandas-saliedesana/" class="footer__top">Komandas saliedēšanas pasākumi</a>
+      <a href="/pievienojies/" class="footer__top">Aktieriem: pievienojies</a>
+      <a href="#top" class="footer__top">Atpakaļ uz skatuves ↑</a>
     </div>
   </footer>
 
   <script src="/assets/blog.js?v=20261009" defer></script>
+  <script src="/assets/org.js?v=20261119" defer></script>
   <script src="/assets/track.js?v=20261109" defer></script>
 </body>
 </html>
