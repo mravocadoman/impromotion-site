@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=20261107">
+  <link rel="stylesheet" href="/styles.css?v=20261108">
 </head>
 <body class="app-page">
   <header class="nav nav--solid" id="nav">
@@ -21,12 +21,24 @@
       <span></span><span></span>
     </button>
     <nav class="nav__links" id="nav-links">
-      <a href="/#pakalpojumi">Pakalpojumi</a>
-      <a href="/#lomas">Slēptās lomas</a>
+      <div class="nav__group">
+        <a href="/#pakalpojumi">Pakalpojumi <span class="nav__caret" aria-hidden="true">▾</span></a>
+        <div class="nav__menu">
+          <a href="/pasakumu-organizesana/">📋 Pasākumu organizēšana</a>
+          <a href="/#pakalpojumi">🎤 Vadītāji un aktieri</a>
+          <a href="/#lomas">🕵️ Slēptās lomas</a>
+          <a href="/komandas-saliedesana/">🤝 Komandas saliedēšana</a>
+        </div>
+      </div>
       <a href="/#aktieri">Aktieri</a>
       <a href="/blogs/">Blogs</a>
-      <a href="/pievienojies/">Pievienojies</a>
-      <a class="nav__login" href="/aktieriem/" aria-current="page">Aktieriem</a>
+      <div class="nav__group">
+        <a class="nav__login" href="/aktieriem/" aria-current="page">Aktieriem <span class="nav__caret" aria-hidden="true">▾</span></a>
+        <div class="nav__menu">
+          <a href="/pievienojies/">🎭 Pievienoties komandai</a>
+          <a href="/aktieriem/">🔑 Ienākt profilā</a>
+        </div>
+      </div>
       <span class="app-nav" id="app-nav" hidden><a href="/admin/" id="admin-link" hidden>Admins</a><button class="btn btn--ghost btn--sm" type="button" id="logout">Iziet</button></span>
       <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>

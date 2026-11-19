@@ -86,12 +86,24 @@
       <span></span><span></span>
     </button>
     <nav class="nav__links" id="nav-links">
-      <a href="/#pakalpojumi">Pakalpojumi</a>
-      <a href="/#lomas">Slēptās lomas</a>
+      <div class="nav__group">
+        <a href="/#pakalpojumi">Pakalpojumi <span class="nav__caret" aria-hidden="true">▾</span></a>
+        <div class="nav__menu">
+          <a href="/pasakumu-organizesana/">📋 Pasākumu organizēšana</a>
+          <a href="/#pakalpojumi">🎤 Vadītāji un aktieri</a>
+          <a href="/#lomas">🕵️ Slēptās lomas</a>
+          <a href="/komandas-saliedesana/" aria-current="page">🤝 Komandas saliedēšana</a>
+        </div>
+      </div>
       <a href="/#aktieri">Aktieri</a>
       <a href="/blogs/">Blogs</a>
-      <a href="/pievienojies/">Pievienojies</a>
-      <a class="nav__login" href="/aktieriem/">Aktieriem</a>
+      <div class="nav__group">
+        <a class="nav__login" href="/aktieriem/">Aktieriem <span class="nav__caret" aria-hidden="true">▾</span></a>
+        <div class="nav__menu">
+          <a href="/pievienojies/">🎭 Pievienoties komandai</a>
+          <a href="/aktieriem/">🔑 Ienākt profilā</a>
+        </div>
+      </div>
       <a class="btn btn--sm btn--yellow" href="/#kontakti">Sazināties</a>
     </nav>
   </header>
