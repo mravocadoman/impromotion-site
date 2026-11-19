@@ -108,7 +108,7 @@ function draw() {
   const pending = state.actors.filter((a) => a.status === 'pending' || a.needs_review).length;
   const actorName = (id) => { const a = state.actors.find((x) => x.id === id); return a ? (a.stage_name ? `${a.full_name} (${a.stage_name})` : a.full_name) : '?'; };
   const STATUS_B = { tentative: 'Provizoriski', confirmed: 'Apstiprināta', done: 'Notikusi', cancelled: 'Atcelta' };
-  const bookingRows = state.bookings.map((b) => `<li><span><strong>${esc(b.day.split('-').reverse().join('.'))}</strong> ${esc(b.title)} · ${esc(actorName(b.actor_id))}${b.location ? ` · <span class="muted">${esc(b.location)}</span>` : ''}</span><span class="muted small">${STATUS_B[b.status]}${b.client_price_eur != null ? ` · ${b.client_price_eur} € / aktierim ${b.actor_fee_eur ?? '?'} €` : ''}</span><button class="link-btn" data-cancel-booking="${b.id}">atcelt</button></li>`).join('');
+  const bookingRows = state.bookings.map((b) => `<li><span><strong>${esc(b.day.split('-').reverse().join('.'))}</strong> ${esc(b.title)} · ${esc(actorName(b.actor_id))}${b.location ? ` · <span class="muted">${esc(b.location)}</span>` : ''}</span><span class="muted small">${STATUS_B[b.status]}${b.client_price_eur != null ? ` · ${b.client_price_eur} € / aktierim ${b.actor_fee_eur ?? '?'} €` : ''}</span><span><button class="link-btn" data-cancel-booking="${b.id}">atcelt</button> <button class="link-btn" data-del-booking="${b.id}">dzēst</button></span></li>`).join('');
   const options = (list, sel) => list.map((v) => `<option ${sel === v ? 'selected' : ''}>${esc(v)}</option>`).join('');
   const rowHtml = (a) => `
     <tr>
@@ -371,6 +371,16 @@ view.addEventListener('click', async (e) => {
     if (!confirm('Atcelt šo haltūru?')) return;
     const { error } = await sb.from('bookings').update({ status: 'cancelled' }).eq('id', cancel.dataset.cancelBooking);
     if (error) return toast(error.message, 'error');
+    await loadAll(); draw();
+    return;
+  }
+
+  const delBooking = e.target.closest('[data-del-booking]');
+  if (delBooking) {
+    if (!confirm('Dzēst šo haltūru neatgriezeniski? Aktieris to savā profilā vairs neredzēs. Ja pasākums vienkārši nenotiks, labāk spied “atcelt”.')) return;
+    const { data, error } = await sb.from('bookings').delete().eq('id', delBooking.dataset.delBooking).select('id');
+    if (error || !data?.length) return toast(error?.message || 'Haltūra netika izdzēsta.', 'error');
+    toast('Haltūra izdzēsta.');
     await loadAll(); draw();
     return;
   }

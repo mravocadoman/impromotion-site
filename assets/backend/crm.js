@@ -72,7 +72,7 @@ export function crmPanel({ inquiries, candidates, cast = {}, clicks = [] }, mark
       <strong>${esc(i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')}</strong>
       <span>${esc(i.name || 'bez vārda')}${i.guests ? ` · ${i.guests} viesi` : ''}</span>
       <span class="kcard__chips">${waiting ? `<em class="kcard__late">⏰ gaida ${daysSince(i.created_at)} d.</em>` : ''}${e.price != null ? `<em>~${eur(e.price)}</em>` : ''}${lineup ? `<em>🎭 ${lineup}</em>` : ''}${i.source ? `<em>🔗 ${esc(i.source)}</em>` : ''}${i.draft_at && i.status === 'jauns' ? '<em>✉️ melnraksts</em>' : ''}</span>
-      ${next ? `<button class="btn btn--ghost btn--sm" type="button" data-move="${i.id}" data-to="${next[0]}">${next[1]}</button>` : ''}
+      <span class="kcard__actions">${next ? `<button class="btn btn--ghost btn--sm" type="button" data-move="${i.id}" data-to="${next[0]}">${next[1]}</button>` : ''}<button class="link-btn" type="button" data-del-inq="${i.id}">dzēst</button></span>
     </article>`;
   };
   const cols = Object.entries(CRM_STATUS).map(([k, label]) => {
@@ -129,6 +129,7 @@ function detail(i, cands, lineup) {
       <div class="row-actions" style="justify-content:flex-start">
         <button class="btn btn--yellow btn--sm" type="submit">Saglabāt</button>
         ${isOpen ? `<button class="btn btn--ghost btn--sm" type="button" data-casting="${i.id}">Kastinga teksts</button>` : ''}
+        <button class="link-btn" type="button" data-del-inq="${i.id}">Dzēst pieprasījumu</button>
       </div>
     </form>`;
 }
@@ -157,7 +158,26 @@ export function bindCrm(view, getCrm, reload, { modal, body }) {
     refresh();
   };
 
+  // Deletes the inquiry and its lineup bookings (the FK only nulls them, which would leave orphan gigs in actors' calendars).
+  const remove = async (id) => {
+    const crm = getCrm();
+    const i = crm.inquiries.find((x) => x.id === id);
+    if (!i) return;
+    const n = (crm.cast?.[id] || []).length;
+    const what = `${i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma'} · ${i.event_type || 'Pasākums'} · ${i.name || 'bez vārda'}`;
+    if (!confirm(`Dzēst pieprasījumu neatgriezeniski?\n\n${what}${n ? `\n\nKopā ar to pazudīs ${n} ${n === 1 ? 'sastāva rezervācija' : 'sastāva rezervācijas'}, un aktieri šo pasākumu savā profilā vairs neredzēs.` : ''}`)) return;
+    const gone = await sb.from('bookings').delete().eq('inquiry_id', id);
+    if (gone.error) return toast(gone.error.message, 'error');
+    const { data, error } = await sb.from('inquiries').delete().eq('id', id).select('id');
+    if (error || !data?.length) return toast(error?.message || 'Pieprasījums netika izdzēsts.', 'error');
+    if (modal.open) modal.close();
+    toast('Pieprasījums izdzēsts.');
+    reload();
+  };
+
   view.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del-inq]');
+    if (del) { e.stopPropagation(); return remove(del.dataset.delInq); }
     const btn = e.target.closest('[data-move]');
     if (btn) { e.stopPropagation(); return move(btn.dataset.move, btn.dataset.to); }
     const c = e.target.closest('.kcard');
@@ -176,6 +196,8 @@ export function bindCrm(view, getCrm, reload, { modal, body }) {
   });
 
   body.addEventListener('click', async (e) => {
+    const del = e.target.closest('[data-del-inq]');
+    if (del) return remove(del.dataset.delInq);
     const add = e.target.closest('[data-assign]');
     if (add) {
       add.disabled = true;

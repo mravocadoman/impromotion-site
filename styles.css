@@ -969,7 +969,9 @@ section[id] { scroll-margin-top: 70px; }
 .kcard__chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .kcard__chips em { font-style: normal; font-size: .75rem; padding: .15em .55em; border-radius: 99px; background: rgba(255, 255, 255, .08); }
 .kcard__chips .kcard__late { background: rgba(255, 79, 139, .2); color: var(--pink); font-weight: 700; }
-.kcard .btn { justify-self: start; }
+.kcard__actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kcard__actions .btn { flex: none; }
+.kcard__actions .link-btn { margin-left: auto; }
 .crm-h { margin: 22px 0 8px; font-size: 1.05rem; }
 .crm-msg { white-space: pre-line; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, .05); }
 .crm-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
