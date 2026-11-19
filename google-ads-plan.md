@@ -69,3 +69,31 @@ Call asset: +371 20 381 931.
 ## Success line after 14 days
 
 A lead costs under 30 € and at least one inquiry becomes a call. If not, pause and move the budget to Meta retargeting.
+
+## Parallel campaign: Pasākumu organizēšana (proposal 2026-11-19, NOT built)
+
+Landing page: https://impromotion.lv/pasakumu-organizesana/ (live with this commit). Nothing is built and nothing spends until you confirm the budget.
+
+**Keyword Planner, Latvia, Nov 2025 to Oct 2026 (avg. monthly searches, top-of-page bid low to high):**
+
+| Keyword | Searches | Bid |
+|---|---|---|
+| pasākumu aģentūra | 140 | 0,82-2,81 € |
+| korporatīvie pasākumi | 140 | 1,53-2,58 € |
+| pasākumu organizēšana | 90 | 1,12-2,15 € |
+| pasākumu organizators | 50 | 0,42-1,24 € (many are job seekers: "vakances" alone is 70) |
+| pasākuma aģentūras | 30 | 0,81-3,71 € |
+| korporatīvais pasākums | 20 | 0,51-2,14 € |
+| korporatīvo pasākumu organizēšana | 20 | 1,02-2,10 € |
+| pasākuma organizēšana, pasakumu organizesana, ballīšu organizēšana, konferenču organizēšana, korporatīvo pasākumu aģentūras | 10 each | |
+
+Russian is negligible (организация мероприятий, ивент агентство: 10 each). The only Russian term with volume is "новогоднего корпоратива" (110), which is mostly people looking for party ideas, so it is not worth a Russian ad group.
+
+**Market size:** about 500 relevant searches a month in all of Latvia, roughly double that in November and December. This is a small, high-intent pocket, not a volume channel.
+
+**Proposed build:**
+- Campaign "Impromotion | Search | Pasākumu organizēšana": Search only, Latvia (presence), Latvian and English, Max clicks with a CPC cap of 2,50 €, 5 €/day (about 150 €/month).
+- Ad group "Organizēšana": "pasākumu organizēšana", "pasākuma organizēšana", "pasakumu organizesana", "korporatīvo pasākumu organizēšana", "pasākumu organizators", "pasākumu aģentūra", "pasākuma aģentūras", "event aģentūra".
+- Ad group "Korporatīvie": "korporatīvie pasākumi", "korporatīvais pasākums", "korporatīvo pasākumu aģentūras".
+- Negatives: vakances, vakance, darbs, alga, cv, prakse, izglītība, studijas, kursi, augstskola, kāzu, kāzas, bērnu, dzimšanas, sporta, eži (a competitor's brand). Add the same "organizēšana" phrases as negatives in the Christmas campaign, so the two don't bid against each other.
+- Expectation: 20-40 clicks a month and 1-3 leads. Judge it after 30 days on cost per lead against the Christmas campaign's ~28 €. A single organised event is worth far more than one host booking, so a higher cost per lead is acceptable here.

@@ -383,6 +383,8 @@ p:last-child { margin-bottom: 0; }
 .services__foot a { color: var(--yellow); font-weight: 700; }
 .brief.flash { animation: flash 1.2s var(--ease-out); }
 @keyframes flash { 0%, 100% { box-shadow: 0 30px 80px rgba(0, 0, 0, .4); } 25% { box-shadow: 0 0 0 6px var(--yellow), 0 30px 80px rgba(0, 0, 0, .4); } }
+.ticket--wide { grid-column: 1 / -1; }
+.ticket--wide .ticket__main p { max-width: 62ch; }
 @media (max-width: 1000px) { .services__grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .services__grid { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; } }
 
