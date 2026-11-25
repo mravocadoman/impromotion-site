@@ -65,7 +65,7 @@
               <select id="tier">
                 <option value="35">35 %: klientu atradām mēs, vadām pasākumu</option>
                 <option value="25">25 %: atkārtots klients vai tikai rēķins</option>
-                <option value="20">20 %: klientu atveda izpildītājs</option>
+                <option value="10">10 %: izpildītāja paša klients caur mums</option>
                 <option value="custom">Cits procents</option>
               </select>
             </label>
@@ -77,6 +77,7 @@
             <label class="field"><span>Uzcenojums organizēšanai, %</span><input type="number" id="extraMarkup" value="15" min="0" step="1" inputmode="decimal"></label>
           </div>
           <label class="check"><input type="checkbox" id="vat" checked> Pieskaitīt 21 % PVN (Impromotion ir PVN maksātājs)</label>
+          <label class="check"><input type="checkbox" id="referral"> Klientu ieteica izpildītājs (ieteikšanas atlīdzība 20 % no klienta cenas bez PVN, maksājam no savas daļas)</label>
           <label class="field"><span>Kā klients maksā</span>
             <select id="clientPay">
               <option value="transfer">Pārskaitījums pēc rēķina</option>
@@ -152,7 +153,8 @@
       const vat = $('vat').checked ? net * 0.21 : 0;
 
       // Our profit before tax; Latvian CIT is due only when profit is paid out.
-      const profit = net - fees - extra - own;
+      const referral = $('referral').checked ? net * 0.2 : 0;
+      const profit = net - fees - extra - own - referral;
       const paid = Math.max(0, profit) * payout;
       const citTax = paid * cit;
       const divNet = paid - citTax;
@@ -174,6 +176,7 @@
       html += line(`Mūsu daļa no izpildītāju cenas (${Math.round(share * 100)} %)`, eur(fees / (1 - share) - fees));
       if (extra) html += line('Uzcenojums organizēšanai', eur(extra * extraMarkup));
       if (own) html += line('Mūsu izmaksas', '−' + eur(own));
+      if (referral) html += line('Ieteikšanas atlīdzība (20 %)', '−' + eur(referral));
       html += line('Peļņa pirms nodokļa', eur(profit), 'big');
       html += line('Marža no rēķina', net ? Math.round(profit / net * 100) + ' %' : '0 %');
       html += '<hr style="grid-column:1/-1"><h3 style="grid-column:1/-1">Dividendes</h3>';
