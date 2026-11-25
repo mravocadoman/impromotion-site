@@ -45,3 +45,7 @@ Supabase project `impromotion` (ref `cflnjdiwipwkcnepunpd`, eu-north-1). The sch
 - The homepage reads approved profiles through the `public_actors()` RPC. The static cards in `index.html` are only a fallback for when the API is unreachable.
 - When a profile is submitted or a live one changes, the database calls the n8n workflow "Impromotion — aktieru profilu paziņojumi" through pg_net, and that workflow sends a Telegram message.
 - Auth email: Supabase's built-in SMTP only reaches project team members. Real actors need the custom SMTP in Supabase → Authentication → Emails.
+
+## Site nav
+
+Every public page carries the same nav markup. Change it in `tools/sync-nav.py` and run `python3 tools/sync-nav.py`; new top-level page folders also go into its `PUBLIC` list and into the rsync list in `.github/workflows/deploy.yml`.
