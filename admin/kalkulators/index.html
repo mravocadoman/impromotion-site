@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cenu kalkulators | Impromotion</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0a1f">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=20261125">
+  <style>
+    .calc .panel { display: grid; gap: 18px; align-content: start; }
+    .calc .field input, .calc .field select { font-size: max(16px, 1rem); }
+    .calc-row { display: grid; grid-template-columns: 1.3fr .9fr 1.2fr auto; gap: 10px; align-items: end; }
+    .calc-row .x { background: none; border: 1.5px solid var(--line); color: var(--text); border-radius: 12px; height: 46px; width: 46px; cursor: pointer; }
+    .calc-sum { position: sticky; top: 90px; }
+    .calc-sum dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; margin: 0; }
+    .calc-sum dt { color: var(--muted); }
+    .calc-sum dd { margin: 0; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .calc-sum dd.big, .calc-sum dt.big { font-size: 1.3rem; color: var(--yellow); }
+    .calc-sum h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; margin: 6px 0 2px; color: var(--cream); }
+    .calc-sum hr { border: 0; border-top: 1.5px dashed var(--line); margin: 6px 0; }
+    .calc-note { font-size: .88rem; color: var(--muted); margin: 0; }
+    .calc-warn { color: var(--pink); }
+    .calc label.check { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+    @media (max-width: 640px) { .calc-row { grid-template-columns: 1fr 1fr; } .calc-sum { position: static; } }
+  </style>
+</head>
+<body class="app-page">
+  <header class="nav nav--solid" id="nav">
+    <a class="nav__logo" href="/" aria-label="Impromotion, uz sākumu">
+      <img src="/assets/img/logo-white.webp" alt="Impromotion" width="500" height="250">
+    </a>
+    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Izvēlne">
+      <span></span><span></span>
+    </button>
+    <nav class="nav__links" id="nav-links">
+      <a href="/admin/">← Uz CRM</a>
+    </nav>
+  </header>
+
+  <main class="app calc">
+    <div class="app__wrap app__wrap--wide">
+      <div class="app__intro">
+        <h1 class="h2">Cenu kalkulators</h1>
+        <p class="calc-note">Ieraksti izpildītāju honorārus un uzcenojumu, un redzēsi, cik izrakstām klientam, cik saņem izpildītāji un cik paliek mums. Skaitļi ir aptuveni: nodokļu likmes pārbaudi ar grāmatvedi.</p>
+      </div>
+
+      <div class="app__cols">
+        <form class="panel" id="calc" onsubmit="return false">
+          <h2 class="panel__title">🎭 Izpildītāji</h2>
+          <div id="rows" style="display:grid;gap:12px"></div>
+          <button class="btn btn--ghost btn--sm" type="button" id="add" style="justify-self:start">+ Pievienot izpildītāju</button>
+
+          <h2 class="panel__title">💶 Cena klientam</h2>
+          <div class="brief__row brief__row--even">
+            <label class="field"><span>Mūsu uzcenojums izpildītājiem, %</span><input type="number" id="markup" value="30" min="0" step="1" inputmode="decimal"></label>
+            <label class="field"><span>Mūsu izmaksas (ceļš, rekvizīti, reklāma), €</span><input type="number" id="own" value="0" min="0" step="10" inputmode="decimal"></label>
+          </div>
+          <div class="brief__row brief__row--even">
+            <label class="field"><span>Organizēšana: vieta, ēdināšana u.c. (iepirkums), €</span><input type="number" id="extra" value="0" min="0" step="50" inputmode="decimal"></label>
+            <label class="field"><span>Uzcenojums organizēšanai, %</span><input type="number" id="extraMarkup" value="15" min="0" step="1" inputmode="decimal"></label>
+          </div>
+          <label class="check"><input type="checkbox" id="vat"> Impromotion ir PVN maksātājs (pieskaitīt 21 % PVN)</label>
+
+          <details class="join-more">
+            <summary>Nodokļu un komisiju pieņēmumi</summary>
+            <div class="join-more__body" style="display:grid;gap:14px">
+              <div class="brief__row brief__row--even">
+                <label class="field"><span>Abillio komisija, %</span><input type="number" id="abillio" value="5" min="0" step="0.5" inputmode="decimal"></label>
+                <label class="field"><span>Izpildītāja nodokļi (aptuveni), %</span><input type="number" id="ptax" value="25" min="0" step="1" inputmode="decimal"></label>
+              </div>
+              <div class="brief__row brief__row--even">
+                <label class="field"><span>UIN, izmaksājot dividendes, %</span><input type="number" id="cit" value="20" min="0" step="1" inputmode="decimal"></label>
+                <label class="field"><span>Cik % no peļņas izmaksāt dividendēs</span><input type="number" id="payout" value="100" min="0" max="100" step="5" inputmode="decimal"></label>
+              </div>
+              <p class="calc-note">Abillio komisija ir 5 % (no Abillio BUJ). Izpildītāja nodokļi atkarīgi no viņa nodokļu režīma (25 % ir mikrouzņēmumu nodokļa likme, vispārējā režīmā var būt citādi). UIN dividendēm 20 % ir standarta likme; no 2026. gada uzņēmumiem, kuru īpašnieki ir tikai fiziskas personas, ir arī alternatīvs modelis (15 % UIN + 6 % IIN).</p>
+            </div>
+          </details>
+        </form>
+
+        <aside class="panel calc-sum" aria-live="polite">
+          <h2 class="panel__title">Rezultāts</h2>
+          <dl id="out"></dl>
+          <p class="calc-note" id="warn"></p>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const eur = (n) => (Math.round(n * 100) / 100).toLocaleString('lv-LV', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    const num = (id) => Math.max(0, parseFloat($(id).value.replace(',', '.')) || 0);
+    const METHODS = { abillio: 'Abillio', invoice: 'Rēķins (SDV vai SIA)', cash: 'Skaidrā naudā' };
+
+    const addRow = (name = '', fee = 300, method = 'abillio') => {
+      const row = document.createElement('div');
+      row.className = 'calc-row';
+      row.innerHTML = `
+        <label class="field"><span>Izpildītājs</span><input type="text" class="n" placeholder="Vārds" maxlength="60"></label>
+        <label class="field"><span>Honorārs, €</span><input type="number" class="f" min="0" step="10" inputmode="decimal"></label>
+        <label class="field"><span>Kā maksājam</span><select class="m">${Object.entries(METHODS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></label>
+        <button class="x" type="button" aria-label="Noņemt">✕</button>`;
+      row.querySelector('.n').value = name;
+      row.querySelector('.f').value = fee;
+      row.querySelector('.m').value = method;
+      row.querySelector('.x').addEventListener('click', () => { row.remove(); calc(); });
+      $('rows').append(row);
+      calc();
+    };
+
+    function calc() {
+      const markup = num('markup') / 100, extraMarkup = num('extraMarkup') / 100;
+      const abillio = num('abillio') / 100, ptax = num('ptax') / 100, cit = num('cit') / 100;
+      const payout = Math.min(100, num('payout')) / 100;
+      const performers = [...document.querySelectorAll('.calc-row')].map((r, i) => ({
+        name: r.querySelector('.n').value.trim() || `Izpildītājs ${i + 1}`,
+        fee: Math.max(0, parseFloat(r.querySelector('.f').value) || 0),
+        method: r.querySelector('.m').value,
+      }));
+      const fees = performers.reduce((s, p) => s + p.fee, 0);
+      const extra = num('extra'), own = num('own');
+
+      // Client bill: performer fees + our markup, plus resold organising costs + their markup.
+      const net = fees * (1 + markup) + extra * (1 + extraMarkup);
+      const vat = $('vat').checked ? net * 0.21 : 0;
+
+      // Our profit before tax; Latvian CIT is due only when profit is paid out.
+      const profit = net - fees - extra - own;
+      const paid = Math.max(0, profit) * payout;
+      const citTax = paid * cit;
+      const divNet = paid - citTax;
+      const kept = profit - paid;
+
+      const line = (dt, dd, cls = '') => `<dt class="${cls}">${dt}</dt><dd class="${cls}">${dd}</dd>`;
+      let html = '<h3 style="grid-column:1/-1">Klientam</h3>';
+      html += line('Rēķins bez PVN', eur(net));
+      if (vat) html += line('PVN 21 %', eur(vat));
+      html += line('Klients maksā', eur(net + vat), 'big');
+      html += '<hr style="grid-column:1/-1"><h3 style="grid-column:1/-1">Izpildītāji</h3>';
+      performers.forEach((p) => {
+        const afterFee = p.method === 'abillio' ? p.fee * (1 - abillio) : p.fee;
+        const hand = p.method === 'cash' ? p.fee : afterFee * (1 - ptax);
+        html += line(`${p.name.replace(/[<>&]/g, '')} (${METHODS[p.method]})`, `${eur(p.fee)} → ~${eur(hand)} neto`);
+      });
+      html += line('Honorāri kopā', eur(fees));
+      html += '<hr style="grid-column:1/-1"><h3 style="grid-column:1/-1">Impromotion</h3>';
+      html += line('Mūsu atlīdzība (uzcenojumi)', eur(net - fees - extra));
+      if (own) html += line('Mūsu izmaksas', '−' + eur(own));
+      html += line('Peļņa pirms nodokļa', eur(profit), 'big');
+      html += line('Marža no rēķina', net ? Math.round(profit / net * 100) + ' %' : '0 %');
+      html += '<hr style="grid-column:1/-1"><h3 style="grid-column:1/-1">Dividendes</h3>';
+      html += line(`Izmaksājam dividendēs (${Math.round(payout * 100)} % peļņas)`, eur(paid));
+      html += line(`UIN ${Math.round(cit * 100)} %`, '−' + eur(citTax));
+      html += line('Dividendes uz rokas', eur(divNet), 'big');
+      html += line('Paliek uzņēmumā', eur(kept));
+      $('out').innerHTML = html;
+
+      const warn = [];
+      if (performers.some((p) => p.method === 'cash')) warn.push('Skaidrā naudā: uzņēmumam var būt jāietur un jādeklarē IIN un VSAOI. Pirms izmaksas jautā grāmatvedim.');
+      if (profit < 0) warn.push('Šis pasākums ir zaudējumos: palielini uzcenojumu vai samazini izmaksas.');
+      $('warn').innerHTML = warn.map((w) => `<span class="calc-warn">⚠️ ${w}</span>`).join('<br>');
+    }
+
+    $('add').addEventListener('click', () => addRow('', 300));
+    $('calc').addEventListener('input', calc);
+    addRow('', 300);
+  })();
+  </script>
+  <script src="/assets/blog.js" defer></script>
+</body>
+</html>
