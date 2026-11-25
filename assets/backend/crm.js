@@ -58,6 +58,8 @@ let markupPct = 30;
 let openId = null;  // the inquiry shown in the window, kept open across reloads
 
 const daysSince = (t) => Math.floor((Date.now() - new Date(t).getTime()) / 86400000);
+// Two days after an event that happened, until someone has asked the client for a review.
+const reviewDue = (i) => i.status === 'notika' && !i.review_requested_at && i.event_date && daysSince(i.event_date) >= 2;
 
 export function crmPanel({ inquiries, candidates, cast = {}, clicks = [] }, markup) {
   markupPct = markup;
@@ -71,7 +73,7 @@ export function crmPanel({ inquiries, candidates, cast = {}, clicks = [] }, mark
     return `<article class="kcard${waiting ? ' kcard--late' : ''}" draggable="true" data-inq="${i.id}" tabindex="0">
       <strong>${esc(i.event_date ? dmy(i.event_date) : i.date_text || 'bez datuma')} · ${esc(i.event_type || 'Pasākums')}</strong>
       <span>${esc(i.name || 'bez vārda')}${i.guests ? ` · ${i.guests} viesi` : ''}</span>
-      <span class="kcard__chips">${waiting ? `<em class="kcard__late">⏰ gaida ${daysSince(i.created_at)} d.</em>` : ''}${e.price != null ? `<em>~${eur(e.price)}</em>` : ''}${lineup ? `<em>🎭 ${lineup}</em>` : ''}${i.source ? `<em>🔗 ${esc(i.source)}</em>` : ''}${i.draft_at && i.status === 'jauns' ? '<em>✉️ melnraksts</em>' : ''}</span>
+      <span class="kcard__chips">${waiting ? `<em class="kcard__late">⏰ gaida ${daysSince(i.created_at)} d.</em>` : ''}${e.price != null ? `<em>~${eur(e.price)}</em>` : ''}${lineup ? `<em>🎭 ${lineup}</em>` : ''}${i.source ? `<em>🔗 ${esc(i.source)}</em>` : ''}${i.draft_at && i.status === 'jauns' ? '<em>✉️ melnraksts</em>' : ''}${i.offer_sent_at && i.status === 'piedāvājums' ? '<em>📄 nosūtīts</em>' : ''}${reviewDue(i) ? '<em class="kcard__late">⭐ lūgt atsauksmi</em>' : ''}</span>
       <span class="kcard__actions">${next ? `<button class="btn btn--ghost btn--sm" type="button" data-move="${i.id}" data-to="${next[0]}">${next[1]}</button>` : ''}<button class="link-btn" type="button" data-del-inq="${i.id}">dzēst</button></span>
     </article>`;
   };
@@ -128,7 +130,9 @@ function detail(i, cands, lineup) {
       <label class="field crm-form__wide"><span>Piezīmes</span><textarea name="notes" rows="2" maxlength="4000">${esc(i.notes || '')}</textarea></label>
       <div class="row-actions" style="justify-content:flex-start">
         <button class="btn btn--yellow btn--sm" type="submit">Saglabāt</button>
+        <a class="btn btn--ghost btn--sm" href="/admin/piedavajums/?id=${i.id}" target="_blank" rel="noopener">📄 ${i.offer ? 'Piedāvājums' : 'Sagatavot piedāvājumu'}</a>
         ${isOpen ? `<button class="btn btn--ghost btn--sm" type="button" data-casting="${i.id}">Kastinga teksts</button>` : ''}
+        ${i.status === 'notika' && i.email ? `<button class="btn btn--ghost btn--sm" type="button" data-review="${i.id}">⭐ ${i.review_requested_at ? 'Atsauksme lūgta' : 'Lūgt atsauksmi'}</button>` : ''}
         <button class="link-btn" type="button" data-del-inq="${i.id}">Dzēst pieprasījumu</button>
       </div>
     </form>`;
@@ -209,6 +213,22 @@ export function bindCrm(view, getCrm, reload, { modal, body }) {
       if (error) { add.disabled = false; return toast(error.message, 'error'); }
       toast(add.dataset.booking ? 'Aktieris noņemts no pasākuma.' : i.status === 'apstiprināts' ? 'Pievienots un apstiprināts, aktierim aizies e-pasts.' : 'Pievienots provizoriski. Kad statusu nomainīsi uz “Apstiprināts”, aktieriem aizies e-pasts.');
       return refresh();
+    }
+    const rev = e.target.closest('[data-review]');
+    if (rev) {
+      const i = getCrm().inquiries.find((x) => x.id === rev.dataset.review);
+      const { data: set } = await sb.from('app_settings').select('google_review_url').maybeSingle();
+      const first = String(i.name || '').trim().split(/\s+/)[0];
+      const body = [`Labdien${first ? ', ' + first : ''}!`, '',
+        'Paldies, ka izvēlējāties Impromotion! Ceram, ka vakars izdevās un kolēģi vēl atceras kādu joku.', '',
+        'Mums ļoti palīdzētu jūsu atsauksme: pāris teikumi par to, kas patika, un arī par to, ko varējām izdarīt labāk.',
+        set?.google_review_url ? `Atsauksmi var atstāt šeit: ${set.google_review_url}` : 'Pietiek atbildēt uz šo e-pastu.', '',
+        'Ja atļausiet, labāko atsauksmi parādīsim mūsu mājaslapā ar jūsu vārdu un uzņēmuma nosaukumu.', '',
+        'Paldies!', 'Impromotion komanda'].join('\n');
+      location.href = `mailto:${encodeURIComponent(i.email)}?subject=${encodeURIComponent('Paldies par kopīgo vakaru! 🎭')}&body=${encodeURIComponent(body)}`;
+      await sb.from('inquiries').update({ review_requested_at: new Date().toISOString() }).eq('id', i.id);
+      toast('Atsauksmes lūgums atvērts e-pastā. Pēc nosūtīšanas tas no saraksta pazudīs.');
+      return reload();
     }
     const btn = e.target.closest('[data-casting]');
     if (!btn) return;

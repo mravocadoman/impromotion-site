@@ -21,7 +21,7 @@ jobs:
             sed -i -E "s#((https://impromotion\.lv)?/?(assets/[^\"?]+|styles\.css|main\.js|favicon\.ico))(\?v=[^\"]*)?\"#\1?v=${GITHUB_SHA::7}\"#g"
           # ES module imports between our own scripts, so a changed module never comes from a stale cache
           # (and every page shares one instance of each module).
-          sed -i -E "s#(['\"])(\./[a-z-]+\.js|/assets/backend/[a-z-]+\.js)(\?v=[^'\"]*)?(['\"])#\1\2?v=${GITHUB_SHA::7}\4#g" assets/backend/*.js main.js aktieriem/index.html admin/index.html admin/kalkulators/index.html pievienojies/index.html
+          sed -i -E "s#(['\"])(\./[a-z-]+\.js|/assets/backend/[a-z-]+\.js)(\?v=[^'\"]*)?(['\"])#\1\2?v=${GITHUB_SHA::7}\4#g" assets/backend/*.js main.js aktieriem/index.html admin/index.html admin/kalkulators/index.html admin/piedavajums/index.html pievienojies/index.html
 
       - name: Load deploy key
         env:

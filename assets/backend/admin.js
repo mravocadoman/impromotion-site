@@ -247,6 +247,7 @@ function draw() {
         </form>
         <form id="settings-form" class="invite-form">
           <label class="field"><span>Uzcenojums klienta cenai, % (aktiera minimums + šis)</span><input type="number" name="client_markup_pct" min="0" max="300" value="${esc(state.settings.client_markup_pct)}"></label>
+          <label class="field"><span>Google atsauksmju saite (atsauksmju lūgumiem)</span><input type="url" name="google_review_url" placeholder="https://g.page/r/…/review" value="${esc(state.settings.google_review_url || '')}"></label>
           <button class="btn btn--ghost" type="submit">Saglabāt</button>
           <p class="muted small">Ar to pieteikuma formā aprēķinām, vai aktieris iekļaujas klienta budžetā. Klients cenu neredz, tikai ieteikumus.</p>
         </form>
@@ -438,9 +439,9 @@ view.addEventListener('submit', async (e) => {
     toast('Ielūgums saglabāts. Aktieris var ienākt impromotion.lv/aktieriem/.');
   }
   if (e.target.id === 'settings-form') {
-    const { error } = await sb.from('app_settings').update({ client_markup_pct: Number(fd.get('client_markup_pct') || 0) }).eq('id', true);
+    const { error } = await sb.from('app_settings').update({ client_markup_pct: Number(fd.get('client_markup_pct') || 0), google_review_url: String(fd.get('google_review_url') || '').trim() || null }).eq('id', true);
     if (error) return toast(error.message, 'error');
-    toast('Uzcenojums saglabāts.');
+    toast('Iestatījumi saglabāti.');
   }
   if (e.target.id === 'troupe-form') {
     const name = fd.get('name').trim();

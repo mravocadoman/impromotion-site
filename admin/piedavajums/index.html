@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Piedāvājums | Impromotion</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap" rel="stylesheet">
+  <style>
+    /* A white A4 sheet on screen and on paper; the toolbar never prints. */
+    :root { --ink: #0b0a1f; --yellow: #fdcb08; --pink: #ff4f8b; --muted: #6b6880; --line: #e4e1ea; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #ecebf1; color: var(--ink); font: 15px/1.5 "Bricolage Grotesque", system-ui, sans-serif; }
+    .bar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 16px; background: var(--ink); color: #fff; }
+    .bar a { color: #fff; }
+    .bar button { font: inherit; font-weight: 700; border: 0; border-radius: 99px; padding: .55em 1.2em; cursor: pointer; background: var(--yellow); color: var(--ink); }
+    .bar button.ghost { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.4); }
+    .bar .status { margin-left: auto; font-size: .9rem; opacity: .8; }
+    .sheet { width: min(210mm, 100% - 24px); margin: 24px auto 60px; background: #fff; padding: 18mm 16mm; box-shadow: 0 10px 40px rgba(0,0,0,.12); }
+    .top { display: flex; justify-content: space-between; gap: 24px; border-bottom: 4px solid var(--yellow); padding-bottom: 14px; margin-bottom: 18px; }
+    .brand { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; font-variation-settings: "wdth" 85; }
+    .brand span { color: var(--pink); }
+    .meta { text-align: right; font-size: .9rem; color: var(--muted); }
+    .meta strong { color: var(--ink); font-size: 1.15rem; display: block; }
+    .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px; font-size: .9rem; }
+    .parties h3, .event h3 { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 4px; }
+    .parties p, .event p { margin: 0; }
+    .event { background: #faf8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: .95rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th { text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 2px solid var(--ink); padding: 6px 4px; }
+    td { border-bottom: 1px solid var(--line); padding: 6px 4px; vertical-align: top; }
+    td.n, th.n { text-align: right; white-space: nowrap; }
+    td input, td textarea { width: 100%; font: inherit; line-height: 1.4; overflow: hidden; border: 1px dashed transparent; background: transparent; padding: 2px 4px; color: inherit; resize: none; }
+    td input:hover, td textarea:hover, td input:focus, td textarea:focus { border-color: #c9c5d4; outline: none; background: #fffdf3; }
+    td input[type=number] { text-align: right; }
+    .del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1rem; }
+    .add { margin: 8px 0 0; font: inherit; border: 1.5px dashed #c9c5d4; background: none; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+    .totals { margin: 14px 0 0 auto; width: min(320px, 100%); font-size: .95rem; }
+    .totals div { display: flex; justify-content: space-between; padding: 3px 0; }
+    .totals .grand { font-size: 1.2rem; font-weight: 800; border-top: 2px solid var(--ink); margin-top: 4px; padding-top: 6px; }
+    .notes { margin-top: 22px; font-size: .9rem; }
+    .notes textarea { width: 100%; min-height: 70px; font: inherit; border: 1px dashed #c9c5d4; border-radius: 6px; padding: 6px; }
+    .foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid var(--line); font-size: .8rem; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .vatrow { display: flex; gap: 8px; align-items: center; justify-content: flex-end; font-size: .85rem; color: var(--muted); margin-top: 6px; }
+    .gate { max-width: 560px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 16px; }
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { background: #fff; }
+      .bar, .del, .add, .vatrow, .noprint { display: none !important; }
+      .sheet { width: auto; margin: 0; box-shadow: none; }
+      td input, td textarea, .notes textarea { border: 0 !important; background: none !important; padding: 0; }
+      .notes textarea { min-height: 0; }
+    }
+    @media (max-width: 640px) { .parties { grid-template-columns: 1fr; } .top { flex-direction: column; } .meta { text-align: left; } }
+  </style>
+</head>
+<body>
+  <div id="app"><div class="gate">Ielādē…</div></div>
+
+  <script type="module">
+    // Admin-only offer builder: line items are saved on the inquiry (inquiries.offer) and printed to PDF from the browser.
+    import { sb, currentProfile } from '/assets/backend/sb.js';
+    const app = document.getElementById('app');
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const eur = (n) => (Math.round((n || 0) * 100) / 100).toLocaleString('lv-LV', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    const dmy = (d) => (d ? new Date(d).toLocaleDateString('lv-LV') : '');
+    const id = new URLSearchParams(location.search).get('id');
+
+    const profile = await currentProfile().catch(() => null);
+    if (profile?.role !== 'admin') {
+      app.innerHTML = '<div class="gate"><h1>Nav piekļuves</h1><p>Piedāvājumus var veidot tikai Impromotion admini. <a href="/admin/">Ienākt CRM</a></p></div>';
+      throw new Error('not admin');
+    }
+    const [{ data: i, error }, { data: cast }] = await Promise.all([
+      sb.from('inquiries').select('*').eq('id', id).maybeSingle(),
+      sb.from('bookings').select('actor_fee_eur, status').eq('inquiry_id', id).neq('status', 'cancelled'),
+    ]);
+    if (error || !i) { app.innerHTML = '<div class="gate"><h1>Pieprasījums nav atrasts</h1><p><a href="/admin/">Atpakaļ uz CRM</a></p></div>'; throw new Error('missing'); }
+
+    // First draft: one line per booked performer (fee ÷ 0,65, so we keep 35 %), plus organising when it was asked for.
+    const SHARE = 0.35;
+    const round10 = (n) => Math.ceil(n / 10) * 10;
+    const draft = () => {
+      const items = (cast || []).filter((b) => b.actor_fee_eur).map(() => ({ d: 'Improvizācijas aktieris pasākuma programmā', q: 1, p: 0 }));
+      (cast || []).filter((b) => b.actor_fee_eur).forEach((b, k) => { items[k].p = round10(b.actor_fee_eur / (1 - SHARE)); });
+      if (!items.length && i.price_eur) items.push({ d: i.event_type ? `${i.event_type}: programma` : 'Pasākuma programma', q: 1, p: i.price_eur });
+      if ((i.wants || []).includes('pasākuma organizēšana')) items.unshift({ d: 'Pasākuma organizēšana un koordinācija pasākuma dienā', q: 1, p: 0 });
+      if (!items.length) items.push({ d: 'Pasākuma vadītājs visam vakaram', q: 1, p: 0 });
+      return { items, vat: true, notes: 'Cenas tabulā norādītas bez PVN. Piedāvājums ir spēkā 14 dienas.', date: new Date().toISOString().slice(0, 10) };
+    };
+    let offer = i.offer || draft();
+    const number = `IMP-${(offer.date || '').replaceAll('-', '').slice(2)}-${id.slice(0, 4).toUpperCase()}`;
+
+    const render = () => {
+      const net = offer.items.reduce((s, it) => s + (Number(it.q) || 0) * (Number(it.p) || 0), 0);
+      const vat = offer.vat ? net * 0.21 : 0;
+      app.innerHTML = `
+        <div class="bar">
+          <a href="/admin/#pieprasijumi">← CRM</a>
+          <button type="button" data-act="save">Saglabāt</button>
+          <button type="button" data-act="print">Drukāt / saglabāt PDF</button>
+          <button type="button" class="ghost" data-act="sent">Atzīmēt kā nosūtītu</button>
+          <button type="button" class="ghost" data-act="reset">Sākt no jauna</button>
+          <span class="status" id="st">${i.offer_sent_at ? 'Nosūtīts ' + dmy(i.offer_sent_at) : i.offer ? 'Saglabāts' : 'Melnraksts'}</span>
+        </div>
+        <div class="sheet">
+          <div class="top">
+            <div><div class="brand">Impro<span>motion</span></div><div style="color:var(--muted)">Pasākumi, vadītāji un improvizācija</div></div>
+            <div class="meta"><strong>Piedāvājums ${esc(number)}</strong>Datums: ${dmy(offer.date)}</div>
+          </div>
+          <div class="parties">
+            <div><h3>Pakalpojuma sniedzējs</h3><p><strong>SIA “Stonks”</strong> (zīmols Impromotion)<br>Reģ. Nr. 40203478847, PVN Nr. LV40203478847<br>Liepu iela 28, Rēzekne<br>hello@impromotion.lv · +371 20 381 931</p></div>
+            <div><h3>Klients</h3><p><strong>${esc(i.name || '')}</strong><br>${esc(i.email || '')}${i.phone ? '<br>' + esc(i.phone) : ''}</p></div>
+          </div>
+          <div class="event"><h3>Pasākums</h3><p><strong>${esc(i.event_type || 'Pasākums')}</strong>${i.event_date ? ' · ' + dmy(i.event_date) : i.date_text ? ' · ' + esc(i.date_text) : ''}${i.guests ? ' · ~' + i.guests + ' viesi' : ''}</p></div>
+          <table>
+            <thead><tr><th>Pakalpojums</th><th class="n" style="width:70px">Daudz.</th><th class="n" style="width:110px">Cena, €</th><th class="n" style="width:110px">Summa</th><th class="noprint" style="width:28px"></th></tr></thead>
+            <tbody>${offer.items.map((it, k) => `<tr>
+              <td><textarea rows="1" data-k="${k}" data-f="d">${esc(it.d)}</textarea></td>
+              <td class="n"><input type="number" min="0" step="1" data-k="${k}" data-f="q" value="${esc(it.q)}"></td>
+              <td class="n"><input type="number" min="0" step="10" data-k="${k}" data-f="p" value="${esc(it.p)}"></td>
+              <td class="n">${eur((Number(it.q) || 0) * (Number(it.p) || 0))}</td>
+              <td class="noprint"><button class="del" type="button" data-del="${k}" aria-label="Dzēst rindu">✕</button></td></tr>`).join('')}</tbody>
+          </table>
+          <button class="add" type="button" data-act="add">+ Pievienot rindu</button>
+          <div class="totals">
+            <div><span>Kopā bez PVN</span><span>${eur(net)}</span></div>
+            ${offer.vat ? `<div><span>PVN 21 %</span><span>${eur(vat)}</span></div>` : ''}
+            <div class="grand"><span>Kopā apmaksai</span><span>${eur(net + vat)}</span></div>
+          </div>
+          <label class="vatrow"><input type="checkbox" data-act="vat" ${offer.vat ? 'checked' : ''}> pieskaitīt PVN 21 %</label>
+          <div class="notes"><h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 4px">Piezīmes</h3><textarea data-f="notes">${esc(offer.notes || '')}</textarea></div>
+          <div class="foot"><span>Paldies, ka izvēlaties Impromotion! 🎭</span><span>impromotion.lv</span></div>
+        </div>`;
+      requestAnimationFrame(() => app.querySelectorAll('textarea[data-k]').forEach((t) => { t.style.height = '0'; t.style.height = t.scrollHeight + 'px'; }));
+    };
+    const say = (t) => { const s = document.getElementById('st'); if (s) s.textContent = t; };
+    const save = async (extra = {}) => {
+      const { error } = await sb.from('inquiries').update({ offer, ...extra }).eq('id', id);
+      if (error) { say('Kļūda: ' + error.message); return false; }
+      i.offer = offer; Object.assign(i, extra); say('Saglabāts ' + new Date().toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit' }));
+      return true;
+    };
+
+    app.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t.dataset.f === 'notes') { offer.notes = t.value; return; }
+      if (t.dataset.k == null) return;
+      offer.items[t.dataset.k][t.dataset.f] = t.dataset.f === 'd' ? t.value : Number(t.value);
+      if (t.dataset.f !== 'd') { const pos = t.selectionStart; render(); const again = app.querySelector(`[data-k="${t.dataset.k}"][data-f="${t.dataset.f}"]`); again?.focus(); }
+    });
+    app.addEventListener('change', (e) => { if (e.target.dataset.act === 'vat') { offer.vat = e.target.checked; render(); } });
+    app.addEventListener('click', async (e) => {
+      const del = e.target.closest('[data-del]');
+      if (del) { offer.items.splice(Number(del.dataset.del), 1); return render(); }
+      const act = e.target.closest('[data-act]')?.dataset.act;
+      if (act === 'add') { offer.items.push({ d: '', q: 1, p: 0 }); render(); return app.querySelector(`[data-k="${offer.items.length - 1}"][data-f="d"]`)?.focus(); }
+      if (act === 'save') return save();
+      if (act === 'print') { await save(); document.title = `Impromotion piedavajums ${number}`; return print(); }
+      if (act === 'sent') {
+        const extra = { offer_sent_at: new Date().toISOString() };
+        if (['jauns', 'sazināts'].includes(i.status)) extra.status = 'piedāvājums';
+        if (await save(extra)) render();
+        return;
+      }
+      if (act === 'reset' && confirm('Aizstāt rindas ar jaunu melnrakstu no sastāva?')) { offer = draft(); render(); }
+    });
+    render();
+  </script>
+</body>
+</html>
