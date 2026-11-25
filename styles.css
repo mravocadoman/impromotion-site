@@ -1127,7 +1127,7 @@ section[id] { scroll-margin-top: 70px; }
 /* About page: team cards */
 .team-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-top: 40px; }
 .team-card { text-align: center; }
-.team-card img { width: 100%; max-width: 180px; aspect-ratio: 1; object-fit: cover; border-radius: 50%; border: 3px solid var(--yellow); display: block; margin: 0 auto 14px; }
+.team-card img { width: min(100%, 180px); height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 50%; border: 3px solid var(--yellow); display: block; margin: 0 auto 14px; }
 .team-card__nick { font-family: var(--hand); font-size: 1.3rem; color: var(--pink); margin: 0; }
 .team-card h3 { font-size: 1.3rem; font-variation-settings: "wdth" 85; text-transform: uppercase; margin: .1em 0 .4em; }
 .team-card p:not(.team-card__nick) { color: var(--muted); font-size: .95rem; }
