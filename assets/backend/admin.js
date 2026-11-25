@@ -15,7 +15,7 @@ let state = { crm: { inquiries: [], candidates: {} }, actors: [], troupes: [], i
   appFilters: { status: 'new', skill: '', maxFee: '' }, tab: 'pieprasijumi' };
 
 // One section at a time; the tab lives in the URL hash so a reload or a shared link keeps it.
-const TAB_KEYS = ['pieprasijumi', 'aktieri', 'pieteikumi', 'halturas', 'kolektivi'];
+const TAB_KEYS = ['pieprasijumi', 'aktieri', 'pieteikumi', 'halturas', 'kolektivi', 'kalkulators'];
 const tabFromHash = () => (TAB_KEYS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'pieprasijumi');
 state.tab = tabFromHash();
 window.addEventListener('hashchange', () => {
@@ -160,12 +160,14 @@ function draw() {
 
   const newInquiries = state.crm.inquiries.filter((i) => i.status === 'jauns').length;
   const tabs = [['pieprasijumi', 'Pieprasījumi', newInquiries], ['aktieri', 'Aktieri', pending], ['pieteikumi', 'Pieteikumi', newApps],
-    ['halturas', 'Haltūras', 0], ['kolektivi', 'Kolektīvi un ielūgumi', state.troupes.filter((t) => t.needs_review).length]];
+    ['halturas', 'Haltūras', 0], ['kolektivi', 'Kolektīvi un ielūgumi', state.troupes.filter((t) => t.needs_review).length], ['kalkulators', '🧮 Kalkulators', 0]];
   const pane = (k) => `data-tab="${k}" ${state.tab === k ? '' : 'hidden'}`;
   view.innerHTML = `
     <nav class="admin-tabs" aria-label="Admina sadaļas">${tabs.map(([k, label, n]) => `<a href="#${k}" class="admin-tab${state.tab === k ? ' is-on' : ''}"${state.tab === k ? ' aria-current="page"' : ''}>${label}${n ? ` <span class="admin-tab__n">${n}</span>` : ''}</a>`).join('')}</nav>
 
     <div ${pane('pieprasijumi')}>${crmPanel(state.crm, state.settings.client_markup_pct)}</div>
+
+    <div ${pane('kalkulators')}><iframe src="/admin/kalkulators/?embed" title="Cenu kalkulators" class="calc-frame" loading="lazy"></iframe><p class="muted small"><a href="/admin/kalkulators/" target="_blank" rel="noopener">Atvērt atsevišķā logā ↗</a></p></div>
 
     <section class="panel" ${pane('aktieri')}>
       <h2 class="panel__title">Aktieri${pending ? ` <span class="notice">${pending} gaida apskati</span>` : ''}</h2>
@@ -450,6 +452,13 @@ view.addEventListener('submit', async (e) => {
 });
 
 bindCrm(view, () => state.crm, async () => { if (await loadAll()) draw(); }, { modal, body: $('#edit-body') });
+
+// The calculator tab's iframe reports its height (same origin only).
+window.addEventListener('message', (e) => {
+  if (e.origin !== location.origin || !e.data?.calcHeight) return;
+  const f = view.querySelector('.calc-frame');
+  if (f) f.style.height = `${e.data.calcHeight}px`;
+});
 
 let shown = false;
 async function show() {

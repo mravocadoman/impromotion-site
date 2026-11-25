@@ -1107,3 +1107,6 @@ section[id] { scroll-margin-top: 70px; }
   .nav__menu { position: static; opacity: 1; visibility: visible; transform: none; min-width: 0; padding: 0; background: none; border: 0; box-shadow: none; text-align: center; }
   .nav__links .nav__menu a { font-size: 1.05rem; padding: 4px 10px; color: var(--muted); }
 }
+
+/* Admin: calculator tab (the calculator page in an iframe) */
+.calc-frame { width: 100%; height: 1200px; border: 0; display: block; }

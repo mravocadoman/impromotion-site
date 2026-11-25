@@ -26,6 +26,10 @@
     .calc-note { font-size: .88rem; color: var(--muted); margin: 0; }
     .calc-warn { color: var(--pink); }
     .calc label.check { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+    body.embed .nav { display: none; }
+    body.embed .app { padding: 0 0 20px; }
+    body.embed .app__wrap { width: 100%; }
+    body.embed .calc-sum { top: 12px; }
     @media (max-width: 640px) { .calc-row { grid-template-columns: 1fr 1fr; } .calc-sum { position: static; } }
   </style>
 </head>
@@ -42,7 +46,7 @@
     </nav>
   </header>
 
-  <main class="app calc">
+  <main class="app calc" id="calc-main" hidden>
     <div class="app__wrap app__wrap--wide">
       <div class="app__intro">
         <h1 class="h2">Cenu kalkulators</h1>
@@ -173,6 +177,18 @@
     $('calc').addEventListener('input', calc);
     addRow('', 300);
   })();
+  </script>
+  <div class="app" id="calc-gate"><div class="app__wrap"><p class="muted">Ielādē…</p></div></div>
+  <script type="module">
+    // Admins only: the same Supabase login and role check as the CRM.
+    import { currentProfile } from '/assets/backend/sb.js';
+    if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');
+    // In the CRM tab: tell the parent page how tall we are, so the iframe never scrolls on its own.
+    if (document.body.classList.contains('embed') && parent !== window) new ResizeObserver(() => parent.postMessage({ calcHeight: document.documentElement.scrollHeight }, location.origin)).observe(document.body);
+    const gate = document.getElementById('calc-gate');
+    const profile = await currentProfile().catch(() => null);
+    if (profile?.role === 'admin') { gate.remove(); document.getElementById('calc-main').hidden = false; }
+    else gate.innerHTML = '<div class="app__wrap"><div class="panel"><h1 class="h2">Nav piekļuves</h1><p>Kalkulators ir pieejams tikai Impromotion adminiem. <a href="/admin/">Ienākt CRM</a></p></div></div>';
   </script>
   <script src="/assets/blog.js" defer></script>
 </body>
