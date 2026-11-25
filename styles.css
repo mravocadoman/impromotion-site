@@ -1133,3 +1133,8 @@ section[id] { scroll-margin-top: 70px; }
 .team-card p:not(.team-card__nick) { color: var(--muted); font-size: .95rem; }
 @media (max-width: 960px) { .team-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 560px) { .team-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
+.team-grid--lead { grid-template-columns: repeat(2, minmax(0, 240px)); justify-content: center; gap: 40px; }
+.team-grid--four { grid-template-columns: repeat(4, 1fr); }
+.team-card__avatar { display: grid; place-items: center; width: min(100%, 180px); aspect-ratio: 1 / 1; margin: 0 auto 14px; border-radius: 50%; border: 3px solid var(--yellow); background: var(--pink); color: var(--ink); font-family: var(--hand); font-size: 4rem; font-weight: 700; }
+@media (max-width: 960px) { .team-grid--four { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .team-grid--lead { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
