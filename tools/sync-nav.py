@@ -7,7 +7,7 @@ The admin page has its own nav and is not touched.
 import re, subprocess, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PUBLIC = ('index.html', 'blogs', 'pakalpojumi', 'pasakumu-organizesana', 'korporativie-treningi',
+PUBLIC = ('index.html', 'blogs', 'pakalpojumi', 'par-mums', 'pasakumu-organizesana', 'korporativie-treningi',
           'komandas-saliedesana', 'pievienojies', 'aktieriem')
 # Pages with their own brief form: "Sazināties" jumps to it instead of the homepage contact section.
 OWN_FORM = ('pasakumu-organizesana', 'korporativie-treningi', 'komandas-saliedesana')
@@ -27,21 +27,21 @@ def nav(f):
       <div class="nav__group">
         <a href="/pakalpojumi/"{cur('/pakalpojumi/')}>Pakalpojumi <span class="nav__caret" aria-hidden="true">▾</span></a>
         <div class="nav__menu">
-          <a href="/pasakumu-organizesana/"{cur('/pasakumu-organizesana/')}>📋 Pasākumu organizēšana</a>
-          <a href="/korporativie-treningi/"{cur('/korporativie-treningi/')}>🎯 Korporatīvie treniņi</a>
-          <a href="/komandas-saliedesana/"{cur('/komandas-saliedesana/')}>🤝 Komandas saliedēšana</a>
-          <a href="/pakalpojumi/#vaditaji">🎤 Pasākumu vadīšana</a>
-          <a href="/pakalpojumi/#lomas">🕵️ Slēptās lomas un izrādes</a>
-          <a href="/pakalpojumi/">🗂️ Visi pakalpojumi</a>
+          <a href="/pasakumu-organizesana/"{cur('/pasakumu-organizesana/')}>📋&nbsp;Pasākumu organizēšana</a>
+          <a href="/korporativie-treningi/"{cur('/korporativie-treningi/')}>🎯&nbsp;Korporatīvie treniņi</a>
+          <a href="/komandas-saliedesana/"{cur('/komandas-saliedesana/')}>🤝&nbsp;Komandas saliedēšana</a>
+          <a href="/pakalpojumi/#vaditaji">🎤&nbsp;Pasākumu vadīšana</a>
+          <a href="/pakalpojumi/#lomas">🕵️&nbsp;Slēptās lomas un izrādes</a>
+          <a href="/pakalpojumi/">🗂️&nbsp;Visi pakalpojumi</a>
         </div>
       </div>
-      <a href="/#aktieri">Aktieri</a>
+      <a href="/par-mums/"{cur('/par-mums/')}>Par mums</a>
       <a href="/blogs/"{cur('/blogs/')}>Blogs</a>
       <div class="nav__group">
         <a class="nav__login" href="/aktieriem/"{cur('/aktieriem/')}>Aktieriem <span class="nav__caret" aria-hidden="true">▾</span></a>
         <div class="nav__menu">
-          <a href="/pievienojies/"{cur('/pievienojies/')}>🎭 Pievienoties komandai</a>
-          <a href="/aktieriem/">🔑 Ienākt profilā</a>
+          <a href="/pievienojies/"{cur('/pievienojies/')}>🎭&nbsp;Pievienoties komandai</a>
+          <a href="/aktieriem/">🔑&nbsp;Ienākt profilā</a>
         </div>
       </div>{app}
       <a class="btn btn--sm btn--yellow" href="{cta}">Sazināties</a>

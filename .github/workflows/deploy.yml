@@ -40,7 +40,7 @@ jobs:
           SG_USER: ${{ secrets.SG_USER }}
         run: |
           rsync -rvz --checksum --exclude '_template.html' -e "ssh -p 18765 -i $HOME/.ssh/deploy_key -o BatchMode=yes" \
-            index.html .htaccess styles.css main.js favicon.ico robots.txt sitemap.xml googlec3673720e3b0e240.html assets blogs aktieriem admin pievienojies komandas-saliedesana pasakumu-organizesana korporativie-treningi pakalpojumi \
+            index.html .htaccess styles.css main.js favicon.ico robots.txt sitemap.xml googlec3673720e3b0e240.html assets blogs aktieriem admin pievienojies komandas-saliedesana pasakumu-organizesana korporativie-treningi pakalpojumi par-mums \
             "$SG_USER@$SG_HOST:www/impromotion.lv/public_html/"
 
       # The same flush the Site Tools "Flush Cache" button does.
