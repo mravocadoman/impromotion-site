@@ -1,4 +1,6 @@
-// Pasākumu organizēšana page: reveals, marquee loop, add-on tickets and the brief.
+// Service landing pages (organising, corporate training, team building): reveals, marquee loop, add-on tickets and the brief.
+// The form says what it is: data-want (CRM wants, | separated), data-label (first line of the message) and
+// data-extra="Label" on any fieldset or field whose answers should lead the message.
 // The brief posts to the same n8n hook as the homepage, so it lands in the CRM, e-mail and Telegram the same way.
 (() => {
   document.documentElement.classList.add('js');
@@ -22,22 +24,24 @@
   }
 
   const form = document.getElementById('brief');
+  if (!form) return; // the services hub has reveals but no form
   const status = document.getElementById('brief-status');
   const guests = document.getElementById('guests');
   const guestsOut = document.getElementById('guests-out');
   const guestsMood = document.getElementById('guests-mood');
-  const moods = [[20, 'intīmi'], [60, 'kārtīga balle'], [150, 'liela balle'], [300, 'pilna zāle'], [Infinity, 'stadions! 🏟️']];
+  const moods = guests.dataset.moods ? JSON.parse(guests.dataset.moods).map(([n, t]) => [n ?? Infinity, t])
+    : [[20, 'intīmi'], [60, 'kārtīga balle'], [150, 'liela balle'], [300, 'pilna zāle'], [Infinity, 'stadions! 🏟️']];
   const updateGuests = () => {
     const n = Number(guests.value);
-    guestsOut.textContent = n >= 400 ? '400+' : n;
+    guestsOut.textContent = n >= Number(guests.max) ? `${guests.max}+` : n;
     guestsMood.textContent = `(${moods.find(([max]) => n <= max)[1]})`;
   };
   guests.addEventListener('input', updateGuests);
   updateGuests();
 
-  // "Pievienot +" on an add-on ticket ticks it in the form.
+  // "Pievienot +" / "Izvēlēties" on a ticket ticks that option (add-on checkbox or format radio) in the form.
   document.querySelectorAll('[data-addon]').forEach((cta) => cta.addEventListener('click', () => {
-    const box = form.querySelector(`[name="want"][value="${cta.dataset.addon}"]`);
+    const box = form.querySelector(`input[value="${cta.dataset.addon}"]`);
     if (box) box.checked = true;
     form.classList.remove('flash');
     void form.offsetWidth;
@@ -72,21 +76,22 @@
       bad[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
       return say(why, 'error');
     }
-    // Organising details have no CRM columns of their own, so they lead the message.
-    const extra = [
-      data.get('venue') && `Vieta: ${data.get('venue')}`,
-      data.get('where') && `Kur: ${data.get('where')}`,
-    ].filter(Boolean).join('\n');
+    // Service details have no CRM columns of their own, so they lead the message.
+    const extra = [...form.querySelectorAll('[data-extra]')].map((el) => {
+      const name = el.name || el.querySelector('[name]')?.name;
+      const val = name ? data.getAll(name).map((v) => String(v).trim()).filter(Boolean).join(', ') : '';
+      return val && `${el.dataset.extra}: ${val}`;
+    }).filter(Boolean).join('\n');
     const msg = String(data.get('msg') || '').trim();
     const payload = {
       name: data.get('name'),
       phone,
       email,
       type: data.get('type'),
-      wants: ['pasākuma organizēšana', ...data.getAll('want')],
+      wants: [...(form.dataset.want || 'pasākuma organizēšana').split('|'), ...data.getAll('want')],
       date: data.get('date') ? String(data.get('date')).split('-').reverse().join('.') : '',
       guests: guestsOut.textContent,
-      message: ['PASĀKUMA ORGANIZĒŠANA', extra, msg].filter(Boolean).join('\n\n'),
+      message: [form.dataset.label || 'PASĀKUMA ORGANIZĒŠANA', extra, msg].filter(Boolean).join('\n\n'),
       // total budget, written in "tūkst." so the CRM does not read it as a performer budget
       budget: data.get('budget') || '',
       page: location.href,

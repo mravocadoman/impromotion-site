@@ -92,12 +92,14 @@
     </button>
     <nav class="nav__links" id="nav-links">
       <div class="nav__group">
-        <a href="/#pakalpojumi">Pakalpojumi <span class="nav__caret" aria-hidden="true">▾</span></a>
+        <a href="/pakalpojumi/">Pakalpojumi <span class="nav__caret" aria-hidden="true">▾</span></a>
         <div class="nav__menu">
           <a href="/pasakumu-organizesana/" aria-current="page">📋 Pasākumu organizēšana</a>
-          <a href="/#pakalpojumi">🎤 Vadītāji un aktieri</a>
-          <a href="/#lomas">🕵️ Slēptās lomas</a>
+          <a href="/korporativie-treningi/">🎯 Korporatīvie treniņi</a>
           <a href="/komandas-saliedesana/">🤝 Komandas saliedēšana</a>
+          <a href="/pakalpojumi/#vaditaji">🎤 Pasākumu vadīšana</a>
+          <a href="/pakalpojumi/#lomas">🕵️ Slēptās lomas un izrādes</a>
+          <a href="/pakalpojumi/">🗂️ Visi pakalpojumi</a>
         </div>
       </div>
       <a href="/#aktieri">Aktieri</a>
@@ -308,7 +310,7 @@
           </ul>
         </div>
 
-        <form class="brief reveal" id="brief" novalidate>
+        <form class="brief reveal" id="brief" novalidate data-want="pasākuma organizēšana" data-label="PASĀKUMA ORGANIZĒŠANA">
           <div class="brief__head">
             <h3>Pasākuma pieteikums</h3>
             <p>Pietiek ar vārdu un tālruni vai e-pastu. Pārējo noskaidrosim sarunā.</p>
@@ -355,14 +357,14 @@
           <details class="join-more brief-more">
             <summary>Pastāstīt vairāk jau tagad <em>(nav obligāti)</em></summary>
             <div class="join-more__body">
-              <fieldset>
+              <fieldset data-extra="Vieta">
                 <legend>Vieta</legend>
                 <div class="chips">
                   <label><input type="radio" name="venue" value="jāatrod"><span>Jāatrod</span></label>
                   <label><input type="radio" name="venue" value="jau ir"><span>Jau ir</span></label>
                 </div>
               </fieldset>
-              <fieldset>
+              <fieldset data-extra="Kur">
                 <legend>Kur?</legend>
                 <div class="chips">
                   <label><input type="radio" name="where" value="Rīgā"><span>Rīgā</span></label>

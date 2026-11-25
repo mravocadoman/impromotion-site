@@ -155,6 +155,16 @@
     });
   });
 
+  // Links from other pages (the services hub) can preselect the brief: /?want=slēptās%20lomas&type=…#brief
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('want') || qs.get('type')) {
+    const brief = document.getElementById('brief');
+    const type = qs.get('type') && [...brief.querySelectorAll('[name="type"]')].find((el) => el.value === qs.get('type'));
+    const want = qs.get('want') && [...brief.querySelectorAll('[name="want"]')].find((el) => el.value === qs.get('want'));
+    if (type) type.checked = true;
+    if (want) { want.checked = true; want.closest('details').open = true; }
+  }
+
   /* ---------- Scene machine ---------- */
   const reelData = {
     who: ['Nervozs viesmīlis', 'Gaišreģis ar sliktām ziņām', 'Jūsu finanšu direktors', 'Apmaldījies tūrists', 'Pārāk entuziastisks treneris', 'Aizdomīgs garderobists', 'Kāzu fotogrāfs bez kameras', 'Vecmāmiņa no Latgales', 'Robots-praktikants', 'Runājošs kaķis', 'Jaunais HR vadītājs', 'Pensionēts pirāts'],
