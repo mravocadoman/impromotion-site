@@ -70,7 +70,11 @@ Call asset: +371 20 381 931.
 
 A lead costs under 30 € and at least one inquiry becomes a call. If not, pause and move the budget to Meta retargeting.
 
-## Parallel campaign: Pasākumu organizēšana (proposal 2026-11-19, NOT built)
+## Parallel campaign: Pasākumu organizēšana (built 2026-11-25, live)
+
+**Built 2026-11-25:** "Impromotion | Search | Pasākumu organizēšana" (campaign ID 24542990139). Search Network only, Latvia (presence), Max clicks with a 2,50 € CPC cap, 5 €/day, AI Max off. One ad group with all 11 phrase-match keywords below (both groups merged: one ad fits both at this budget), one responsive search ad (15 headlines, 4 descriptions) to https://impromotion.lv/pasakumu-organizesana/. 16 campaign negatives (vakances, vakance, darbs, alga, cv, prakse, izglītība, studijas, kursi, augstskola, kāzu, kāzas, bērnu, dzimšanas, sporta, eži). The Christmas campaign got 7 phrase negatives for the organising terms. Check on 2026-12-25: cost per lead vs the Christmas campaign.
+
+### Original proposal (2026-11-19)
 
 Landing page: https://impromotion.lv/pasakumu-organizesana/ (live with this commit). Nothing is built and nothing spends until you confirm the budget.
 
