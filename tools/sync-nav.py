@@ -7,10 +7,10 @@ The admin page has its own nav and is not touched.
 import re, subprocess, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PUBLIC = ('index.html', 'blogs', 'pakalpojumi', 'par-mums', 'pasakumu-organizesana', 'korporativie-treningi',
+PUBLIC = ('index.html', 'blogs', 'pakalpojumi', 'par-mums', 'en', 'pasakumu-organizesana', 'korporativie-treningi',
           'komandas-saliedesana', 'pievienojies', 'aktieriem')
 # Pages with their own brief form: "Sazināties" jumps to it instead of the homepage contact section.
-OWN_FORM = ('pasakumu-organizesana', 'korporativie-treningi', 'komandas-saliedesana')
+OWN_FORM = ('pasakumu-organizesana', 'korporativie-treningi', 'komandas-saliedesana', 'en')
 
 
 def nav(f):

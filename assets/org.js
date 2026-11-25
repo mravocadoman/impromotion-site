@@ -55,6 +55,17 @@
     e.target.classList.remove('is-invalid');
   });
 
+  // Messages follow the page language (the English landing page sets <html lang="en">).
+  const EN = document.documentElement.lang === 'en';
+  const T = EN ? {
+    name: 'Please enter your name.', both: 'Please enter your name and a phone number or e-mail.', contact: 'Please add a phone number or e-mail so we can reach you.',
+    email: 'Please check the e-mail address.', sending: 'Sending…', ok: 'Thank you! We got your request and will be in touch soon. 🎉',
+    fail: 'Sending failed. Please message us on WhatsApp or at hello@impromotion.lv.',
+  } : {
+    name: 'Ierakstiet savu vārdu.', both: 'Ierakstiet vārdu un tālruni vai e-pastu.', contact: 'Norādiet tālruni vai e-pastu, lai varam ar jums sazināties.',
+    email: 'Pārbaudiet e-pasta adresi.', sending: 'Sūtām…', ok: 'Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉',
+    fail: 'Neizdevās nosūtīt. Lūdzu, rakstiet mums WhatsApp vai uz hello@impromotion.lv.',
+  };
   const LEAD_URL = 'https://marketingaskola.app.n8n.cloud/webhook/impromotion-lead?k=imp-lv-2026';
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -67,9 +78,9 @@
     form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
     const bad = [];
     let why = '';
-    if (!nameEl.value.trim()) { bad.push(nameEl); why = 'Ierakstiet savu vārdu.'; }
-    if (!phone && !email) { bad.push(phoneEl, emailEl); why = why ? 'Ierakstiet vārdu un tālruni vai e-pastu.' : 'Norādiet tālruni vai e-pastu, lai varam ar jums sazināties.'; }
-    else if (email && !emailEl.checkValidity()) { bad.push(emailEl); why ||= 'Pārbaudiet e-pasta adresi.'; }
+    if (!nameEl.value.trim()) { bad.push(nameEl); why = T.name; }
+    if (!phone && !email) { bad.push(phoneEl, emailEl); why = why ? T.both : T.contact; }
+    else if (email && !emailEl.checkValidity()) { bad.push(emailEl); why ||= T.email; }
     if (bad.length) {
       bad.forEach((el) => el.classList.add('is-invalid'));
       bad[0].focus();
@@ -101,17 +112,17 @@
     };
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;
-    say('Sūtām…');
+    say(T.sending);
     try {
       // text/plain keeps this a "simple" request: no CORS preflight.
       const res = await fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(res.status);
       form.reset();
       updateGuests();
-      say('Paldies! Pieteikums ir saņemts, drīz sazināsimies. 🎉', 'ok');
+      say(T.ok, 'ok');
       window.impTrack?.('Lead');
     } catch (err) {
-      say('Neizdevās nosūtīt. Lūdzu, rakstiet mums WhatsApp vai uz hello@impromotion.lv.', 'error');
+      say(T.fail, 'error');
     } finally {
       btn.disabled = false;
     }
