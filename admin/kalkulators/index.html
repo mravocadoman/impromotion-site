@@ -46,7 +46,7 @@
     <div class="app__wrap app__wrap--wide">
       <div class="app__intro">
         <h1 class="h2">Cenu kalkulators</h1>
-        <p class="calc-note">Ieraksti izpildītāju honorārus un uzcenojumu, un redzēsi, cik izrakstām klientam, cik saņem izpildītāji un cik paliek mums. Skaitļi ir aptuveni: nodokļu likmes pārbaudi ar grāmatvedi.</p>
+        <p class="calc-note">Ieraksti izpildītāju honorārus, un redzēsi, cik izrakstām klientam, cik saņem izpildītāji un cik paliek mums. Skaitļi ir aptuveni: nodokļu likmes pārbaudi ar grāmatvedi.</p>
       </div>
 
       <div class="app__cols">
@@ -57,14 +57,14 @@
 
           <h2 class="panel__title">💶 Cena klientam</h2>
           <div class="brief__row brief__row--even">
-            <label class="field"><span>Mūsu uzcenojums izpildītājiem, %</span><input type="number" id="markup" value="30" min="0" step="1" inputmode="decimal"></label>
+            <label class="field"><span>Impromotion daļa no klienta cenas, %</span><input type="number" id="markup" value="35" min="0" max="90" step="1" inputmode="decimal"></label>
             <label class="field"><span>Mūsu izmaksas (ceļš, rekvizīti, reklāma), €</span><input type="number" id="own" value="0" min="0" step="10" inputmode="decimal"></label>
           </div>
           <div class="brief__row brief__row--even">
             <label class="field"><span>Organizēšana: vieta, ēdināšana u.c. (iepirkums), €</span><input type="number" id="extra" value="0" min="0" step="50" inputmode="decimal"></label>
             <label class="field"><span>Uzcenojums organizēšanai, %</span><input type="number" id="extraMarkup" value="15" min="0" step="1" inputmode="decimal"></label>
           </div>
-          <label class="check"><input type="checkbox" id="vat"> Impromotion ir PVN maksātājs (pieskaitīt 21 % PVN)</label>
+          <label class="check"><input type="checkbox" id="vat" checked> Pieskaitīt 21 % PVN (Impromotion ir PVN maksātājs)</label>
 
           <details class="join-more">
             <summary>Nodokļu un komisiju pieņēmumi</summary>
@@ -115,7 +115,7 @@
     };
 
     function calc() {
-      const markup = num('markup') / 100, extraMarkup = num('extraMarkup') / 100;
+      const share = Math.min(90, num('markup')) / 100, extraMarkup = num('extraMarkup') / 100;
       const abillio = num('abillio') / 100, ptax = num('ptax') / 100, cit = num('cit') / 100;
       const payout = Math.min(100, num('payout')) / 100;
       const performers = [...document.querySelectorAll('.calc-row')].map((r, i) => ({
@@ -126,8 +126,9 @@
       const fees = performers.reduce((s, p) => s + p.fee, 0);
       const extra = num('extra'), own = num('own');
 
-      // Client bill: performer fees + our markup, plus resold organising costs + their markup.
-      const net = fees * (1 + markup) + extra * (1 + extraMarkup);
+      // Client bill (ex VAT): we keep `share` of the performers' part, so that part = fees / (1 - share);
+      // resold organising costs (venue, catering) carry their own markup.
+      const net = fees / (1 - share) + extra * (1 + extraMarkup);
       const vat = $('vat').checked ? net * 0.21 : 0;
 
       // Our profit before tax; Latvian CIT is due only when profit is paid out.
@@ -150,7 +151,8 @@
       });
       html += line('Honorāri kopā', eur(fees));
       html += '<hr style="grid-column:1/-1"><h3 style="grid-column:1/-1">Impromotion</h3>';
-      html += line('Mūsu atlīdzība (uzcenojumi)', eur(net - fees - extra));
+      html += line(`Mūsu daļa no izpildītāju cenas (${Math.round(share * 100)} %)`, eur(fees / (1 - share) - fees));
+      if (extra) html += line('Uzcenojums organizēšanai', eur(extra * extraMarkup));
       if (own) html += line('Mūsu izmaksas', '−' + eur(own));
       html += line('Peļņa pirms nodokļa', eur(profit), 'big');
       html += line('Marža no rēķina', net ? Math.round(profit / net * 100) + ' %' : '0 %');
@@ -163,7 +165,7 @@
 
       const warn = [];
       if (performers.some((p) => p.method === 'cash')) warn.push('Skaidrā naudā: uzņēmumam var būt jāietur un jādeklarē IIN un VSAOI. Pirms izmaksas jautā grāmatvedim.');
-      if (profit < 0) warn.push('Šis pasākums ir zaudējumos: palielini uzcenojumu vai samazini izmaksas.');
+      if (profit < 0) warn.push('Šis pasākums ir zaudējumos: palielini mūsu daļu vai samazini izmaksas.');
       $('warn').innerHTML = warn.map((w) => `<span class="calc-warn">⚠️ ${w}</span>`).join('<br>');
     }
 
